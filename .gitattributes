@@ -1,0 +1,6 @@
+# Проєкт під Windows: кінці рядків усюди CRLF.
+# .cmd інакше може зламатися, а решта (Python, HTML) до цього байдужа.
+* text=auto eol=crlf
+*.png binary
+*.wav binary
+*.ico binary

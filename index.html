@@ -1,0 +1,860 @@
+<meta charset="utf-8">
+<title>Острів Знань</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: one-screen game — map of three islands → lesson card with big touch answers */
+:root{
+  --sea:#d8eef3; --sea-deep:#2f7f99; --sand:#fff8e8; --ink:#173a45; --muted:#55707a;
+  --coral:#e8684a; --leaf:#3f9a5c; --sun:#f2b632; --card:#ffffff; --line:#c3dde4;
+  --display:"Comfortaa","Nunito",system-ui,sans-serif; --body:"Nunito",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --sea:#0f2a33; --sea-deep:#6cc3dc; --sand:#16343e; --ink:#e7f4f7; --muted:#9fbcc5;
+  --coral:#ff8a6d; --leaf:#6fd18f; --sun:#ffc94d; --card:#1b3f4a; --line:#2b5664; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --sea:#0f2a33; --sea-deep:#6cc3dc; --sand:#16343e; --ink:#e7f4f7; --muted:#9fbcc5;
+  --coral:#ff8a6d; --leaf:#6fd18f; --sun:#ffc94d; --card:#1b3f4a; --line:#2b5664; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--sea);color:var(--ink);font-family:var(--body);font-size:18px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px}
+.wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.hright{display:flex;gap:8px;align-items:center}
+h1{font-family:var(--display);font-size:1.6rem;margin:0;text-wrap:balance}
+.stars{font-weight:800;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:6px 14px;font-variant-numeric:tabular-nums}
+.stars b{color:var(--sun)}
+.music{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:700}
+/* Tablet: no double-tap zoom, no text selection when a finger slips */
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent}
+.lesson,.map,.cards{user-select:none;-webkit-user-select:none}
+/* The class tablets are 1920×1280: on a wide screen everything grows, so the
+   targets stay comfortable for a finger instead of sitting in a narrow column */
+@media (min-width:900px){
+  body{font-size:20px}
+  .wrap{max-width:1040px}
+  .ans{min-height:112px}
+  .island{padding:34px 24px}
+}
+button:focus-visible{outline:3px solid var(--sea-deep);outline-offset:3px}
+img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
+.lead{margin:0;color:var(--muted);max-width:60ch}
+.map{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.island{background:var(--sand);border:3px solid var(--line);border-radius:40% 45% 38% 50%/30% 35% 40% 38%;
+  padding:28px 20px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;transition:transform .15s}
+.island:hover{transform:translateY(-4px) rotate(-1deg)}
+.island .ico{font-size:3.2rem;line-height:1}
+.island .ico img.pic{width:96px;height:96px}
+.island h2{font-family:var(--display);font-size:1.25rem;margin:4px 0 0}
+.island p{margin:0;color:var(--muted);font-size:.95rem}
+.island .got{font-size:1.3rem;letter-spacing:4px;color:var(--sun);min-height:1.6rem}
+.island .got i{color:var(--line);font-style:normal}
+.lesson{background:var(--card);border-radius:24px;border:2px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:18px}
+.bar{display:flex;align-items:center;gap:12px}
+.back{background:none;border:2px solid var(--line);border-radius:12px;padding:6px 12px;font-weight:700}
+.progress{flex:1;display:flex;gap:6px}
+.progress span{flex:1;height:10px;border-radius:5px;background:var(--line)}
+.progress span.done{background:var(--leaf)}
+.progress span.now{background:var(--sun)}
+.q{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.q h3{font-family:var(--display);font-size:1.35rem;margin:0;flex:1;min-width:0;text-wrap:balance}
+.say{border:none;background:var(--sea);border-radius:50%;width:52px;height:52px;font-size:1.5rem;flex:none}
+.stage{min-height:130px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;
+  font-size:2.6rem;background:var(--sea);border-radius:18px;padding:16px;text-align:center}
+.stage .op{font-family:var(--display);font-size:2.2rem;color:var(--sea-deep);padding:0 6px}
+.stage .slot{width:64px;height:64px;border:3px dashed var(--sea-deep);border-radius:14px;display:inline-flex;align-items:center;justify-content:center}
+.stage .big{font-size:5rem}
+.stage .big img.pic{width:140px;height:140px}
+.stage .faded{opacity:.25}
+.stage .word{font-family:var(--display);font-size:1.6rem;width:100%}
+.answers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ans{background:var(--sand);border:3px solid var(--line);border-radius:18px;min-height:88px;font-family:var(--display);font-size:2.4rem;font-weight:700;transition:transform .1s}
+.ans:active{transform:scale(.96)}
+.ans.txt{font-size:1.15rem;line-height:1.3;padding:10px}
+.ans.ok{background:var(--leaf);border-color:var(--leaf);color:#fff}
+.ans.no{border-color:var(--coral);animation:shake .35s}
+.ans.hint{border-color:var(--leaf);border-style:dashed}
+.ans:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.msg{min-height:1.6rem;margin:0;font-weight:800;text-align:center}
+.msg.good{color:var(--leaf)} .msg.bad{color:var(--coral)}
+.next{align-self:center;background:var(--sea-deep);color:var(--card);border:none;border-radius:16px;padding:14px 32px;font-weight:800;font-size:1.1rem}
+.finish{text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.finish .big{font-size:4rem;letter-spacing:8px;color:var(--sun)}
+.finish h3{font-family:var(--display);font-size:1.6rem;margin:0}
+.note{color:var(--muted);font-size:.85rem;margin:0}
+/* Order lesson: a row the child counts along; it may wrap on a phone */
+.stage .rowpics{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
+.stage .rowpics img.pic{width:64px;height:64px}
+/* Place lesson: the same two pictures, stacked or side by side */
+.stage .rel{display:flex;align-items:center;justify-content:center;gap:10px}
+.stage .rel.above{flex-direction:column}
+.stage .rel.under{flex-direction:column-reverse}
+.stage .rel .obj img.pic{width:84px;height:84px}
+.stage .rel .ref img.pic{width:104px;height:104px}
+/* Shadow lesson: the picture painted flat black — and white in the dark
+   theme, where black on navy would be invisible */
+.stage .shadow{filter:brightness(0) opacity(.85)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .stage .shadow{
+  filter:brightness(0) invert(1) opacity(.9)}}
+:root[data-theme="dark"] .stage .shadow{filter:brightness(0) invert(1) opacity(.9)}
+/* Comparing two heaps: two boxes with an "і" between them */
+.stage .side{display:inline-flex;flex-wrap:wrap;gap:2px;justify-content:center;align-items:center;
+  max-width:42%;padding:8px;border-radius:14px;background:var(--card)}
+.stage .vs{font-family:var(--display);color:var(--muted);font-size:1.2rem;padding:0 8px}
+/* Clock and hryvnia coins are drawn, not photographed: the hands must point
+   somewhere different every time and a coin must stay readable at 70px */
+.clock{width:min(190px,45vw);height:auto;color:var(--sea-deep)}
+.coin{display:inline-flex;align-items:center;justify-content:center;width:70px;height:70px;
+  margin:4px;border-radius:50%;font-family:var(--display);font-weight:800;font-size:1.5rem;
+  color:#4a3b14;background:radial-gradient(circle at 34% 30%,#ffe9a8,#e6b949 70%);
+  border:3px solid #c99c2e;box-shadow:inset 0 -3px 6px rgba(0,0,0,.15)}
+.coin.c5,.coin.c10{background:radial-gradient(circle at 34% 30%,#fff3cf,#d9ab3e 70%)}
+.coin.c10{width:80px;height:80px}
+/* Who is playing: same island cards, plus a small × to remove a profile */
+.kidwrap{position:relative}
+.kidwrap .island{width:100%}
+.kidwrap .x{position:absolute;top:8px;right:12px;width:34px;height:34px;border-radius:50%;
+  border:2px solid var(--line);background:var(--card);font-size:1.1rem;line-height:1;color:var(--muted)}
+.nm{font:inherit;font-size:1.3rem;padding:12px 14px;border-radius:14px;border:2px solid var(--line);
+  background:var(--sand);color:var(--ink);width:100%;max-width:320px;align-self:center}
+.avas{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.ava{font-size:1.8rem;background:var(--sand);border:3px solid var(--line);border-radius:14px;
+  width:60px;height:60px;line-height:1}
+.ava.on{border-color:var(--leaf);background:var(--card)}
+.row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+/* Memory lesson: cards turn face up on tap, matched pairs stay open */
+.cards{display:grid;gap:10px}
+.card{aspect-ratio:1;background:var(--sand);border:3px solid var(--line);border-radius:16px;
+  display:flex;align-items:center;justify-content:center;font-size:2.2rem;transition:transform .12s,background .2s}
+.card:active{transform:scale(.96)}
+.card .face{opacity:0;transition:opacity .15s}
+.card.open .face,.card.done .face{opacity:1}
+.card.open{background:var(--card);border-color:var(--sea-deep)}
+.card.done{background:var(--leaf);border-color:var(--leaf)}
+.card img.pic{width:64px;height:64px}
+/* Tracing lesson: finger draws on the top canvas, the letter sits under it */
+.trace{display:flex;flex-direction:column;align-items:center;gap:12px}
+.pad{position:relative;width:min(320px,80vw);aspect-ratio:1}
+.pad canvas{position:absolute;inset:0;width:100%;height:100%;border-radius:18px}
+.pad canvas.ink{touch-action:none;cursor:crosshair}
+.pad canvas.glyph{background:var(--sea);border:2px solid var(--line)}
+.trace .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+@media (max-width:420px){.ans{font-size:1.9rem;min-height:72px}.stage{font-size:2rem}img.pic{width:44px;height:44px}
+  .card img.pic{width:48px;height:48px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Острів Знань</h1>
+    <div class="hright">
+      <button class="music" id="me" hidden aria-label="Змінити гравця"></button>
+      <button class="music" id="music" hidden aria-label="Музика">🎵 Музика</button>
+      <div class="stars">Зірки: <b id="total">0</b></div>
+    </div>
+  </header>
+  <main id="app"></main>
+  <p class="note">Демо для 1 класу. Картинки, голос і музика беруться з папки assets поруч із файлом; якщо їх немає, показуються емодзі й системний голос.</p>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const rnd = n => Math.floor(Math.random()*n);
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]} return a; };
+const pick = (a,n) => shuffle(a).slice(0,n);
+const A = 'assets/';
+// The one-file build (tools/build_single.py) puts every picture and clip into
+// window.EMBED as data: URIs. Nothing else changes: the game still asks for
+// 'img/w_kit.png', it just gets it from memory instead of from the folder.
+const asset = p => (window.EMBED && window.EMBED[p]) || A + p;
+
+// ---------- Profiles: every child on the tablet keeps their own stars and log.
+// v1 kept a flat {lesson: stars} map; it becomes the first child so nobody
+// loses what they already earned.
+const AVATARS = ['🦊','🐱','🐻','🐸','🐥','🐼','🦉','🐝','🐬','🦄','🐢','🐰'];
+let DB = {v:2, cur:null, kids:{}};
+try {
+  const raw = JSON.parse(localStorage.getItem('ostriv') || '{}');
+  if (raw && raw.v === 2) DB = raw;
+  else if (raw && Object.keys(raw).length){
+    const id = 'k'+Date.now();
+    DB.kids[id] = {name:'Гість', ava:'🦊', stars:raw, log:[]}; DB.cur = id;
+  }
+} catch(e){}
+const save = () => { try { localStorage.setItem('ostriv', JSON.stringify(DB)); } catch(e){} };
+const kid = () => DB.kids[DB.cur] || null;
+const stars = () => (kid() ? kid().stars : {});
+
+// ---------- Teacher reports over the class Wi-Fi, no internet involved.
+// Sent only when the game was opened from the teacher's PC (http://…): from a
+// file:// copy there is nowhere to send, and nothing ever goes anywhere else.
+// If the PC is off, results wait in the queue and go with the next lesson.
+// Звітуємо завжди, коли сторінку віддав сервер — байдуже, повна це версія
+// чи однофайлова: режим вчителя роздає і ту, і ту. З файлу (file://) слати
+// нікуди. Якщо сервер каже, що такої адреси немає (гра відкрита зі
+// сторінки в інтернеті), вимикаємо звіт до кінця сеансу й чистимо чергу.
+let REPORT = location.protocol.startsWith('http') ? 'api/report' : null;
+let queue = [];
+try { queue = JSON.parse(localStorage.getItem('ostriv_q') || '[]'); } catch(e){}
+const saveQ = () => { try { localStorage.setItem('ostriv_q', JSON.stringify(queue.slice(-100))); } catch(e){} };
+function flush(){
+  if (!REPORT || !queue.length) return;
+  const batch = queue.slice(0, 50);
+  fetch(REPORT, {method:'POST', headers:{'Content-Type':'application/json'},
+                 body: JSON.stringify(batch)})
+    .then(r => {
+      if (r.ok){ queue = queue.slice(batch.length); saveQ(); }
+      else if (r.status === 404 || r.status === 405){ REPORT = null; queue = []; saveQ(); }
+    })
+    .catch(()=>{});
+}
+function report(rec){ if (!REPORT) return; queue.push(rec); saveQ(); flush(); }
+
+// ---------- Pictures: assets/img/<id>.png, emoji if missing
+function pic(id, emo){ return `<img class="pic" src="${asset('img/'+id+'.png')}" alt="" data-e="${emo}" onerror="this.replaceWith(document.createTextNode(this.dataset.e))">`; }
+
+// ---------- Voice: assets/voice/<id>.wav played in sequence; system TTS if missing
+let ukVoice = null, enVoice = null, playToken = 0, cur = null;
+const noFile = new Set();   // clips we already know are missing — spoken instead
+function loadVoice(){ try{ const v = speechSynthesis.getVoices();
+  const by = p => v.find(x => x.lang && x.lang.toLowerCase().startsWith(p)) || null;
+  ukVoice = by('uk'); enVoice = by('en'); }catch(e){} }
+try { loadVoice(); speechSynthesis.onvoiceschanged = loadVoice; } catch(e){}
+// Speak one fragment and carry on with the rest of the chain. A missing clip
+// must not silence the recorded ones: it degrades on its own, not for all.
+function tts(text, done, token, en){
+  let went = false;
+  const go = () => { if(went) return; went = true; if(token===playToken && done) done(); };
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = en ? 'en-US' : 'uk-UA';
+    const v = en ? enVoice : ukVoice; if(v) u.voice = v;
+    u.rate = en ? .8 : .9;
+    u.onend = go; u.onerror = go;
+    speechSynthesis.speak(u);
+    setTimeout(go, 600 + text.length*80);   // no uk voice installed → onend never comes
+  }catch(e){ go(); }
+}
+function say(parts){ // parts: [[id, text], ...]
+  const token = ++playToken;
+  try{ if(cur){cur.pause(); cur=null;} speechSynthesis.cancel(); }catch(e){}
+  let i = 0;
+  const next = () => {
+    if(token!==playToken || i>=parts.length) return;
+    const p = parts[i++];
+    if(p[0].startsWith('en:')){ tts(p[1], next, token, true); return; }  // англійське слово
+    if(noFile.has(p[0])){ tts(p[1], next, token); return; }
+    const a = new Audio(asset('voice/'+p[0]+'.wav')); cur = a;
+    a.onended = next;
+    a.onerror = () => { if(token!==playToken) return; noFile.add(p[0]); tts(p[1], next, token); };
+    a.play().catch(()=>{});
+  };
+  next();
+}
+
+// ---------- Music: assets/music/theme.wav
+const music = new Audio(asset('music/theme.wav')); music.loop = true; music.volume = .2; music.preload = 'auto';
+music.addEventListener('canplaythrough', ()=>{ $('#music').hidden = false; }, {once:true});
+$('#music').onclick = () => { if(music.paused){ music.play().catch(()=>{}); $('#music').textContent='🔇 Тиша'; } else { music.pause(); $('#music').textContent='🎵 Музика'; } };
+
+// ---------- Content
+const NUM = ['нуль','один','два','три','чотири','п’ять','шість','сім','вісім','дев’ять','десять'];
+const n = k => ['n'+k, NUM[k]];
+const P = {
+  count:['p_count','Порахуй. Скільки тут предметів?'], plus:['p_plus','додати'], together:['p_together','Скільки буде разом?'],
+  was:['p_was','Було'], took:['p_took','забрали'], left:['p_left','Скільки залишилось?'],
+  letter:['p_letter','З якої букви починається слово'], pattern:['p_pattern','Подивись на візерунок. Що буде далі?'],
+  tryagain:['p_try','Майже! Спробуй ще раз.'], hint:['p_hint','Подивись на підказку.'], get:['p_get','Ти отримуєш'],
+  memo:['p_memo','Знайди дві однакові картинки.'], pair:['p_pair','Є пара!'],
+  traceOk:['p_trace_ok','Гарно написано!'], traceTry:['p_trace_try','Спробуй обвести ще раз.'],
+  where:['p_where','Де це живе?'], odd:['p_odd','Що тут зайве?'],
+  listen:['p_listen','Послухай і вибери картинку.'],
+  time:['p_time','Котра година?'], daypart:['p_daypart','Коли це буває?'],
+  money:['p_money','Порахуй гроші. Скільки тут гривень?'],
+  syll:['p_syll','Покажи склад, який почуєш.'], word:['p_word','Яке слово ти чуєш?'],
+  show:['p_show','Покажи'], shadow:['p_shadow','Чия це тінь?'], more:['p_more','Де більше?'],
+  addto:['p_addto','Скільки треба додати, щоб стало'], de:['p_de','Де'],
+  alive:['p_alive','Це жива природа чи нежива?'],
+};
+const PRAISE = [['ok_1','Молодець!'],['ok_2','Чудово!'],['ok_3','Так тримати!'],['ok_4','Правильно!'],['ok_5','Супер!']];
+const FIN = {3:['f_3','Бездоганно!'],2:['f_2','Дуже добре!'],1:['f_1','Урок пройдено!']};
+const STARS = {1:['st_1','одну зірку'],2:['st_2','дві зірки'],3:['st_3','три зірки']};
+
+const FRUIT = [['o_apple','🍎'],['o_pear','🍐'],['o_strawberry','🍓'],['o_carrot','🥕'],['o_fish','🐟'],['o_star','⭐'],['o_balloon','🎈'],['o_ladybug','🐞']];
+function numOpts(k,lo,hi){ const s=new Set([k]); while(s.size<3){const d=k+(rnd(2)?1:-1)*(1+rnd(2)); if(d>=lo&&d<=hi) s.add(d);} return shuffle([...s]).map(v=>({v:String(v),html:String(v)})); }
+function mathTasks(){
+  const t = [];
+  for (let i=0;i<2;i++){
+    const c = 3+rnd(7), f = FRUIT[rnd(FRUIT.length)];
+    t.push({prompt:'Скільки тут предметів?', speak:[P.count], stage: pic(f[0],f[1]).repeat(c), answer:String(c), options:numOpts(c,1,10)});
+  }
+  for (let i=0;i<3;i++){
+    const plus = i<2 || Math.random()<.5;
+    let a = 1+rnd(5), b = 1+rnd(4); if(!plus && b>a) [a,b]=[b,a];
+    const r = plus? a+b : a-b, f = FRUIT[rnd(FRUIT.length)], p = pic(f[0],f[1]);
+    t.push({prompt: plus?'Скільки буде разом?':'Скільки залишилось?',
+      speak: plus? [n(a),P.plus,n(b),P.together] : [P.was,n(a),P.took,n(b),P.left],
+      stage: plus
+        ? `<span>${p.repeat(a)}</span><span class="op">+</span><span>${p.repeat(b)}</span><span class="word">${a} + ${b} = ?</span>`
+        : `<span>${p.repeat(a-b)}<span class="faded">${p.repeat(b)}</span></span><span class="word">${a} − ${b} = ?</span>`,
+      answer:String(r), options:numOpts(r,0,10)});
+  }
+  return t;
+}
+
+const WORDS = [['w_kit','🐱','кіт','К'],['w_yabluko','🍎','яблуко','Я'],['w_ryba','🐟','риба','Р'],['w_sontse','🌞','сонце','С'],['w_khata','🏠','хата','Х'],
+  ['w_bdzhola','🐝','бджола','Б'],['w_lysytsia','🦊','лисиця','Л'],['w_vedmid','🐻','ведмідь','В'],['w_misiats','🌙','місяць','М'],['w_zhaba','🐸','жаба','Ж'],
+  ['w_kachka','🦆','качка','К'],['w_slon','🐘','слон','С'],['w_derevo','🌳','дерево','Д'],['w_puhach','🦉','пугач','П'],['w_lymon','🍋','лимон','Л'],['w_mysha','🐭','миша','М'],['w_podarunok','🎁','подарунок','П']];
+const LETTERS = 'АБВГДЖЗКЛМНОПРСТУХЯ'.split('');
+function readTasks(){
+  const used = new Set(), t = [];
+  for (const w of shuffle(WORDS)){ if(used.has(w[3])) continue; used.add(w[3]);
+    const opts = new Set([w[3]]); while(opts.size<3) opts.add(LETTERS[rnd(LETTERS.length)]);
+    t.push({prompt:'З якої букви починається слово?', speak:[[w[0],w[2]],P.letter,[w[0],w[2]]],
+      stage:`<span class="big">${pic(w[0],w[1])}</span><span class="word">${'_'+w[2].slice(1)}</span>`,
+      answer:w[3], options:shuffle([...opts]).map(v=>({v,html:v}))});
+    if(t.length===5) break; }
+  return t;
+}
+
+const SHAPES = [['s_red','🔴'],['s_blue','🔵'],['s_yellow','🟡'],['s_green','🟢'],['s_purple','🟣'],['s_star','⭐'],['s_triangle','🔺'],['s_square','🟧']];
+function logicTasks(){
+  const kinds = ['AB','AB','ABC','AAB','ABB'], t=[];
+  for (const k of shuffle(kinds)){
+    const sym = pick(SHAPES, 3), map = {A:sym[0],B:sym[1],C:sym[2]};
+    const len = k.length===2? 5 : k.length===3? 6+rnd(2) : 7;
+    const seq = Array.from({length:len+1},(_,i)=>map[k[i%k.length]]);
+    const ans = seq.pop();
+    const opts = new Set([ans]); for(const s of shuffle(SHAPES)){ if(opts.size<3) opts.add(s); }
+    t.push({prompt:'Що буде далі?', speak:[P.pattern],
+      stage: seq.map(s=>pic(s[0],s[1])).join('')+`<span class="slot">?</span>`,
+      answer:ans[0], options:shuffle([...opts]).map(s=>({v:s[0],html:pic(s[0],s[1])}))});
+  }
+  return t;
+}
+
+// ---------- Memory: find the pairs. Rounds grow from 3 to 4 pairs.
+function memoTasks(){
+  return [3,3,4,4].map(n => ({kind:'memo', prompt:'Знайди однакові картинки', speak:[P.memo],
+    pairs: pick(WORDS, n)}));
+}
+
+// ---------- Tracing with a finger. Letters first, then digits.
+// Each prompt is one recorded phrase, not a letter clip glued to a phrase:
+// a letter on its own comes out of the synthesiser as noise, and the name of
+// a consonant («ем», «ен») is what a first-grader is taught anyway.
+const TRACE_LETTERS = [['А','t_a','а'],['О','t_o','о'],['У','t_u','у'],['И','t_y','и'],
+  ['М','t_m','ем'],['Н','t_en','ен'],['Л','t_el','ел'],['С','t_es','ес'],['К','t_ka','ка']];
+function traceTasks(){
+  const t = pick(TRACE_LETTERS, 3).map(([ch,id,name]) => ({kind:'trace', glyph:ch,
+    prompt:'Обведи пальцем букву '+ch,
+    speak:[[id, 'Обведи пальцем букву '+name]]}));
+  for (const k of pick([1,2,3,4,5], 2))
+    t.push({kind:'trace', glyph:String(k), prompt:'Обведи пальцем цифру '+k,
+      speak:[['t_d'+k, 'Обведи пальцем цифру '+NUM[k]]]});
+  return t;
+}
+
+// ---------- "Я досліджую світ": where it lives, what is odd, living or not.
+// Deliberately built from pictures the game already has, so the lesson needs
+// no new assets at all.
+const BY_ID = Object.fromEntries(WORDS.map(w => [w[0], w]));
+const HOMES = {
+  water:  ['w_ryba','w_zhaba','w_kachka'],
+  forest: ['w_lysytsia','w_vedmid','w_bdzhola','w_puhach'],
+  house:  ['w_kit','w_mysha'],
+};
+const HOME_NAME = {water:'🌊 у воді', forest:'🌳 у лісі', house:'🏠 у хаті'};
+const ALIVE = ['w_kit','w_ryba','w_bdzhola','w_lysytsia','w_vedmid','w_zhaba',
+  'w_kachka','w_slon','w_derevo','w_puhach','w_mysha'];
+const THINGS = [['w_sontse','нежива'],['w_misiats','нежива'],['w_khata','нежива'],
+  ['w_podarunok','нежива']];
+const FOODS = ['o_apple','o_pear','o_strawberry','o_carrot','w_lymon'];
+
+function worldTasks(){
+  const t = [];
+  for (const home of pick(Object.keys(HOMES), 2)){
+    const w = BY_ID[HOMES[home][rnd(HOMES[home].length)]];
+    t.push({prompt:'Де це живе?', speak:[P.where,[w[0],w[2]]],
+      stage:`<span class="big">${pic(w[0],w[1])}</span><span class="word">${w[2]}</span>`,
+      answer:home,
+      options:shuffle(Object.keys(HOMES)).map(h=>({v:h, html:HOME_NAME[h]}))});
+  }
+  // odd one out: two of a kind and one from another group
+  for (let i=0;i<1;i++){
+    const same = pick(FOODS, 2), odd = ALIVE[rnd(ALIVE.length)];
+    const all = shuffle(same.concat([odd]));
+    t.push({prompt:'Що тут зайве?', speak:[P.odd], stage:'',
+      answer:odd,
+      options:all.map(id=>({v:id, html:pic(id, (BY_ID[id]||FRUIT.find(f=>f[0]===id)||['','❔'])[1])}))});
+  }
+  for (const id of pick(ALIVE, 1).concat(pick(THINGS.map(x=>x[0]), 1))){
+    const w = BY_ID[id];
+    t.push({prompt:'Це жива природа чи нежива?', speak:[P.alive,[id,w[2]]],
+      stage:`<span class="big">${pic(id,w[1])}</span><span class="word">${w[2]}</span>`,
+      answer: ALIVE.includes(id) ? 'alive' : 'thing',
+      options:shuffle([{v:'alive',html:'🌱 жива'},{v:'thing',html:'🪨 нежива'}])});
+  }
+  return shuffle(t);
+}
+
+// ---------- English: hear the word, tap the picture.
+// A first-grader cannot read English yet, so the word is only spoken, never
+// written. The voice is the system one (en-US): StyleTTS2 here is Ukrainian
+// only, and Windows always has an English voice.
+const EN = [['cat','w_kit'],['fish','w_ryba'],['apple','o_apple'],['bear','w_vedmid'],
+  ['sun','w_sontse'],['moon','w_misiats'],['bee','w_bdzhola'],['fox','w_lysytsia'],
+  ['duck','w_kachka'],['frog','w_zhaba'],['tree','w_derevo'],['mouse','w_mysha'],
+  ['lemon','w_lymon'],['house','w_khata'],['elephant','w_slon'],['owl','w_puhach'],
+  ['gift','w_podarunok'],['pear','o_pear'],['carrot','o_carrot'],['star','o_star'],
+  ['balloon','o_balloon'],['red','s_red'],['blue','s_blue'],['green','s_green'],
+  ['yellow','s_yellow']];
+const EMO = Object.fromEntries(WORDS.concat(FRUIT, SHAPES).map(w => [w[0], w[1]]));
+function enTasks(){
+  return pick(EN, 5).map(([word, id]) => {
+    const others = pick(EN.filter(e => e[1] !== id), 2);
+    const opts = shuffle([[word,id]].concat(others));
+    return {prompt:'Послухай і вибери: ' + word, speak:[P.listen, ['en:'+word, word]],
+      stage:'', answer:id,
+      options:opts.map(([,oid]) => ({v:oid, html:pic(oid, EMO[oid] || '❔')}))};
+  });
+}
+
+// ---------- Time: a clock drawn right here, and the parts of the day.
+// The clock is SVG rather than a picture: the hands have to point somewhere
+// different every time, and a drawn dial stays sharp at any size.
+function clockFace(h){
+  const a = (h % 12) * 30 - 90, r = 24;
+  const x = 50 + r*Math.cos(a*Math.PI/180), y = 50 + r*Math.sin(a*Math.PI/180);
+  // Усі дванадцять цифр, як на справжньому навчальному годиннику: дитина
+  // шукає число очима, а не рахує риски.
+  const marks = Array.from({length:12}, (_,i) => {
+    const hour = i === 0 ? 12 : i, t = (i*30 - 90) * Math.PI/180;
+    const tx = 50 + 35*Math.cos(t), ty = 50 + 35*Math.sin(t) + 4;
+    const x1 = 50 + 44*Math.cos(t), y1 = 50 + 44*Math.sin(t);
+    const x2 = 50 + 41*Math.cos(t), y2 = 50 + 41*Math.sin(t);
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="currentColor"
+        stroke-width="2.5" stroke-linecap="round"/>
+      <text x="${tx}" y="${ty}" text-anchor="middle" font-size="12"
+        font-weight="700" fill="var(--ink)">${hour}</text>`;
+  }).join('');
+  return `<svg class="clock" viewBox="0 0 100 100" role="img" aria-label="годинник">
+    <circle cx="50" cy="50" r="47" fill="var(--card)" stroke="currentColor" stroke-width="3"/>
+    ${marks}
+    <line x1="50" y1="50" x2="${x}" y2="${y}" stroke="var(--coral)" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="50" x2="50" y2="14" stroke="var(--sea-deep)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="3.5" fill="currentColor"/></svg>`;
+}
+const DAYPART = [
+  ['ранок', 'Сонце тільки встає', 'w_sontse'],
+  ['день',  'Сонце високо, найсвітліше', 'w_sontse'],
+  ['вечір', 'Сонце сідає, надворі темніє', 'w_sontse'],
+  ['ніч',   'Темно, на небі місяць і зорі', 'w_misiats'],
+];
+function timeTasks(){
+  const t = [];
+  for (const h of pick([1,2,3,4,5,6,7,8,9,10,11,12], 3)){
+    const opts = new Set([h]);
+    while (opts.size < 3) opts.add(1 + rnd(12));
+    t.push({prompt:'Котра година?', speak:[P.time], stage: clockFace(h),
+      answer:String(h), options: shuffle([...opts]).map(v=>({v:String(v), html:String(v)}))});
+  }
+  for (const d of pick(DAYPART, 2)){
+    t.push({prompt: d[1] + '. Коли це буває?', speak:[P.daypart],
+      stage:`<span class="big">${pic(d[2], EMO[d[2]])}</span><span class="word">${d[1]}</span>`,
+      answer:d[0],
+      options: shuffle(DAYPART.map(x=>x[0])).map(v=>({v, html:v}))});
+  }
+  return shuffle(t);
+}
+
+// ---------- Money: hryvnia coins, drawn with CSS. Sums stay within ten,
+// so it is the counting lesson again, only in a shape the child meets in a shop.
+const COINS = [1, 2, 5, 10];
+const coin = v => `<span class="coin c${v}">${v}</span>`;
+function moneyTasks(){
+  const t = [];
+  for (let i=0; i<5; i++){
+    let pile = [], sum = 0;
+    while (sum < 3 || sum > 10){
+      pile = []; sum = 0;
+      const n = 2 + rnd(3);
+      for (let j=0; j<n; j++){
+        const c = COINS[rnd(i < 2 ? 2 : COINS.length)];
+        pile.push(c); sum += c;
+      }
+    }
+    t.push({prompt:'Скільки тут гривень?', speak:[P.money],
+      stage: pile.map(coin).join(''), answer:String(sum),
+      options: numOpts(sum, 1, 12)});
+  }
+  return t;
+}
+
+// ---------- Syllables: hear one, point at it. The step between knowing
+// letters and reading words.
+const SYLL = ['ма','мо','му','ла','ло','лу','са','со','су','ка','ко','ку','на','но','ну'];
+const syId = s => 'sy_' + {м:'m',л:'l',с:'s',к:'k',н:'n'}[s[0]] + {а:'a',о:'o',у:'u'}[s[1]];
+// Слова з відкритих складів — перше справжнє читання. Крапка між складами
+// показує, як слово розбирається на частини, які дитина вже впізнає.
+const WORDS_READ = [['мама','МА·МА'],['лама','ЛА·МА'],['мука','МУ·КА'],['коло','КО·ЛО'],
+  ['молоко','МО·ЛО·КО'],['луна','ЛУ·НА'],['коса','КО·СА'],['лапа','ЛА·ПА']];
+const wdId = w => 'wd_' + w.split('').map(c =>
+  ({м:'m',л:'l',с:'s',к:'k',н:'n',п:'p',а:'a',о:'o',у:'u'})[c] || '').join('');
+function syllTasks(){
+  const t = pick(SYLL, 3).map(s => {
+    const opts = new Set([s]);
+    while (opts.size < 3) opts.add(SYLL[rnd(SYLL.length)]);
+    return {prompt:'Покажи склад, який почуєш', speak:[P.syll,[syId(s), s]],
+      stage:'', answer:s,
+      options: shuffle([...opts]).map(v => ({v, html: v.toUpperCase()}))};
+  });
+  for (const [w, split] of pick(WORDS_READ, 2)){
+    const opts = shuffle([[w,split]].concat(pick(WORDS_READ.filter(x=>x[0]!==w), 2)));
+    t.push({prompt:'Яке слово ти чуєш?', speak:[P.word,[wdId(w), w]], stage:'',
+      answer:w, options: opts.map(([v,s]) => ({v, html:s}))});
+  }
+  return t;
+}
+
+// ---------- Shapes and colours. Two of the three answers differ from the
+// right one by exactly one thing — colour or shape — so the child has to hear
+// both words, not guess from one.
+const FIG = [['circle','круг','sh_circle'],['square','квадрат','sh_square'],
+  ['triangle','трикутник','sh_triangle'],['rect','прямокутник','sh_rect'],
+  ['oval','овал','sh_oval']];
+const FIGCOL = [['red','червоний','c_red'],['blue','синій','c_blue'],
+  ['yellow','жовтий','c_yellow'],['green','зелений','c_green']];
+function figTasks(){
+  return Array.from({length:5}, () => {
+    const f = FIG[rnd(FIG.length)], c = FIGCOL[rnd(FIGCOL.length)];
+    const f2 = pick(FIG.filter(x => x[0] !== f[0]), 1)[0];
+    const c2 = pick(FIGCOL.filter(x => x[0] !== c[0]), 1)[0];
+    const id = `f_${f[0]}_${c[0]}`;
+    const opts = shuffle([id, `f_${f2[0]}_${c[0]}`, `f_${f[0]}_${c2[0]}`]);
+    return {prompt:`Покажи ${c[1]} ${f[1]}`,
+      speak:[P.show, [c[2], c[1]], [f[2], f[1]]],
+      stage:'', answer:id, options: opts.map(v => ({v, html: pic(v, '🔷')}))};
+  });
+}
+
+// ---------- Shadows: the same pictures, painted black. Nothing new to draw —
+// the silhouette is a CSS filter over the picture the game already has.
+function shadowTasks(){
+  const pool = WORDS.concat(FRUIT);
+  return pick(pool, 5).map(w => {
+    const opts = shuffle([w].concat(pick(pool.filter(x => x[0] !== w[0]), 2)));
+    return {prompt:'Чия це тінь?', speak:[P.shadow],
+      stage:`<span class="big shadow">${pic(w[0], w[1])}</span>`,
+      answer:w[0], options: opts.map(o => ({v:o[0], html: pic(o[0], o[1])}))};
+  });
+}
+
+// ---------- More, fewer, the same: counting without counting out loud.
+function compareTasks(){
+  return Array.from({length:5}, () => {
+    const f = FRUIT[rnd(FRUIT.length)], p = pic(f[0], f[1]);
+    let a = 1 + rnd(6), b = 1 + rnd(6);
+    if (rnd(4) === 0) b = a;                       // іноді порівну
+    return {prompt:'Де більше?', speak:[P.more],
+      stage:`<span class="side">${p.repeat(a)}</span><span class="vs">і</span>`
+            + `<span class="side">${p.repeat(b)}</span>`,
+      answer: a > b ? 'left' : a < b ? 'right' : 'same',
+      // Стрілки текстом, не емодзі: емодзі-стрілки є не в кожному шрифті
+      // і на частині пристроїв показуються порожнім прямокутником.
+      options:[{v:'left', html:'← зліва'}, {v:'same', html:'= порівну'},
+               {v:'right', html:'справа →'}]};
+  });
+}
+
+// ---------- Making a number up: "there were three, how many more to make
+// five". The step between counting and real addition.
+function numTasks(){
+  return Array.from({length:5}, () => {
+    const total = 4 + rnd(7), have = 1 + rnd(total - 1), need = total - have;
+    const f = FRUIT[rnd(FRUIT.length)], p = pic(f[0], f[1]);
+    return {prompt:`Було ${have}. Скільки треба додати, щоб стало ${total}?`,
+      speak:[P.was, n(have), P.addto, n(total)],
+      stage:`<span class="side">${p.repeat(have)}</span><span class="op">+</span>`
+            + `<span class="slot">?</span><span class="word">${have} + ? = ${total}</span>`,
+      answer:String(need), options: numOpts(need, 1, 9)};
+  });
+}
+
+// ---------- Which one is third: counting positions, not amounts.
+const ORD = ['перша','друга','третя','четверта',"п'ята"];
+function orderTasks(){
+  return Array.from({length:5}, () => {
+    const row = pick(WORDS, 5), k = rnd(5), right = row[k];
+    const opts = shuffle([right].concat(pick(row.filter(w => w !== right), 2)));
+    return {prompt:`Яка картинка ${ORD[k]}?`, speak:[[`or_${k+1}`, `Яка картинка ${ORD[k]}?`]],
+      stage:`<span class="rowpics">${row.map(w => pic(w[0], w[1])).join('')}</span>`,
+      answer:right[0], options: opts.map(w => ({v:w[0], html: pic(w[0], w[1])}))};
+  });
+}
+
+// ---------- Above, below, beside: the words a teacher uses all day long.
+const PLACE = [['above','вгорі'], ['under','внизу'], ['near','поруч']];
+function placeTasks(){
+  return Array.from({length:5}, () => {
+    const w = WORDS[rnd(WORDS.length)], pl = PLACE[rnd(PLACE.length)];
+    return {prompt:`Де ${w[2]}?`, speak:[P.de, [w[0], w[2]]],
+      stage:`<span class="rel ${pl[0]}"><span class="obj">${pic(w[0], w[1])}</span>`
+            + `<span class="ref">${pic('w_podarunok','🎁')}</span></span>`,
+      answer:pl[0], options: shuffle(PLACE).map(([v, name]) => ({v, html:name}))};
+  });
+}
+
+const LESSONS = [
+  {id:'math', img:'i_math', ico:'🧮', name:'Острів Лічби', about:'Лічба до 10, додавання і віднімання', gen:mathTasks},
+  {id:'read', img:'i_read', ico:'🔤', name:'Острів Букв', about:'Перший звук і буква у слові', gen:readTasks},
+  {id:'logic', img:'i_logic', ico:'🧩', name:'Острів Візерунків', about:'Знайди закономірність', gen:logicTasks},
+  {id:'memo', img:'i_memo', ico:'🧠', name:'Острів Пам’яті', about:'Знайди однакові картинки', gen:memoTasks},
+  {id:'write', img:'i_write', ico:'✏️', name:'Острів Письма', about:'Обведи пальцем букву й цифру', gen:traceTasks},
+  {id:'world', img:'i_world', ico:'🌍', name:'Острів Природи', about:'Я досліджую світ: хто де живе', gen:worldTasks},
+  {id:'en', img:'i_english', ico:'🗣️', name:'Острів Англійської', about:'Послухай слово і вибери картинку', gen:enTasks},
+  {id:'time', img:'i_time', ico:'🕒', name:'Острів Часу', about:'Котра година і коли це буває', gen:timeTasks},
+  {id:'money', img:'i_money', ico:'🪙', name:'Острів Гривні', about:'Порахуй гроші до десяти', gen:moneyTasks},
+  {id:'syll', img:'i_syll', ico:'🔊', name:'Острів Читання', about:'Склади і перші слова на слух', gen:syllTasks},
+  {id:'fig', img:'i_fig', ico:'🔷', name:'Острів Фігур', about:'Фігури й кольори на слух', gen:figTasks},
+  {id:'shadow', img:'i_shadow', ico:'🌑', name:'Острів Тіней', about:'Упізнай предмет за тінню', gen:shadowTasks},
+  {id:'compare', img:'i_compare', ico:'⚖️', name:'Острів Порівнянь', about:'Де більше, де менше, де порівну', gen:compareTasks},
+  {id:'num', img:'i_num', ico:'➕', name:'Острів Чисел', about:'Скільки треба додати до десяти', gen:numTasks},
+  {id:'order', img:'i_order', ico:'🔢', name:'Острів Порядку', about:'Яка картинка перша, яка третя', gen:orderTasks},
+  {id:'place', img:'i_place', ico:'📍', name:'Острів Напрямків', about:'Вгорі, внизу, поруч', gen:placeTasks},
+];
+
+// ---------- Screens
+function who(){
+  $('#me').hidden = true; $('#total').textContent = 0;
+  const list = Object.entries(DB.kids);
+  $('#app').innerHTML = `<div style="display:flex;flex-direction:column;gap:16px">
+    <p class="lead">Хто сьогодні грає?</p>
+    <div class="map">${list.map(([id,k])=>`<div class="kidwrap">
+        <button class="island" data-id="${id}"><span class="ico">${k.ava}</span>
+          <h2>${k.name}</h2><p>Зірок: ${Object.values(k.stars).reduce((a,b)=>a+b,0)}</p></button>
+        <button class="x" data-del="${id}" aria-label="Прибрати ${k.name}">×</button></div>`).join('')}
+      <button class="island" id="add"><span class="ico">➕</span><h2>Новий гравець</h2>
+        <p>Для нової дитини</p></button></div></div>`;
+  document.querySelectorAll('.island[data-id]').forEach(b => b.onclick = () => {
+    DB.cur = b.dataset.id; save(); home(); });
+  document.querySelectorAll('.x').forEach(b => b.onclick = () => {
+    const k = DB.kids[b.dataset.del];
+    if (!confirm(`Прибрати гравця ${k.name}? Зірки зникнуть.`)) return;
+    delete DB.kids[b.dataset.del];
+    if (DB.cur === b.dataset.del) DB.cur = null;
+    save(); who(); });
+  $('#add').onclick = addKid;
+}
+
+function addKid(){
+  let ava = AVATARS[rnd(AVATARS.length)];
+  $('#app').innerHTML = `<section class="lesson">
+    <h3 style="font-family:var(--display);margin:0">Новий гравець</h3>
+    <input class="nm" id="nm" maxlength="14" placeholder="Ім'я" autocomplete="off">
+    <div class="avas">${AVATARS.map(a=>`<button class="ava${a===ava?' on':''}" data-a="${a}">${a}</button>`).join('')}</div>
+    <div class="row"><button class="next" id="ok">Готово</button>
+      <button class="back" id="cancel">Назад</button></div></section>`;
+  document.querySelectorAll('.ava').forEach(b => b.onclick = () => {
+    ava = b.dataset.a;
+    document.querySelectorAll('.ava').forEach(x => x.classList.toggle('on', x === b)); });
+  $('#cancel').onclick = who;
+  $('#ok').onclick = () => {
+    const id = 'k' + Date.now();
+    DB.kids[id] = {name: ($('#nm').value || '').trim() || 'Гравець', ava, stars:{}, log:[]};
+    DB.cur = id; save(); home();
+  };
+  $('#nm').focus();
+}
+
+function totalStars(){ return Object.values(stars()).reduce((a,b)=>a+b,0); }
+function home(){
+  if (!kid()) return who();
+  $('#total').textContent = totalStars();
+  $('#me').hidden = false;
+  $('#me').textContent = `${kid().ava} ${kid().name}`;
+  $('#app').innerHTML = `<div style="display:flex;flex-direction:column;gap:16px">
+    <p class="lead">Обери острів. На кожному кілька завдань. Якщо помилишся, не страшно: з'явиться підказка.</p>
+    <div class="map">${LESSONS.map(l=>{ const s = stars()[l.id]||0;
+      return `<button class="island" data-id="${l.id}"><span class="ico">${pic(l.img,l.ico)}</span><h2>${l.name}</h2><p>${l.about}</p>
+      <span class="got">${'★'.repeat(s)}<i>${'★'.repeat(3-s)}</i></span></button>`}).join('')}</div></div>`;
+  document.querySelectorAll('.island').forEach(b=>b.onclick=()=>start(b.dataset.id));
+}
+
+let L, tasks, idx, mistakes, tries;
+function start(id){ L = LESSONS.find(l=>l.id===id); tasks = L.gen(); idx=0; mistakes=0; show(); }
+
+function show(){
+  const t = tasks[idx]; tries = 0;
+  $('#app').innerHTML = `<section class="lesson">
+    <div class="bar"><button class="back" id="back">← Карта</button>
+      <div class="progress">${tasks.map((_,i)=>`<span class="${i<idx?'done':i===idx?'now':''}"></span>`).join('')}</div></div>
+    <div class="q"><h3>${t.prompt}</h3><button class="say" id="say" aria-label="Послухати ще раз">🔊</button></div>
+    <div id="body"></div>
+    <p class="msg" id="msg" aria-live="polite"></p></section>`;
+  $('#back').onclick = home;
+  $('#say').onclick = ()=>say(t.speak);
+  (t.kind === 'memo' ? showMemo : t.kind === 'trace' ? showTrace : showChoice)(t, $('#body'));
+  say(t.speak);
+}
+
+// Shared ending of a task: praise, then the button to move on.
+function pass(hostEl, praise = true){
+  const msg = $('#msg');
+  if (praise){ const p = PRAISE[rnd(PRAISE.length)]; msg.className='msg good'; msg.textContent=p[1]; say([p]); }
+  const nx = document.createElement('button'); nx.className='next';
+  nx.textContent = idx<tasks.length-1 ? 'Далі →' : 'Готово';
+  nx.onclick = ()=>{ idx++; idx<tasks.length ? show() : finish(); };
+  hostEl.closest('.lesson').appendChild(nx); nx.focus();
+}
+
+function showChoice(t, host){
+  host.innerHTML = `${t.stage ? `<div class="stage">${t.stage}</div>` : ''}
+    <div class="answers">${t.options.map(o=>{
+      // Цифра чи буква має бути велика, а підпис на кілька слів — ні.
+      const long = !o.html.includes('<img') && [...o.html].length > 2;
+      return `<button class="ans${long?' txt':''}" data-v="${o.v}">${o.html}</button>`;
+    }).join('')}</div>`;
+  host.querySelectorAll('.ans').forEach(b=>b.onclick=()=>answer(b,t));
+}
+
+function answer(btn,t){
+  const msg = $('#msg');
+  if (btn.dataset.v === t.answer){
+    btn.classList.add('ok'); document.querySelectorAll('.ans').forEach(b=>b.disabled=true);
+    pass(btn);
+  } else {
+    tries++; mistakes++; btn.classList.remove('no'); void btn.offsetWidth; btn.classList.add('no'); btn.disabled = true;
+    msg.className='msg bad';
+    if (tries===1){ msg.textContent='Спробуй ще раз'; say([P.tryagain]); }
+    else { document.querySelector(`.ans[data-v="${CSS.escape(t.answer)}"]`).classList.add('hint');
+      msg.textContent='Підказка: правильна відповідь обведена'; say([P.hint]); }
+  }
+}
+
+// ---------- Memory: two taps open two cards; a pair stays open and is named
+function showMemo(t, host){
+  const deck = shuffle(t.pairs.concat(t.pairs));
+  const cols = Math.ceil(deck.length/2);
+  host.innerHTML = `<div class="cards" style="grid-template-columns:repeat(${cols},1fr)">${
+    deck.map(w=>`<button class="card" data-id="${w[0]}"><span class="face">${pic(w[0],w[1])}</span></button>`).join('')}</div>`;
+  let open = [], miss = 0, lock = false, left = t.pairs.length;
+  host.querySelectorAll('.card').forEach(c => c.onclick = () => {
+    if (lock || c.classList.contains('open') || c.classList.contains('done')) return;
+    c.classList.add('open'); open.push(c);
+    if (open.length < 2) return;
+    const [a,b] = open;
+    if (a.dataset.id === b.dataset.id){
+      open = []; a.classList.add('done'); b.classList.add('done');
+      const w = t.pairs.find(p => p[0] === a.dataset.id);
+      say([P.pair,[w[0],w[2]]]);
+      // Memory is meant to be tried: one wrong pair costs nothing.
+      if (--left === 0){ mistakes += Math.max(0, miss-1); pass(host); }
+    } else {
+      lock = true; miss++;
+      const msg = $('#msg'); msg.className='msg bad'; msg.textContent='Не збіглося — спробуй ще';
+      setTimeout(()=>{ a.classList.remove('open'); b.classList.remove('open');
+        open = []; lock = false; msg.textContent=''; }, 900);
+    }
+  });
+}
+
+// ---------- Tracing: finger draws on the top canvas, the letter sits under it.
+// Scoring: how much of the letter is covered, and how much ink went outside it.
+function showTrace(t, host){
+  host.innerHTML = `<div class="trace">
+    <div class="pad"><canvas class="glyph"></canvas><canvas class="ink"></canvas></div>
+    <div class="row"><button class="back" id="clear">Стерти</button>
+      <button class="next" id="check">Готово</button></div></div>`;
+  const S = 320;                                   // internal size; CSS scales it
+  const gc = host.querySelector('canvas.glyph'), ic = host.querySelector('canvas.ink');
+  [gc,ic].forEach(c => { c.width = S; c.height = S; });
+  const g = gc.getContext('2d'), k = ic.getContext('2d');
+  const font = `700 ${S*0.72}px "Comfortaa","Nunito",system-ui,sans-serif`;
+
+  function drawGlyph(bold){
+    g.clearRect(0,0,S,S); g.textAlign='center'; g.textBaseline='middle'; g.font = font;
+    g.fillStyle = bold ? 'rgba(47,127,153,.5)' : 'rgba(47,127,153,.25)';
+    g.fillText(t.glyph, S/2, S/2);
+  }
+  drawGlyph(false);
+
+  // Two masks off-screen: the letter itself, and the letter widened by a finger.
+  const mask = document.createElement('canvas'); mask.width = mask.height = S;
+  const m = mask.getContext('2d');
+  m.textAlign='center'; m.textBaseline='middle'; m.font = font; m.fillStyle='#000';
+  m.fillText(t.glyph, S/2, S/2);
+  const strict = m.getImageData(0,0,S,S).data;
+  m.lineWidth = 46; m.strokeStyle='#000'; m.strokeText(t.glyph, S/2, S/2);
+  const wide = m.getImageData(0,0,S,S).data;
+
+  k.lineWidth = 26; k.lineCap='round'; k.lineJoin='round'; k.strokeStyle='#e8684a';
+  let drawing = false, last = null, painted = false;
+  const pt = e => { const r = ic.getBoundingClientRect();
+    return [(e.clientX-r.left)*S/r.width, (e.clientY-r.top)*S/r.height]; };
+  ic.addEventListener('pointerdown', e => {
+    try { ic.setPointerCapture(e.pointerId); } catch(err){}
+    drawing = true; last = pt(e); painted = true;
+    k.beginPath(); k.moveTo(last[0], last[1]); k.lineTo(last[0]+0.1, last[1]); k.stroke();
+  });
+  ic.addEventListener('pointermove', e => {
+    if (!drawing) return; const p = pt(e);
+    k.beginPath(); k.moveTo(last[0], last[1]); k.lineTo(p[0], p[1]); k.stroke(); last = p;
+  });
+  const stop = () => { drawing = false; };
+  ic.addEventListener('pointerup', stop);
+  ic.addEventListener('pointercancel', stop);
+
+  const clear = () => { k.clearRect(0,0,S,S); painted = false; };
+  host.querySelector('#clear').onclick = clear;
+  host.querySelector('#check').onclick = () => {
+    const msg = $('#msg');
+    if (!painted){ msg.className='msg bad'; msg.textContent='Спершу обведи пальцем'; return; }
+    const ink = k.getImageData(0,0,S,S).data;
+    let hit = 0, need = 0, stray = 0, all = 0;
+    for (let i=3; i<ink.length; i+=4){
+      const on = ink[i] > 40;
+      if (strict[i] > 40){ need++; if (on) hit++; }
+      if (on){ all++; if (wide[i] <= 40) stray++; }
+    }
+    const cover = need ? hit/need : 0, out = all ? stray/all : 1;
+    // Друга спроба оцінюється м'якше: мета — щоб дитина провела лінію, а не здалась.
+    if (tries===0 ? (cover>=.55 && out<=.35) : (cover>=.4 && out<=.5)){
+      host.querySelector('.row').remove();
+      msg.className='msg good'; msg.textContent='Гарно написано!'; say([P.traceOk]);
+      pass(host, false);
+    } else {
+      tries++; mistakes++; msg.className='msg bad';
+      if (tries===1){ msg.textContent='Майже! Спробуй ще раз'; say([P.traceTry]); }
+      else { drawGlyph(true); msg.textContent='Веди пальцем по товстій лінії'; say([P.hint]); }
+      clear();
+    }
+  };
+}
+
+function finish(){
+  const s = mistakes===0?3: mistakes<=2?2:1;
+  const k = kid();
+  k.stars[L.id] = Math.max(k.stars[L.id]||0, s);
+  // Журнал — для звіту вчителю: що саме проходили і як вийшло.
+  k.log.push({l:L.id, s, m:mistakes, n:tasks.length, t:Date.now()});
+  if (k.log.length > 300) k.log = k.log.slice(-300);
+  save();
+  report({kid:k.name, ava:k.ava, lesson:L.id, stars:s, mistakes, n:tasks.length, t:Date.now()});
+  $('#total').textContent = totalStars();
+  $('#app').innerHTML = `<section class="lesson finish">
+    <div class="big">${'★'.repeat(s)}</div><h3>${FIN[s][1]}</h3>
+    <p class="lead">${L.name}: ${tasks.length} із ${tasks.length} завдань. Помилок: ${mistakes}.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <button class="next" id="again">Ще раз</button><button class="back" id="map">До карти</button></div></section>`;
+  say([FIN[s], P.get, STARS[s]]);
+  $('#again').onclick = ()=>start(L.id); $('#map').onclick = home;
+}
+
+$('#me').onclick = who;
+flush();                       // те, що не дійшло минулого разу
+kid() ? home() : who();
+</script>
