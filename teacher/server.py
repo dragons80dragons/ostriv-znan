@@ -172,6 +172,75 @@ def report_html():
                                 % (len(order) + 4)}
 
 
+def diag_html():
+    """Сторінка-перевірка: що саме бачить браузер на чужому пристрої.
+
+    Тут навмисно свій, незалежний від гри, краб із тією самою CSS-анімацією:
+    якщо не рухається навіть він, справа не в грі, а в пристрої чи браузері.
+    """
+    return """<!doctype html>
+<meta charset="utf-8"><title>Перевірка руху</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+ body{font:16px/1.5 system-ui,sans-serif;margin:16px;background:#d8eef3;color:#173a45}
+ h1{font-size:1.2rem}
+ .box{background:#fff;border-radius:16px;padding:16px;margin:12px 0}
+ .crab{width:120px;height:120px;background:#e8684a;border-radius:24px;margin:0 auto;
+   animation:sway 1.4s ease-in-out infinite}
+ @keyframes sway{0%{transform:rotate(-14deg)}25%{transform:rotate(10deg) translateY(-10px)}
+   50%{transform:rotate(-4deg)}75%{transform:rotate(12deg) translateY(-8px)}
+   100%{transform:rotate(-14deg)}}
+ table{width:100%;border-collapse:collapse}
+ td{padding:5px 0;border-bottom:1px solid #e3eff2;font-size:.95rem}
+ td.v{text-align:right;font-weight:700}
+ .ok{color:#2e7d4f} .no{color:#c0392b}
+ #sent{font-weight:700;text-align:center;margin-top:10px}
+</style>
+<h1>Перевірка руху</h1>
+<div class="box">
+  <p style="margin:0 0 10px;text-align:center">Цей червоний квадрат має
+     гойдатися. Якщо він стоїть — рух вимкнено на рівні пристрою.</p>
+  <div class="crab" id="c"></div>
+</div>
+<div class="box"><table id="t"></table><div id="sent">надсилаю…</div></div>
+<script>
+function run(){
+  var el = document.getElementById('c');
+  var seen = {}, n = 0;
+  var tid = setInterval(function(){
+    seen[getComputedStyle(el).transform] = 1; n++;
+    if (n >= 8){
+      clearInterval(tid);
+      var moves = Object.keys(seen).length > 1;
+      var d = {
+        рухається: moves,
+        прибратиАнімації: matchMedia('(prefers-reduced-motion: reduce)').matches,
+        анімаційНаСторінці: (document.getAnimations ? document.getAnimations().length : -1),
+        підтримка_not: CSS.supports('selector(*:not(.a *))'),
+        екран: innerWidth + 'x' + innerHeight,
+        браузер: navigator.userAgent,
+        коли: new Date().toISOString()
+      };
+      var rows = '';
+      for (var k in d){
+        var v = d[k];
+        var cls = (k === 'рухається') ? (v ? 'ok' : 'no') : '';
+        rows += '<tr><td>' + k + '</td><td class="v ' + cls + '">' + v + '</td></tr>';
+      }
+      document.getElementById('t').innerHTML = rows;
+      fetch('api/diag', {method:'POST', headers:{'Content-Type':'application/json'},
+                         body: JSON.stringify(d)})
+        .then(function(){ document.getElementById('sent').textContent = 'Надіслано ✓'; })
+        .catch(function(){ document.getElementById('sent').textContent =
+          'Не надіслалось — прочитайте таблицю вголос'; });
+    }
+  }, 120);
+}
+run();
+</script>
+"""
+
+
 def report_csv():
     buf = io.StringIO()
     w = csv.writer(buf, delimiter=';')
@@ -218,6 +287,8 @@ class Handler(SimpleHTTPRequestHandler):
         path = self.path.split('?', 1)[0].rstrip('/')
         if path in ('/teacher', '/zvit'):
             return self._send(report_html().encode('utf-8'))
+        if path == '/diag':
+            return self._send(diag_html().encode('utf-8'))
         if path in ('', '/') and not os.path.exists(os.path.join(GAME, 'index.html')):
             # Папка «на флешку» містить гру одним файлом під власною назвою,
             # а index.html у ній немає — без цього браузер отримав би
@@ -231,6 +302,20 @@ class Handler(SimpleHTTPRequestHandler):
         return super().do_GET()
 
     def do_POST(self):
+        # Діагностика: сторінка /diag сама заміряє, що бачить браузер на
+        # тому пристрої, і надсилає сюди. Інакше про чужий планшет можна
+        # лише здогадуватись, а здогадки вже двічі виявились хибними.
+        if self.path.startswith('/api/diag'):
+            try:
+                n = int(self.headers.get('Content-Length', '0'))
+                raw = self.rfile.read(n).decode('utf-8')
+            except Exception:                                     # noqa: BLE001
+                return self._send(b'{"ok":false}', 'application/json', 400)
+            with LOCK:
+                with io.open(os.path.join(HERE, 'diag.jsonl'), 'a',
+                             encoding='utf-8') as f:
+                    f.write(raw.replace('\n', ' ') + '\n')
+            return self._send(b'{"ok":true}', 'application/json')
         if not self.path.startswith('/api/report'):
             return self._send(b'no', 'text/plain; charset=utf-8', 404)
         try:
