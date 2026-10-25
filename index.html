@@ -4,7 +4,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Nunito:wght@500;700;800&display=swap">
 <style>
-/* Layout: one-screen game — map of three islands → lesson card with big touch answers */
+/* Layout: one-screen game — map of four seas with eighteen islands → lesson
+   card with big touch answers. Three levels on every island. */
 :root{
   --sea:#d8eef3; --sea-deep:#2f7f99; --sand:#fff8e8; --ink:#173a45; --muted:#55707a;
   --coral:#e8684a; --leaf:#3f9a5c; --sun:#f2b632; --card:#ffffff; --line:#c3dde4;
@@ -29,7 +30,7 @@ h1{font-family:var(--display);font-size:1.6rem;margin:0;text-wrap:balance}
 /* Tablet: no double-tap zoom, no text selection when a finger slips */
 button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;
   -webkit-tap-highlight-color:transparent}
-.lesson,.map,.cards{user-select:none;-webkit-user-select:none}
+.lesson,.map,.cards,.album{user-select:none;-webkit-user-select:none}
 /* The class tablets are 1920×1280: on a wide screen everything grows, so the
    targets stay comfortable for a finger instead of sitting in a narrow column */
 @media (min-width:900px){
@@ -40,17 +41,46 @@ button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;
 }
 button:focus-visible{outline:3px solid var(--sea-deep);outline-offset:3px}
 img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
+/* Усі картинки намальовані на білому й вирізані по контуру. У темній темі
+   бліді з них — хмара, сніжинка, засніжене дерево — зливалися з тлом і
+   завдання лишалось без картинки. Тому там, де картинку треба впізнати,
+   вона сидить на світлій плитці. Виняток — урок тіней: там силует у
+   темній темі білий, і на світлій плитці його б не стало видно. */
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"])
+  .stage img.pic,:root:not([data-theme="light"]) .ans img.pic,
+  :root:not([data-theme="light"]) .card img.pic,
+  :root:not([data-theme="light"]) .album img.pic,
+  :root:not([data-theme="light"]) .gift img.pic{
+  background:#f3fafc;border-radius:14px;padding:3px}}
+:root[data-theme="dark"] .stage img.pic,:root[data-theme="dark"] .ans img.pic,
+:root[data-theme="dark"] .card img.pic,:root[data-theme="dark"] .album img.pic,
+:root[data-theme="dark"] .gift img.pic{
+  background:#f3fafc;border-radius:14px;padding:3px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"])
+  .stage .shadow img.pic{background:none;padding:0}}
+:root[data-theme="dark"] .stage .shadow img.pic{background:none;padding:0}
 .lead{margin:0;color:var(--muted);max-width:60ch}
 .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
 .island{background:var(--sand);border:3px solid var(--line);border-radius:40% 45% 38% 50%/30% 35% 40% 38%;
   padding:28px 20px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;transition:transform .15s}
 .island:hover{transform:translateY(-4px) rotate(-1deg)}
-.island .ico{font-size:3.2rem;line-height:1}
+.island .ico{font-size:3.2rem;line-height:1;position:relative}
 .island .ico img.pic{width:96px;height:96px}
 .island h2{font-family:var(--display);font-size:1.25rem;margin:4px 0 0}
 .island p{margin:0;color:var(--muted);font-size:.95rem}
 .island .got{font-size:1.3rem;letter-spacing:4px;color:var(--sun);min-height:1.6rem}
+.island .got.nine{font-size:1rem;letter-spacing:1px}
 .island .got i{color:var(--line);font-style:normal}
+/* Прапорець на острові: видно здалеку, що там уже щось зібрано */
+.island .flag{position:absolute;top:-10px;right:-14px;font-size:1.7rem;line-height:1}
+/* Море — заголовок над своєю групою островів */
+.seahead{display:flex;align-items:center;gap:10px;margin:10px 0 -4px;font-family:var(--display);
+  font-size:1.15rem;font-weight:700}
+.seahead .ico{font-size:1.6rem}
+.seahead b{margin-left:auto;font-weight:800;color:var(--sun);font-variant-numeric:tabular-nums;font-size:.95rem}
+/* Рівень: той самий острівець, тільки замкнений показано приглушено */
+.island.lvl{border-radius:24px}
+.island.shut{opacity:.55;filter:saturate(.4)}
 .lesson{background:var(--card);border-radius:24px;border:2px solid var(--line);padding:20px;display:flex;flex-direction:column;gap:18px}
 .bar{display:flex;align-items:center;gap:12px}
 .back{background:none;border:2px solid var(--line);border-radius:12px;padding:6px 12px;font-weight:700}
@@ -70,9 +100,15 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 .stage .faded{opacity:.25}
 .stage .word{font-family:var(--display);font-size:1.6rem;width:100%}
 .answers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.ans{background:var(--sand);border:3px solid var(--line);border-radius:18px;min-height:88px;font-family:var(--display);font-size:2.4rem;font-weight:700;transition:transform .1s}
+.answers.two{grid-template-columns:repeat(2,1fr)}
+/* Чотири-п'ять відповідей: хай переносяться, але кнопка не вужча за палець */
+.answers.many{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.ans{position:relative;background:var(--sand);border:3px solid var(--line);border-radius:18px;min-height:88px;font-family:var(--display);font-size:2.4rem;font-weight:700;transition:transform .1s}
 .ans:active{transform:scale(.96)}
-.ans.txt{font-size:1.15rem;line-height:1.3;padding:10px}
+.ans.txt{font-size:1.15rem;line-height:1.3;padding:10px 10px 26px}
+/* Кнопку зі словом можна послухати: дитина 1 класу ще не читає */
+.ans .sp{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:1rem;
+  opacity:.65;font-weight:400}
 .ans.ok{background:var(--leaf);border-color:var(--leaf);color:#fff}
 .ans.no{border-color:var(--coral);animation:shake .35s}
 .ans.hint{border-color:var(--leaf);border-style:dashed}
@@ -85,6 +121,19 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 .finish .big{font-size:4rem;letter-spacing:8px;color:var(--sun)}
 .finish h3{font-family:var(--display);font-size:1.6rem;margin:0}
 .note{color:var(--muted);font-size:.85rem;margin:0}
+/* Наліпка, яку щойно дали: з'являється з підскоком, щоб її неможливо було не побачити */
+.gift{background:var(--sand);border:3px dashed var(--sun);border-radius:20px;padding:14px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;animation:pop .45s}
+.gift img.pic{width:120px;height:120px}
+.gift span{font-weight:800;color:var(--sea-deep)}
+@keyframes pop{0%{transform:scale(.4) rotate(-12deg);opacity:0}60%{transform:scale(1.12) rotate(4deg)}100%{transform:scale(1)}}
+/* Альбом наліпок: зібрані — кольорові, решта — сірі силуети */
+.album{display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:12px}
+.album div{background:var(--sand);border:2px solid var(--line);border-radius:16px;padding:8px;
+  text-align:center;position:relative}
+.album img.pic{width:72px;height:72px}
+.album div.off{opacity:.3;filter:grayscale(1)}
+.album b{position:absolute;bottom:2px;right:6px;font-size:.8rem;color:var(--sea-deep)}
 /* Order lesson: a row the child counts along; it may wrap on a phone */
 .stage .rowpics{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center}
 .stage .rowpics img.pic{width:64px;height:64px}
@@ -92,6 +141,8 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 .stage .rel{display:flex;align-items:center;justify-content:center;gap:10px}
 .stage .rel.above{flex-direction:column}
 .stage .rel.under{flex-direction:column-reverse}
+.stage .rel.left{flex-direction:row}
+.stage .rel.right{flex-direction:row-reverse}
 .stage .rel .obj img.pic{width:84px;height:84px}
 .stage .rel .ref img.pic{width:104px;height:104px}
 /* Shadow lesson: the picture painted flat black — and white in the dark
@@ -142,6 +193,91 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 .pad canvas.ink{touch-action:none;cursor:crosshair}
 .pad canvas.glyph{background:var(--sea);border:2px solid var(--line)}
 .trace .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+/* Краб-провідник: він вітає, підказує й радіє замість безликих фраз.
+   Стоїть унизу сторінки, щоб ніколи не перекривав кнопки відповідей. */
+.crab{display:flex;align-items:flex-end;gap:10px;background:none;border:none;padding:0;text-align:left;width:100%}
+/* Краб — одна картинка, яка рухається кодом. Пози окремими картинками не
+   вийшли (див. README): через txt2img щоразу інший герой, через img2img від
+   взірця герой один, але поза не змінюється. Тут натомість анімація: кожен
+   настрій — свій цикл із п'яти ключів, а предмет у клешні (прапорець,
+   зірка, книжка) накладається поверх окремою картинкою. */
+.crab .cr{font-size:2.6rem;line-height:1;flex:none;display:inline-block;
+  position:relative;width:88px;height:88px}
+.crab .cr .rig{display:block;position:absolute;inset:0}
+.crab .cr .body img.pic{width:84px;height:84px;display:block}
+.crab .cr .prop{position:absolute;right:-14px;top:-10px}
+.crab .cr .prop img.pic{width:42px;height:42px;display:block}
+/* Зміна настрою — з підскоком: дитина має помітити, що краб відреагував.
+   Підскок живе на .rig, а розворот на .cr, щоб вони не перетирали один
+   одного трансформацією. */
+.crab .cr .rig.pop{animation:crabpop .4s}
+/* Коли краб показує на щось ліворуч від себе, він розвертається */
+.crab.flip .cr{transform:scaleX(-1)}
+.crab .bub{margin:0;background:var(--card);border:2px solid var(--line);border-radius:18px 18px 18px 4px;
+  padding:10px 14px;font-size:.95rem;color:var(--ink);flex:1;min-width:0}
+@keyframes crabpop{0%{transform:scale(.7) rotate(-10deg)}60%{transform:scale(1.12) rotate(5deg)}100%{transform:none}}
+/* По п'ять ключів у кожному циклі: 0, 25, 50, 75, 100 — рух повертається
+   тим самим шляхом, яким ішов, тож цикл замикається без ривка. */
+.crab[data-mood="hi"] .body{animation:cr-wave 1.8s ease-in-out infinite}
+@keyframes cr-wave{0%{transform:rotate(-6deg)}25%{transform:rotate(3deg) translateY(-3px)}
+  50%{transform:rotate(-2deg)}75%{transform:rotate(5deg) translateY(-2px)}100%{transform:rotate(-6deg)}}
+.crab[data-mood="walk"] .body{animation:cr-walk .9s ease-in-out infinite}
+@keyframes cr-walk{0%{transform:translateX(-7px) rotate(-5deg)}
+  25%{transform:translateX(-3px) translateY(-5px) rotate(2deg)}
+  50%{transform:translateX(4px) rotate(5deg)}
+  75%{transform:translateX(0) translateY(-5px) rotate(-2deg)}
+  100%{transform:translateX(-7px) rotate(-5deg)}}
+.crab[data-mood="joy"] .body,.crab[data-mood="flag"] .body,.crab[data-mood="star"] .body{
+  animation:cr-hop .8s ease-in-out infinite}
+@keyframes cr-hop{0%{transform:translateY(0) scaleY(1)}25%{transform:translateY(-14px) scaleY(1.08)}
+  50%{transform:translateY(0) scaleY(.9)}75%{transform:translateY(-7px) scaleY(1.04)}
+  100%{transform:translateY(0) scaleY(1)}}
+.crab[data-mood="clap"] .body{animation:cr-clap .5s ease-in-out infinite}
+@keyframes cr-clap{0%{transform:scaleX(1)}25%{transform:scaleX(.86)}50%{transform:scaleX(1.08)}
+  75%{transform:scaleX(.9)}100%{transform:scaleX(1)}}
+.crab[data-mood="oops"] .body{animation:cr-slump 1.3s ease-in-out infinite}
+@keyframes cr-slump{0%{transform:translateY(0) rotate(0)}25%{transform:translateY(6px) rotate(-6deg)}
+  50%{transform:translateY(7px) rotate(0)}75%{transform:translateY(6px) rotate(6deg)}
+  100%{transform:translateY(0) rotate(0)}}
+.crab[data-mood="point"] .body{animation:cr-lean 1s ease-in-out infinite}
+@keyframes cr-lean{0%{transform:rotate(0) translateX(0)}25%{transform:rotate(11deg) translateX(7px)}
+  50%{transform:rotate(14deg) translateX(10px)}75%{transform:rotate(11deg) translateX(7px)}
+  100%{transform:rotate(0) translateX(0)}}
+.crab[data-mood="think"] .body,.crab[data-mood="read"] .body{animation:cr-tilt 2.2s ease-in-out infinite}
+@keyframes cr-tilt{0%{transform:rotate(-7deg)}25%{transform:rotate(-2deg)}50%{transform:rotate(7deg)}
+  75%{transform:rotate(-2deg)}100%{transform:rotate(-7deg)}}
+.crab[data-mood="sleep"] .body{animation:cr-breathe 3.2s ease-in-out infinite}
+@keyframes cr-breathe{0%{transform:scale(1)}25%{transform:scale(1.03)}50%{transform:scale(1.06)}
+  75%{transform:scale(1.03)}100%{transform:scale(1)}}
+.crab[data-mood="swim"] .body{animation:cr-swim 1.8s ease-in-out infinite}
+@keyframes cr-swim{0%{transform:translateY(0) rotate(-7deg)}25%{transform:translateY(-6px) rotate(0)}
+  50%{transform:translateY(-10px) rotate(7deg)}75%{transform:translateY(-5px) rotate(0)}
+  100%{transform:translateY(0) rotate(-7deg)}}
+/* Предмет у клешні піднімається в такт тілу */
+.crab .cr .prop{animation:cr-prop 1.2s ease-in-out infinite}
+@keyframes cr-prop{0%{transform:translateY(3px) rotate(-10deg)}25%{transform:translateY(-5px) rotate(5deg)}
+  50%{transform:translateY(-9px) rotate(12deg)}75%{transform:translateY(-5px) rotate(5deg)}
+  100%{transform:translateY(3px) rotate(-10deg)}}
+/* Сон і плавання: «z-z-z» і бульбашки малюються кодом, картинок не треба */
+.crab .cr .zzz{position:absolute;right:-16px;top:-16px;font-size:1rem;font-weight:800;
+  letter-spacing:2px;color:var(--sea-deep);animation:cr-zzz 2.6s ease-in-out infinite}
+@keyframes cr-zzz{0%{opacity:0;transform:translateY(8px)}25%{opacity:1;transform:translateY(0)}
+  50%{opacity:.8;transform:translateY(-7px)}75%{opacity:.35;transform:translateY(-13px)}
+  100%{opacity:0;transform:translateY(-18px)}}
+.crab .cr .bb{position:absolute;border-radius:50%;background:rgba(255,255,255,.6);
+  border:2px solid var(--sea-deep);opacity:0;animation:cr-bb 2.4s linear infinite}
+.crab .cr .bb.b1{width:12px;height:12px;right:-6px;top:30px}
+.crab .cr .bb.b2{width:8px;height:8px;right:4px;top:40px;animation-delay:.8s}
+.crab .cr .bb.b3{width:15px;height:15px;right:-14px;top:22px;animation-delay:1.6s}
+@keyframes cr-bb{0%{opacity:0;transform:translateY(6px) scale(.6)}25%{opacity:.9;transform:translateY(-6px) scale(1)}
+  50%{opacity:.7;transform:translateY(-20px) scale(1.1)}75%{opacity:.3;transform:translateY(-34px) scale(1.15)}
+  100%{opacity:0;transform:translateY(-46px) scale(1.2)}}
+/* Те, на що краб показує клешнею, обводиться рамкою, що блимає */
+.look{outline:4px solid var(--sun);outline-offset:4px;border-radius:18px;animation:look 1s ease-in-out 3}
+@keyframes look{0%,100%{outline-color:transparent}50%{outline-color:var(--sun)}}
+/* Прапорець, який краб щойно поставив, прилітає згори */
+.island .flag.new{animation:flagup .7s}
+@keyframes flagup{0%{transform:translateY(-22px) scale(.3);opacity:0}70%{transform:translateY(2px) scale(1.2)}100%{transform:none}}
 @media (max-width:420px){.ans{font-size:1.9rem;min-height:72px}.stage{font-size:2rem}img.pic{width:44px;height:44px}
   .card img.pic{width:48px;height:48px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -157,6 +293,8 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
     </div>
   </header>
   <main id="app"></main>
+  <button class="crab" id="crab" hidden aria-label="Послухати краба">
+    <span class="cr" id="crpic"></span><p class="bub" id="bub"></p></button>
   <p class="note">Демо для 1 класу. Картинки, голос і музика беруться з папки assets поруч із файлом; якщо їх немає, показуються емодзі й системний голос.</p>
 </div>
 
@@ -172,30 +310,51 @@ const A = 'assets/';
 const asset = p => (window.EMBED && window.EMBED[p]) || A + p;
 
 // ---------- Profiles: every child on the tablet keeps their own stars and log.
-// v1 kept a flat {lesson: stars} map; it becomes the first child so nobody
-// loses what they already earned.
 const AVATARS = ['🦊','🐱','🐻','🐸','🐥','🐼','🦉','🐝','🐬','🦄','🐢','🐰'];
-let DB = {v:2, cur:null, kids:{}};
+// v4 зберігає зірки за рівнями (stars[урок][рівень]), наліпки (st) і день
+// останньої мандрівки (day). Усе старе переноситься, щоб ніхто не втратив
+// зароблене: v1 — плоске {урок: зірки}, v3 — вже за рівнями, але без наліпок.
+let DB = {v:4, cur:null, kids:{}};
+function fix(kids){
+  for (const k of Object.values(kids || {})){
+    for (const [les, val] of Object.entries(k.stars || {}))
+      if (typeof val === 'number') k.stars[les] = {1: val};
+    if (!k.st) k.st = {};
+    if (!('day' in k)) k.day = '';
+    if (typeof k.trips !== 'number') k.trips = 0;
+  }
+  return kids || {};
+}
 try {
   const raw = JSON.parse(localStorage.getItem('ostriv') || '{}');
-  if (raw && raw.v === 2) DB = raw;
+  if (raw && (raw.v === 2 || raw.v === 3 || raw.v === 4)){ DB = raw; DB.v = 4; DB.kids = fix(DB.kids); }
   else if (raw && Object.keys(raw).length){
     const id = 'k'+Date.now();
-    DB.kids[id] = {name:'Гість', ava:'🦊', stars:raw, log:[]}; DB.cur = id;
+    DB.kids[id] = {name:'Гість', ava:'🦊', stars:{}, st:{}, day:'', trips:0, log:[]}; DB.cur = id;
+    for (const [les, val] of Object.entries(raw))
+      if (typeof val === 'number') DB.kids[id].stars[les] = {1: val};
   }
 } catch(e){}
 const save = () => { try { localStorage.setItem('ostriv', JSON.stringify(DB)); } catch(e){} };
 const kid = () => DB.kids[DB.cur] || null;
 const stars = () => (kid() ? kid().stars : {});
+// Рівнів три. Наступний відкривається, коли на попередньому є хоча б дві
+// зірки: не «пройшов абияк», але й не вимагає ідеалу.
+const LEVELS = [
+  {n:1, name:'Легко',    ico:'🌱', vo:'lv_1'},
+  {n:2, name:'Середньо', ico:'🌿', vo:'lv_2'},
+  {n:3, name:'Складно',  ico:'🌳', vo:'lv_3'},
+];
+const starsAt = (id, lvl) => ((stars()[id] || {})[lvl] || 0);
+const lessonStars = id => LEVELS.reduce((a, L) => a + starsAt(id, L.n), 0);
+const levelOpen = (id, lvl) => lvl === 1 || starsAt(id, lvl - 1) >= 2;
+const today = () => { const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 
 // ---------- Teacher reports over the class Wi-Fi, no internet involved.
 // Sent only when the game was opened from the teacher's PC (http://…): from a
 // file:// copy there is nowhere to send, and nothing ever goes anywhere else.
 // If the PC is off, results wait in the queue and go with the next lesson.
-// Звітуємо завжди, коли сторінку віддав сервер — байдуже, повна це версія
-// чи однофайлова: режим вчителя роздає і ту, і ту. З файлу (file://) слати
-// нікуди. Якщо сервер каже, що такої адреси немає (гра відкрита зі
-// сторінки в інтернеті), вимикаємо звіт до кінця сеансу й чистимо чергу.
 let REPORT = location.protocol.startsWith('http') ? 'api/report' : null;
 let queue = [];
 try { queue = JSON.parse(localStorage.getItem('ostriv_q') || '[]'); } catch(e){}
@@ -245,6 +404,7 @@ function say(parts){ // parts: [[id, text], ...]
   const next = () => {
     if(token!==playToken || i>=parts.length) return;
     const p = parts[i++];
+    if(!p || !p[0]){ next(); return; }
     if(p[0].startsWith('en:')){ tts(p[1], next, token, true); return; }  // англійське слово
     if(noFile.has(p[0])){ tts(p[1], next, token); return; }
     const a = new Audio(asset('voice/'+p[0]+'.wav')); cur = a;
@@ -255,13 +415,119 @@ function say(parts){ // parts: [[id, text], ...]
   next();
 }
 
+// ---------- Короткі звукові ефекти. Не файли, а два-три тони з WebAudio:
+// так вони нічого не важать, працюють офлайн і не чекають завантаження.
+let AC = null;
+function beep(seq, vol){
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+  } catch(e){ return; }
+  let t = AC.currentTime + .01;
+  for (const [f, d] of seq){
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(vol || .13, t + .012);
+    g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g); g.connect(AC.destination);
+    o.start(t); o.stop(t + d + .02);
+    t += d * .85;
+  }
+}
+const sfxOk   = () => beep([[880,.09],[1320,.17]]);
+const sfxNo   = () => beep([[330,.13],[240,.2]], .09);
+const sfxWin  = () => beep([[660,.1],[880,.1],[1100,.1],[1320,.28]]);
+const sfxGift = () => beep([[1040,.07],[1560,.07],[2080,.2]], .1);
+
+// ---------- Краб Клац: вітає, підказує й радіє. Говорить замість гри —
+// дитині потрібен хтось, а не безликий рядок унизу екрана.
+// Третім елементом у фразі — настрій. Настрій це не окрема картинка, а
+// свій цикл руху з п'яти ключів (CSS) плюс, за потреби, предмет у клешні:
+// p — картинка предмета, z — «z-z-z» уві сні, b — бульбашки під водою.
+// Пози окремими картинками не вийшли, причина записана в README.
+const MOODS = {
+  hi:    {},
+  walk:  {},
+  joy:   {},
+  clap:  {},
+  oops:  {},
+  point: {},
+  think: {},
+  sleep: {z: true},
+  swim:  {b: true},
+  flag:  {p: ['gx_flag', '🚩']},
+  star:  {p: ['o_star', '⭐']},
+  read:  {p: ['gx_book', '📖']},
+};
+const CRAB = {
+  hi:    ['g_hi',     'Привіт! Я краб Клац. Обери острів, і попливли.', 'hi'],
+  lvl:   ['g_lvl',    'Вибери рівень. Починай із легкого.', 'think'],
+  go:    ['g_go',     'Слухай уважно. Я поруч.', 'point'],
+  good:  ['g_good',   'Ось так! Ти молодець.', 'joy'],
+  oops:  ['g_oops',   'Ой! Не страшно, спробуй ще.', 'oops'],
+  hint:  ['g_hint',   'Дивись, ось правильна відповідь.', 'point'],
+  fin3:  ['g_fin3',   'Три зірки! Тримай наліпку в альбом.', 'joy'],
+  fin:   ['g_fin',    'Урок пройдено. Ходімо далі.', 'joy'],
+  flag:  ['g_flag',   'Ставлю прапорець! Цей острів ти вже пройшов.', 'flag'],
+  daily: ['g_daily',  "Щоденна мандрівка: п'ять завдань з різних островів.", 'joy'],
+  album: ['g_album',  'Ось твій альбом. Збери всі наліпки!', 'joy'],
+  sleep: ['g_sleep',  'Я трохи подрімаю. Торкнись мене, коли будеш готовий.', 'sleep'],
+};
+let crabSaid = null, greeted = false, dozeT = null;
+
+function setMood(mood){
+  const el = $('#crab'), cr = $('#crpic');
+  if (el.dataset.mood === mood) return;
+  el.dataset.mood = mood;
+  const m = MOODS[mood] || MOODS.hi;
+  cr.innerHTML = `<span class="rig"><span class="body">${pic('g_krab', '🦀')}</span>`
+    + (m.p ? `<span class="prop">${pic(m.p[0], m.p[1])}</span>` : '')
+    + (m.z ? '<span class="zzz">z z z</span>' : '')
+    + (m.b ? '<span class="bb b1"></span><span class="bb b2"></span><span class="bb b3"></span>' : '')
+    + '</span>';
+  const rig = cr.querySelector('.rig');
+  rig.classList.remove('pop'); void rig.offsetWidth; rig.classList.add('pop');
+}
+// Краб показує клешнею на те, про що говорить: рамка блимає, а сам він
+// розвертається в той бік. Для шестирічки це зрозуміліше за будь-який текст.
+function lookAt(sel){
+  const el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+  if (!el) return;
+  // Світитися має рівно одне: дві рамки одночасно — це вже не підказка.
+  document.querySelectorAll('.look').forEach(x => x.classList.remove('look'));
+  void el.offsetWidth; el.classList.add('look');
+  setTimeout(() => el.classList.remove('look'), 3200);
+  const r = el.getBoundingClientRect(), c = $('#crab').getBoundingClientRect();
+  $('#crab').classList.toggle('flip', r.left + r.width/2 < c.left + 60);
+}
+function guide(p, speak, target, mood){
+  crabSaid = p;
+  $('#crab').hidden = false;
+  setMood(mood || p[2] || 'hi');
+  $('#bub').textContent = p[1];
+  if (!target) $('#crab').classList.remove('flip');
+  if (speak) say([p]);
+  if (target) setTimeout(() => lookAt(target), 60);
+  // Якщо планшет лишили відкритим, краб засинає — і не блимає позою
+  // на порожньому екрані доти, доки дитина не повернеться.
+  clearTimeout(dozeT);
+  if (p !== CRAB.sleep) dozeT = setTimeout(() => { crabSaid = p; setMood('sleep');
+    $('#crab').dataset.back = '1'; $('#bub').textContent = CRAB.sleep[1]; }, 60000);
+}
+$('#crab').onclick = () => {
+  if ($('#crab').dataset.back){ delete $('#crab').dataset.back; guide(crabSaid, true); return; }
+  if (crabSaid) say([crabSaid]);
+};
+
 // ---------- Music: assets/music/theme.wav
 const music = new Audio(asset('music/theme.wav')); music.loop = true; music.volume = .2; music.preload = 'auto';
 music.addEventListener('canplaythrough', ()=>{ $('#music').hidden = false; }, {once:true});
 $('#music').onclick = () => { if(music.paused){ music.play().catch(()=>{}); $('#music').textContent='🔇 Тиша'; } else { music.pause(); $('#music').textContent='🎵 Музика'; } };
 
 // ---------- Content
-const NUM = ['нуль','один','два','три','чотири','п’ять','шість','сім','вісім','дев’ять','десять'];
+const NUM = ['нуль','один','два','три','чотири','п’ять','шість','сім','вісім','дев’ять','десять',
+  'одинадцять','дванадцять'];
 const n = k => ['n'+k, NUM[k]];
 const P = {
   count:['p_count','Порахуй. Скільки тут предметів?'], plus:['p_plus','додати'], together:['p_together','Скільки буде разом?'],
@@ -278,57 +544,94 @@ const P = {
   show:['p_show','Покажи'], shadow:['p_shadow','Чия це тінь?'], more:['p_more','Де більше?'],
   addto:['p_addto','Скільки треба додати, щоб стало'], de:['p_de','Де'],
   alive:['p_alive','Це жива природа чи нежива?'],
+  parts:['p_parts','Скільки частин у слові?'],
+  partsMore:['p_parts_more','У якому слові більше частин?'],
+  weather:['p_weather','Яка це погода?'], wear:['p_wear','Що вдягнути, коли'],
+  season:['p_season','Яка це пора року?'],
+  gift:['p_gift','Ти отримуєш наліпку!'],
 };
 const PRAISE = [['ok_1','Молодець!'],['ok_2','Чудово!'],['ok_3','Так тримати!'],['ok_4','Правильно!'],['ok_5','Супер!']];
 const FIN = {3:['f_3','Бездоганно!'],2:['f_2','Дуже добре!'],1:['f_1','Урок пройдено!']};
 const STARS = {1:['st_1','одну зірку'],2:['st_2','дві зірки'],3:['st_3','три зірки']};
 
 const FRUIT = [['o_apple','🍎'],['o_pear','🍐'],['o_strawberry','🍓'],['o_carrot','🥕'],['o_fish','🐟'],['o_star','⭐'],['o_balloon','🎈'],['o_ladybug','🐞']];
-function numOpts(k,lo,hi){ const s=new Set([k]); while(s.size<3){const d=k+(rnd(2)?1:-1)*(1+rnd(2)); if(d>=lo&&d<=hi) s.add(d);} return shuffle([...s]).map(v=>({v:String(v),html:String(v)})); }
-function mathTasks(){
-  const t = [];
-  for (let i=0;i<2;i++){
-    const c = 3+rnd(7), f = FRUIT[rnd(FRUIT.length)];
-    t.push({prompt:'Скільки тут предметів?', speak:[P.count], stage: pic(f[0],f[1]).repeat(c), answer:String(c), options:numOpts(c,1,10)});
+function numOpts(k, lo, hi, m){
+  m = m || 3;
+  const s = new Set([k]), room = hi - lo + 1;
+  let spin = 0;
+  while (s.size < Math.min(m, room) && spin++ < 300){
+    const d = k + (rnd(2) ? 1 : -1) * (1 + rnd(m));
+    if (d >= lo && d <= hi) s.add(d);
   }
-  for (let i=0;i<3;i++){
-    const plus = i<2 || Math.random()<.5;
-    let a = 1+rnd(5), b = 1+rnd(4); if(!plus && b>a) [a,b]=[b,a];
-    const r = plus? a+b : a-b, f = FRUIT[rnd(FRUIT.length)], p = pic(f[0],f[1]);
+  return shuffle([...s]).map(v => ({v:String(v), html:String(v)}));
+}
+// Відповіді з набору: правильна плюс стільки інших, скільки просять.
+function optsFrom(pool, right, m, mk){
+  const others = pick(pool.filter(x => x !== right), m - 1);
+  return shuffle([right].concat(others)).map(mk);
+}
+// Текстова кнопка, яку можна послухати: html — що видно, vo/tx — що звучить.
+const say1 = (v, text, vo) => ({v, html:text, vo, tx:text});
+
+function mathTasks(v){
+  const t = [];
+  const cnt = v===1 ? 3 : v===2 ? 2 : 0;
+  for (let i=0;i<cnt;i++){
+    const c = v===1 ? 2+rnd(4) : 3+rnd(7), f = FRUIT[rnd(FRUIT.length)];
+    t.push({prompt:'Скільки тут предметів?', speak:[P.count], stage: pic(f[0],f[1]).repeat(c),
+      answer:String(c), options:numOpts(c, 1, 10, v===3?4:3)});
+  }
+  while (t.length < 5){
+    const plus = v===1 ? true : v===2 ? (t.length<4 || Math.random()<.5) : Math.random()<.45;
+    const top = v===1 ? 3 : 5, cap = v===1 ? 5 : 10;
+    let a = 1+rnd(top), b = 1+rnd(top);
+    if (!plus && b > a) [a,b] = [b,a];
+    if (plus && a+b > cap) a = Math.max(1, cap - b);
+    const r = plus ? a+b : a-b, f = FRUIT[rnd(FRUIT.length)], p = pic(f[0],f[1]);
     t.push({prompt: plus?'Скільки буде разом?':'Скільки залишилось?',
       speak: plus? [n(a),P.plus,n(b),P.together] : [P.was,n(a),P.took,n(b),P.left],
       stage: plus
         ? `<span>${p.repeat(a)}</span><span class="op">+</span><span>${p.repeat(b)}</span><span class="word">${a} + ${b} = ?</span>`
         : `<span>${p.repeat(a-b)}<span class="faded">${p.repeat(b)}</span></span><span class="word">${a} − ${b} = ?</span>`,
-      answer:String(r), options:numOpts(r,0,10)});
+      answer:String(r), options:numOpts(r, 0, 10, v===3?4:3)});
   }
-  return t;
+  return shuffle(t);
 }
 
 const WORDS = [['w_kit','🐱','кіт','К'],['w_yabluko','🍎','яблуко','Я'],['w_ryba','🐟','риба','Р'],['w_sontse','🌞','сонце','С'],['w_khata','🏠','хата','Х'],
   ['w_bdzhola','🐝','бджола','Б'],['w_lysytsia','🦊','лисиця','Л'],['w_vedmid','🐻','ведмідь','В'],['w_misiats','🌙','місяць','М'],['w_zhaba','🐸','жаба','Ж'],
   ['w_kachka','🦆','качка','К'],['w_slon','🐘','слон','С'],['w_derevo','🌳','дерево','Д'],['w_puhach','🦉','пугач','П'],['w_lymon','🍋','лимон','Л'],['w_mysha','🐭','миша','М'],['w_podarunok','🎁','подарунок','П']];
 const LETTERS = 'АБВГДЖЗКЛМНОПРСТУХЯ'.split('');
-function readTasks(){
-  const used = new Set(), t = [];
-  for (const w of shuffle(WORDS)){ if(used.has(w[3])) continue; used.add(w[3]);
-    const opts = new Set([w[3]]); while(opts.size<3) opts.add(LETTERS[rnd(LETTERS.length)]);
+function readTasks(v){
+  const used = new Set(), t = [], m = v===1 ? 3 : 4;
+  for (const w of shuffle(WORDS)){
+    if (used.has(w[3])) continue;
+    used.add(w[3]);
+    const opts = new Set([w[3]]);
+    while (opts.size < m) opts.add(LETTERS[rnd(LETTERS.length)]);
+    // На складному рівні слово не підписане: лишається тільки картинка й голос.
     t.push({prompt:'З якої букви починається слово?', speak:[[w[0],w[2]],P.letter,[w[0],w[2]]],
-      stage:`<span class="big">${pic(w[0],w[1])}</span><span class="word">${'_'+w[2].slice(1)}</span>`,
-      answer:w[3], options:shuffle([...opts]).map(v=>({v,html:v}))});
-    if(t.length===5) break; }
+      stage:`<span class="big">${pic(w[0],w[1])}</span>`
+            + (v===3 ? '' : `<span class="word">${'_'+w[2].slice(1)}</span>`),
+      answer:w[3], options:shuffle([...opts]).map(x=>({v:x, html:x}))});
+    if (t.length===5) break;
+  }
   return t;
 }
 
 const SHAPES = [['s_red','🔴'],['s_blue','🔵'],['s_yellow','🟡'],['s_green','🟢'],['s_purple','🟣'],['s_star','⭐'],['s_triangle','🔺'],['s_square','🟧']];
-function logicTasks(){
-  const kinds = ['AB','AB','ABC','AAB','ABB'], t=[];
+function logicTasks(v){
+  const kinds = v===1 ? ['AB','AB','AB','ABA','AAB']
+              : v===2 ? ['AB','ABC','AAB','ABB','ABC']
+                      : ['ABC','AAB','ABB','ABCB','AABB'];
+  const t = [], m = v===3 ? 4 : 3;
   for (const k of shuffle(kinds)){
     const sym = pick(SHAPES, 3), map = {A:sym[0],B:sym[1],C:sym[2]};
-    const len = k.length===2? 5 : k.length===3? 6+rnd(2) : 7;
+    const len = k.length===2 ? 5 : k.length===3 ? 6+rnd(2) : 7;
     const seq = Array.from({length:len+1},(_,i)=>map[k[i%k.length]]);
     const ans = seq.pop();
-    const opts = new Set([ans]); for(const s of shuffle(SHAPES)){ if(opts.size<3) opts.add(s); }
+    const opts = new Set([ans]);
+    for (const s of shuffle(SHAPES)) if (opts.size < m) opts.add(s);
     t.push({prompt:'Що буде далі?', speak:[P.pattern],
       stage: seq.map(s=>pic(s[0],s[1])).join('')+`<span class="slot">?</span>`,
       answer:ans[0], options:shuffle([...opts]).map(s=>({v:s[0],html:pic(s[0],s[1])}))});
@@ -336,68 +639,72 @@ function logicTasks(){
   return t;
 }
 
-// ---------- Memory: find the pairs. Rounds grow from 3 to 4 pairs.
-function memoTasks(){
-  return [3,3,4,4].map(n => ({kind:'memo', prompt:'Знайди однакові картинки', speak:[P.memo],
-    pairs: pick(WORDS, n)}));
+// ---------- Memory: find the pairs. Rounds grow with the level.
+function memoTasks(v){
+  const rounds = v===1 ? [3,3,3] : v===2 ? [3,4,4] : [4,5,5];
+  return rounds.map(k => ({kind:'memo', prompt:'Знайди однакові картинки', speak:[P.memo],
+    pairs: pick(WORDS, k)}));
 }
 
-// ---------- Tracing with a finger. Letters first, then digits.
+// ---------- Tracing with a finger. Vowels first, then consonants, then both.
 // Each prompt is one recorded phrase, not a letter clip glued to a phrase:
 // a letter on its own comes out of the synthesiser as noise, and the name of
 // a consonant («ем», «ен») is what a first-grader is taught anyway.
-const TRACE_LETTERS = [['А','t_a','а'],['О','t_o','о'],['У','t_u','у'],['И','t_y','и'],
-  ['М','t_m','ем'],['Н','t_en','ен'],['Л','t_el','ел'],['С','t_es','ес'],['К','t_ka','ка']];
-function traceTasks(){
-  const t = pick(TRACE_LETTERS, 3).map(([ch,id,name]) => ({kind:'trace', glyph:ch,
-    prompt:'Обведи пальцем букву '+ch,
-    speak:[[id, 'Обведи пальцем букву '+name]]}));
-  for (const k of pick([1,2,3,4,5], 2))
-    t.push({kind:'trace', glyph:String(k), prompt:'Обведи пальцем цифру '+k,
+const TRACE_V = [['А','t_a','а'],['О','t_o','о'],['У','t_u','у'],['И','t_y','и']];
+const TRACE_C = [['М','t_m','ем'],['Н','t_en','ен'],['Л','t_el','ел'],['С','t_es','ес'],['К','t_ka','ка']];
+function traceTasks(v){
+  const t = [];
+  const lets = v===1 ? pick(TRACE_V, 3) : v===2 ? pick(TRACE_C, 3)
+                                                : pick(TRACE_V.concat(TRACE_C), 3);
+  for (const [ch,id,name] of lets)
+    t.push({kind:'trace', glyph:ch, hard:v===3, prompt:'Обведи пальцем букву '+ch,
+      speak:[[id, 'Обведи пальцем букву '+name]]});
+  const digits = v===1 ? pick([1,2,3], 2) : v===2 ? pick([2,3,4,5], 2) : pick([1,2,3,4,5], 2);
+  for (const k of digits)
+    t.push({kind:'trace', glyph:String(k), hard:v===3, prompt:'Обведи пальцем цифру '+k,
       speak:[['t_d'+k, 'Обведи пальцем цифру '+NUM[k]]]});
   return t;
 }
 
 // ---------- "Я досліджую світ": where it lives, what is odd, living or not.
-// Deliberately built from pictures the game already has, so the lesson needs
-// no new assets at all.
 const BY_ID = Object.fromEntries(WORDS.map(w => [w[0], w]));
 const HOMES = {
   water:  ['w_ryba','w_zhaba','w_kachka'],
   forest: ['w_lysytsia','w_vedmid','w_bdzhola','w_puhach'],
   house:  ['w_kit','w_mysha'],
 };
-const HOME_NAME = {water:'🌊 у воді', forest:'🌳 у лісі', house:'🏠 у хаті'};
+const HOME_NAME = {water:['🌊 у воді','a_water'], forest:['🌳 у лісі','a_forest'],
+  house:['🏠 у хаті','a_house']};
 const ALIVE = ['w_kit','w_ryba','w_bdzhola','w_lysytsia','w_vedmid','w_zhaba',
   'w_kachka','w_slon','w_derevo','w_puhach','w_mysha'];
-const THINGS = [['w_sontse','нежива'],['w_misiats','нежива'],['w_khata','нежива'],
-  ['w_podarunok','нежива']];
+const THINGS = ['w_sontse','w_misiats','w_khata','w_podarunok'];
 const FOODS = ['o_apple','o_pear','o_strawberry','o_carrot','w_lymon'];
 
-function worldTasks(){
-  const t = [];
-  for (const home of pick(Object.keys(HOMES), 2)){
-    const w = BY_ID[HOMES[home][rnd(HOMES[home].length)]];
-    t.push({prompt:'Де це живе?', speak:[P.where,[w[0],w[2]]],
-      stage:`<span class="big">${pic(w[0],w[1])}</span><span class="word">${w[2]}</span>`,
-      answer:home,
-      options:shuffle(Object.keys(HOMES)).map(h=>({v:h, html:HOME_NAME[h]}))});
-  }
-  // odd one out: two of a kind and one from another group
-  for (let i=0;i<1;i++){
-    const same = pick(FOODS, 2), odd = ALIVE[rnd(ALIVE.length)];
-    const all = shuffle(same.concat([odd]));
-    t.push({prompt:'Що тут зайве?', speak:[P.odd], stage:'',
-      answer:odd,
-      options:all.map(id=>({v:id, html:pic(id, (BY_ID[id]||FRUIT.find(f=>f[0]===id)||['','❔'])[1])}))});
-  }
-  for (const id of pick(ALIVE, 1).concat(pick(THINGS.map(x=>x[0]), 1))){
-    const w = BY_ID[id];
-    t.push({prompt:'Це жива природа чи нежива?', speak:[P.alive,[id,w[2]]],
-      stage:`<span class="big">${pic(id,w[1])}</span><span class="word">${w[2]}</span>`,
-      answer: ALIVE.includes(id) ? 'alive' : 'thing',
-      options:shuffle([{v:'alive',html:'🌱 жива'},{v:'thing',html:'🪨 нежива'}])});
-  }
+function homeTask(){
+  const home = pick(Object.keys(HOMES), 1)[0];
+  const w = BY_ID[HOMES[home][rnd(HOMES[home].length)]];
+  return {prompt:'Де це живе?', speak:[P.where,[w[0],w[2]]],
+    stage:`<span class="big">${pic(w[0],w[1])}</span><span class="word">${w[2]}</span>`,
+    answer:home,
+    options:shuffle(Object.keys(HOMES)).map(h=>say1(h, HOME_NAME[h][0], HOME_NAME[h][1]))};
+}
+function oddTask(m){
+  const same = pick(FOODS, m), odd = ALIVE[rnd(ALIVE.length)];
+  return {prompt:'Що тут зайве?', speak:[P.odd], stage:'', answer:odd,
+    options: shuffle(same.concat([odd])).map(id=>({v:id, html:pic(id, emoOf(id))}))};
+}
+function aliveTask(){
+  const id = Math.random()<.5 ? ALIVE[rnd(ALIVE.length)] : THINGS[rnd(THINGS.length)];
+  const w = BY_ID[id];
+  return {prompt:'Це жива природа чи нежива?', speak:[P.alive,[id,w[2]]],
+    stage:`<span class="big">${pic(id,w[1])}</span><span class="word">${w[2]}</span>`,
+    answer: ALIVE.includes(id) ? 'alive' : 'thing',
+    options:shuffle([say1('alive','🌱 жива','a_alive'), say1('thing','🪨 нежива','a_thing')])};
+}
+function worldTasks(v){
+  const t = v===1 ? [homeTask(), homeTask(), homeTask(), aliveTask(), aliveTask()]
+          : v===2 ? [homeTask(), homeTask(), oddTask(2), aliveTask(), aliveTask()]
+                  : [homeTask(), oddTask(3), oddTask(3), aliveTask(), homeTask()];
   return shuffle(t);
 }
 
@@ -413,13 +720,15 @@ const EN = [['cat','w_kit'],['fish','w_ryba'],['apple','o_apple'],['bear','w_ved
   ['balloon','o_balloon'],['red','s_red'],['blue','s_blue'],['green','s_green'],
   ['yellow','s_yellow']];
 const EMO = Object.fromEntries(WORDS.concat(FRUIT, SHAPES).map(w => [w[0], w[1]]));
-function enTasks(){
+const emoOf = id => EMO[id] || '❔';
+function enTasks(v){
+  const m = v===1 ? 3 : v===2 ? 4 : 5;
   return pick(EN, 5).map(([word, id]) => {
-    const others = pick(EN.filter(e => e[1] !== id), 2);
+    const others = pick(EN.filter(e => e[1] !== id), m - 1);
     const opts = shuffle([[word,id]].concat(others));
     return {prompt:'Послухай і вибери: ' + word, speak:[P.listen, ['en:'+word, word]],
       stage:'', answer:id,
-      options:opts.map(([,oid]) => ({v:oid, html:pic(oid, EMO[oid] || '❔')}))};
+      options:opts.map(([,oid]) => ({v:oid, html:pic(oid, emoOf(oid))}))};
   });
 }
 
@@ -449,47 +758,50 @@ function clockFace(h){
     <circle cx="50" cy="50" r="3.5" fill="currentColor"/></svg>`;
 }
 const DAYPART = [
-  ['ранок', 'Сонце тільки встає', 'w_sontse'],
-  ['день',  'Сонце високо, найсвітліше', 'w_sontse'],
-  ['вечір', 'Сонце сідає, надворі темніє', 'w_sontse'],
-  ['ніч',   'Темно, на небі місяць і зорі', 'w_misiats'],
+  ['ранок', 'Сонце тільки встає', 'w_sontse', 'a_morning'],
+  ['день',  'Сонце високо, найсвітліше', 'w_sontse', 'a_day'],
+  ['вечір', 'Сонце сідає, надворі темніє', 'w_sontse', 'a_evening'],
+  ['ніч',   'Темно, на небі місяць і зорі', 'w_misiats', 'a_night'],
 ];
-function timeTasks(){
+function timeTasks(v){
   const t = [];
-  for (const h of pick([1,2,3,4,5,6,7,8,9,10,11,12], 3)){
+  const hours = v===1 ? [1,2,3,4,5,6] : [1,2,3,4,5,6,7,8,9,10,11,12];
+  const m = v===3 ? 4 : 3;
+  for (const h of pick(hours, 3)){
     const opts = new Set([h]);
-    while (opts.size < 3) opts.add(1 + rnd(12));
+    while (opts.size < m) opts.add(hours[rnd(hours.length)]);
     t.push({prompt:'Котра година?', speak:[P.time], stage: clockFace(h),
-      answer:String(h), options: shuffle([...opts]).map(v=>({v:String(v), html:String(v)}))});
+      answer:String(h), options: shuffle([...opts]).map(x=>({v:String(x), html:String(x)}))});
   }
-  for (const d of pick(DAYPART, 2)){
+  for (const d of pick(DAYPART, 2))
     t.push({prompt: d[1] + '. Коли це буває?', speak:[P.daypart],
-      stage:`<span class="big">${pic(d[2], EMO[d[2]])}</span><span class="word">${d[1]}</span>`,
+      stage:`<span class="big">${pic(d[2], emoOf(d[2]))}</span><span class="word">${d[1]}</span>`,
       answer:d[0],
-      options: shuffle(DAYPART.map(x=>x[0])).map(v=>({v, html:v}))});
-  }
+      options: optsFrom(DAYPART, d, v===1 ? 3 : 4, x => say1(x[0], x[0], x[3]))});
   return shuffle(t);
 }
 
-// ---------- Money: hryvnia coins, drawn with CSS. Sums stay within ten,
-// so it is the counting lesson again, only in a shape the child meets in a shop.
+// ---------- Money: hryvnia coins, drawn with CSS. Sums stay within ten on the
+// first two levels, so it is the counting lesson again, only in a shape the
+// child meets in a shop.
 const COINS = [1, 2, 5, 10];
-const coin = v => `<span class="coin c${v}">${v}</span>`;
-function moneyTasks(){
+const coin = x => `<span class="coin c${x}">${x}</span>`;
+function moneyTasks(v){
   const t = [];
+  const lo = v===1 ? 2 : 3, hi = v===1 ? 6 : v===2 ? 10 : 20;
   for (let i=0; i<5; i++){
-    let pile = [], sum = 0;
-    while (sum < 3 || sum > 10){
+    let pile = [], sum = 0, spin = 0;
+    while ((sum < lo || sum > hi) && spin++ < 400){
       pile = []; sum = 0;
-      const n = 2 + rnd(3);
-      for (let j=0; j<n; j++){
-        const c = COINS[rnd(i < 2 ? 2 : COINS.length)];
+      const k = 2 + rnd(v===1 ? 2 : 3);
+      for (let j=0; j<k; j++){
+        const c = COINS[rnd(v===1 ? 2 : v===2 ? 3 : COINS.length)];
         pile.push(c); sum += c;
       }
     }
     t.push({prompt:'Скільки тут гривень?', speak:[P.money],
       stage: pile.map(coin).join(''), answer:String(sum),
-      options: numOpts(sum, 1, 12)});
+      options: numOpts(sum, 1, hi + 2, v===3 ? 4 : 3)});
   }
   return t;
 }
@@ -504,92 +816,167 @@ const WORDS_READ = [['мама','МА·МА'],['лама','ЛА·МА'],['мук
   ['молоко','МО·ЛО·КО'],['луна','ЛУ·НА'],['коса','КО·СА'],['лапа','ЛА·ПА']];
 const wdId = w => 'wd_' + w.split('').map(c =>
   ({м:'m',л:'l',с:'s',к:'k',н:'n',п:'p',а:'a',о:'o',у:'u'})[c] || '').join('');
-function syllTasks(){
-  const t = pick(SYLL, 3).map(s => {
+function syllTasks(v){
+  const nsy = v===1 ? 5 : v===2 ? 3 : 1, m = v===3 ? 4 : 3;
+  const t = pick(SYLL, nsy).map(s => {
     const opts = new Set([s]);
-    while (opts.size < 3) opts.add(SYLL[rnd(SYLL.length)]);
+    while (opts.size < m) opts.add(SYLL[rnd(SYLL.length)]);
     return {prompt:'Покажи склад, який почуєш', speak:[P.syll,[syId(s), s]],
       stage:'', answer:s,
-      options: shuffle([...opts]).map(v => ({v, html: v.toUpperCase()}))};
+      options: shuffle([...opts]).map(x => ({v:x, html: x.toUpperCase()}))};
   });
-  for (const [w, split] of pick(WORDS_READ, 2)){
-    const opts = shuffle([[w,split]].concat(pick(WORDS_READ.filter(x=>x[0]!==w), 2)));
+  for (const [w, split] of pick(WORDS_READ, 5 - nsy)){
+    const opts = shuffle([[w,split]].concat(pick(WORDS_READ.filter(x=>x[0]!==w), m-1)));
     t.push({prompt:'Яке слово ти чуєш?', speak:[P.word,[wdId(w), w]], stage:'',
-      answer:w, options: opts.map(([v,s]) => ({v, html:s}))});
+      answer:w, options: opts.map(([x,s]) => ({v:x, html:s}))});
   }
-  return t;
+  return shuffle(t);
 }
 
-// ---------- Shapes and colours. Two of the three answers differ from the
-// right one by exactly one thing — colour or shape — so the child has to hear
-// both words, not guess from one.
+// ---------- Острів Звуків: скільки частин у слові. Дитина ділить слово
+// на склади, плескаючи в долоні — тут вона просто обирає число.
+const SYLW = [['w_kit',1],['w_slon',1],['w_ryba',2],['w_sontse',2],['w_khata',2],
+  ['w_bdzhola',2],['w_vedmid',2],['w_misiats',2],['w_zhaba',2],['w_kachka',2],
+  ['w_puhach',2],['w_lymon',2],['w_mysha',2],['w_yabluko',3],['w_lysytsia',3],
+  ['w_derevo',3],['w_podarunok',4]];
+function soundTasks(v){
+  const t = [];
+  const pool = v===1 ? SYLW.filter(w=>w[1]<=2) : v===2 ? SYLW.filter(w=>w[1]<=3) : SYLW;
+  const top = v===3 ? 4 : 3;
+  for (const [id, k] of pick(pool, v===3 ? 3 : 5)){
+    const w = BY_ID[id], opts = new Set([k]);
+    while (opts.size < 3) opts.add(1 + rnd(top));
+    t.push({prompt:'Скільки частин у слові?', speak:[[id, w[2]], P.parts],
+      stage:`<span class="big">${pic(id, w[1])}</span><span class="word">${w[2]}</span>`,
+      answer:String(k),
+      options: shuffle([...opts]).map(x => ({v:String(x), html:String(x)}))});
+  }
+  for (let i=0; i<(v===3 ? 2 : 0); i++){
+    let a, b, spin = 0;
+    do { [a, b] = pick(SYLW, 2); } while (a[1] === b[1] && spin++ < 60);
+    t.push({prompt:'У якому слові більше частин?',
+      speak:[P.partsMore, [a[0], BY_ID[a[0]][2]], [b[0], BY_ID[b[0]][2]]],
+      stage:'', answer: a[1] > b[1] ? a[0] : b[0],
+      options: [a, b].map(x => ({v:x[0], html: pic(x[0], BY_ID[x[0]][1])}))});
+  }
+  return shuffle(t);
+}
+
+// ---------- Острів Погоди: погода, одяг до неї і пори року. Усі відповіді
+// словами озвучені — дитина чує варіанти, а не читає їх.
+const WEA = [
+  ['w_sontse', 'sunny',  'сонячно', 'a_sunny',  '☀️', 'we_panama',   '👒'],
+  ['we_rain',  'rain',   'дощ',     'a_rain',   '🌧️', 'we_umbrella', '☂️'],
+  ['we_snow',  'snow',   'сніг',    'a_snow',   '❄️', 'we_scarf',    '🧣'],
+  ['we_cloud', 'cloudy', 'хмарно',  'a_cloudy', '☁️', 'we_jacket',   '🧥'],
+];
+const SEASON = [
+  ['se_spring', 'spring', 'весна', 'a_spring', '🌸'],
+  ['se_summer', 'summer', 'літо',  'a_summer', '🌻'],
+  ['se_autumn', 'autumn', 'осінь', 'a_autumn', '🍂'],
+  ['se_winter', 'winter', 'зима',  'a_winter', '⛄'],
+];
+function weaTask(v){
+  const w = WEA[rnd(WEA.length)];
+  return {prompt:'Яка це погода?', speak:[P.weather],
+    stage:`<span class="big">${pic(w[0], w[4])}</span>`, answer:w[1],
+    options: optsFrom(WEA, w, v===1 ? 3 : 4, x => say1(x[1], x[2], x[3]))};
+}
+function wearTask(v){
+  const w = WEA[rnd(WEA.length)];
+  return {prompt:'Що вдягнути, коли ' + w[2] + '?', speak:[P.wear, [w[3], w[2]]],
+    stage:`<span class="big">${pic(w[0], w[4])}</span>`, answer:w[5],
+    options: optsFrom(WEA, w, v===3 ? 4 : 3, x => ({v:x[5], html:pic(x[5], x[6])}))};
+}
+function seasonTask(){
+  const s = SEASON[rnd(SEASON.length)];
+  return {prompt:'Яка це пора року?', speak:[P.season],
+    stage:`<span class="big">${pic(s[0], s[4])}</span>`, answer:s[1],
+    options: optsFrom(SEASON, s, 4, x => say1(x[1], x[2], x[3]))};
+}
+function weatherTasks(v){
+  const t = [];
+  if (v===1) for (let i=0;i<5;i++) t.push(weaTask(1));
+  else if (v===2){ for (let i=0;i<3;i++) t.push(weaTask(2)); t.push(wearTask(2), wearTask(2)); }
+  else { t.push(seasonTask(), seasonTask(), seasonTask(), wearTask(3), wearTask(3)); }
+  return shuffle(t);
+}
+
+// ---------- Shapes and colours. The other answers differ from the right one
+// by exactly one thing — colour or shape — so the child has to hear both
+// words, not guess from one.
 const FIG = [['circle','круг','sh_circle'],['square','квадрат','sh_square'],
   ['triangle','трикутник','sh_triangle'],['rect','прямокутник','sh_rect'],
   ['oval','овал','sh_oval']];
 const FIGCOL = [['red','червоний','c_red'],['blue','синій','c_blue'],
   ['yellow','жовтий','c_yellow'],['green','зелений','c_green']];
-function figTasks(){
+function figTasks(v){
+  const m = v===1 ? 3 : v===2 ? 4 : 5;
   return Array.from({length:5}, () => {
     const f = FIG[rnd(FIG.length)], c = FIGCOL[rnd(FIGCOL.length)];
-    const f2 = pick(FIG.filter(x => x[0] !== f[0]), 1)[0];
-    const c2 = pick(FIGCOL.filter(x => x[0] !== c[0]), 1)[0];
     const id = `f_${f[0]}_${c[0]}`;
-    const opts = shuffle([id, `f_${f2[0]}_${c[0]}`, `f_${f[0]}_${c2[0]}`]);
+    const near = [];
+    for (const f2 of shuffle(FIG)) if (f2[0] !== f[0]) near.push(`f_${f2[0]}_${c[0]}`);
+    for (const c2 of shuffle(FIGCOL)) if (c2[0] !== c[0]) near.push(`f_${f[0]}_${c2[0]}`);
+    const opts = [id];
+    for (const x of shuffle(near)) if (opts.length < m && !opts.includes(x)) opts.push(x);
     return {prompt:`Покажи ${c[1]} ${f[1]}`,
       speak:[P.show, [c[2], c[1]], [f[2], f[1]]],
-      stage:'', answer:id, options: opts.map(v => ({v, html: pic(v, '🔷')}))};
+      stage:'', answer:id, options: shuffle(opts).map(x => ({v:x, html: pic(x, '🔷')}))};
   });
 }
 
 // ---------- Shadows: the same pictures, painted black. Nothing new to draw —
 // the silhouette is a CSS filter over the picture the game already has.
-function shadowTasks(){
-  const pool = WORDS.concat(FRUIT);
-  return pick(pool, 5).map(w => {
-    const opts = shuffle([w].concat(pick(pool.filter(x => x[0] !== w[0]), 2)));
-    return {prompt:'Чия це тінь?', speak:[P.shadow],
-      stage:`<span class="big shadow">${pic(w[0], w[1])}</span>`,
-      answer:w[0], options: opts.map(o => ({v:o[0], html: pic(o[0], o[1])}))};
-  });
+function shadowTasks(v){
+  const pool = WORDS.concat(FRUIT), m = v===1 ? 3 : v===2 ? 4 : 5;
+  return pick(pool, 5).map(w => ({prompt:'Чия це тінь?', speak:[P.shadow],
+    stage:`<span class="big shadow">${pic(w[0], w[1])}</span>`,
+    answer:w[0], options: optsFrom(pool, w, m, o => ({v:o[0], html: pic(o[0], o[1])}))}));
 }
 
 // ---------- More, fewer, the same: counting without counting out loud.
-function compareTasks(){
+function compareTasks(v){
   return Array.from({length:5}, () => {
     const f = FRUIT[rnd(FRUIT.length)], p = pic(f[0], f[1]);
-    let a = 1 + rnd(6), b = 1 + rnd(6);
-    if (rnd(4) === 0) b = a;                       // іноді порівну
+    let a, b;
+    if (v===1){ a = 1 + rnd(4); b = a + 2 + rnd(2); if (rnd(2)) [a,b] = [b,a]; }
+    else if (v===2){ a = 1 + rnd(6); b = 1 + rnd(6); if (rnd(4) === 0) b = a; }
+    else { a = 4 + rnd(6); b = Math.max(1, a + (rnd(3) - 1)); }
     return {prompt:'Де більше?', speak:[P.more],
       stage:`<span class="side">${p.repeat(a)}</span><span class="vs">і</span>`
             + `<span class="side">${p.repeat(b)}</span>`,
       answer: a > b ? 'left' : a < b ? 'right' : 'same',
       // Стрілки текстом, не емодзі: емодзі-стрілки є не в кожному шрифті
       // і на частині пристроїв показуються порожнім прямокутником.
-      options:[{v:'left', html:'← зліва'}, {v:'same', html:'= порівну'},
-               {v:'right', html:'справа →'}]};
+      options:[say1('left','← зліва','a_more_l'), say1('same','= порівну','a_same'),
+               say1('right','справа →','a_more_r')]};
   });
 }
 
 // ---------- Making a number up: "there were three, how many more to make
 // five". The step between counting and real addition.
-function numTasks(){
+function numTasks(v){
+  const hi = v===1 ? 5 : 10;
   return Array.from({length:5}, () => {
-    const total = 4 + rnd(7), have = 1 + rnd(total - 1), need = total - have;
+    const total = (v===1 ? 3 : 4) + rnd(hi - (v===1 ? 2 : 3));
+    const have = 1 + rnd(total - 1), need = total - have;
     const f = FRUIT[rnd(FRUIT.length)], p = pic(f[0], f[1]);
     return {prompt:`Було ${have}. Скільки треба додати, щоб стало ${total}?`,
       speak:[P.was, n(have), P.addto, n(total)],
       stage:`<span class="side">${p.repeat(have)}</span><span class="op">+</span>`
             + `<span class="slot">?</span><span class="word">${have} + ? = ${total}</span>`,
-      answer:String(need), options: numOpts(need, 1, 9)};
+      answer:String(need), options: numOpts(need, 1, 9, v===3 ? 4 : 3)};
   });
 }
 
 // ---------- Which one is third: counting positions, not amounts.
 const ORD = ['перша','друга','третя','четверта',"п'ята"];
-function orderTasks(){
+function orderTasks(v){
+  const len = v===1 ? 3 : 5, m = v===3 ? 4 : 3;
   return Array.from({length:5}, () => {
-    const row = pick(WORDS, 5), k = rnd(5), right = row[k];
-    const opts = shuffle([right].concat(pick(row.filter(w => w !== right), 2)));
+    const row = pick(WORDS, len), k = rnd(len), right = row[k];
+    const opts = shuffle([right].concat(pick(row.filter(w => w !== right), m-1)));
     return {prompt:`Яка картинка ${ORD[k]}?`, speak:[[`or_${k+1}`, `Яка картинка ${ORD[k]}?`]],
       stage:`<span class="rowpics">${row.map(w => pic(w[0], w[1])).join('')}</span>`,
       answer:right[0], options: opts.map(w => ({v:w[0], html: pic(w[0], w[1])}))};
@@ -597,45 +984,71 @@ function orderTasks(){
 }
 
 // ---------- Above, below, beside: the words a teacher uses all day long.
-const PLACE = [['above','вгорі'], ['under','внизу'], ['near','поруч']];
-function placeTasks(){
+const PLACE = [['above','вгорі','a_above'], ['under','внизу','a_under'],
+  ['near','поруч','a_near'], ['left','зліва','a_left'], ['right','справа','a_right']];
+function placeTasks(v){
+  const pool = v===1 ? PLACE.slice(0,3) : v===2 ? PLACE.slice(0,4) : PLACE;
   return Array.from({length:5}, () => {
-    const w = WORDS[rnd(WORDS.length)], pl = PLACE[rnd(PLACE.length)];
+    const w = WORDS[rnd(WORDS.length)], pl = pool[rnd(pool.length)];
     return {prompt:`Де ${w[2]}?`, speak:[P.de, [w[0], w[2]]],
       stage:`<span class="rel ${pl[0]}"><span class="obj">${pic(w[0], w[1])}</span>`
             + `<span class="ref">${pic('w_podarunok','🎁')}</span></span>`,
-      answer:pl[0], options: shuffle(PLACE).map(([v, name]) => ({v, html:name}))};
+      answer:pl[0], options: shuffle(pool).map(([x, name, vo]) => say1(x, name, vo))};
   });
 }
 
 const LESSONS = [
-  {id:'math', img:'i_math', ico:'🧮', name:'Острів Лічби', about:'Лічба до 10, додавання і віднімання', gen:mathTasks},
-  {id:'read', img:'i_read', ico:'🔤', name:'Острів Букв', about:'Перший звук і буква у слові', gen:readTasks},
-  {id:'logic', img:'i_logic', ico:'🧩', name:'Острів Візерунків', about:'Знайди закономірність', gen:logicTasks},
-  {id:'memo', img:'i_memo', ico:'🧠', name:'Острів Пам’яті', about:'Знайди однакові картинки', gen:memoTasks},
-  {id:'write', img:'i_write', ico:'✏️', name:'Острів Письма', about:'Обведи пальцем букву й цифру', gen:traceTasks},
-  {id:'world', img:'i_world', ico:'🌍', name:'Острів Природи', about:'Я досліджую світ: хто де живе', gen:worldTasks},
-  {id:'en', img:'i_english', ico:'🗣️', name:'Острів Англійської', about:'Послухай слово і вибери картинку', gen:enTasks},
-  {id:'time', img:'i_time', ico:'🕒', name:'Острів Часу', about:'Котра година і коли це буває', gen:timeTasks},
-  {id:'money', img:'i_money', ico:'🪙', name:'Острів Гривні', about:'Порахуй гроші до десяти', gen:moneyTasks},
-  {id:'syll', img:'i_syll', ico:'🔊', name:'Острів Читання', about:'Склади і перші слова на слух', gen:syllTasks},
-  {id:'fig', img:'i_fig', ico:'🔷', name:'Острів Фігур', about:'Фігури й кольори на слух', gen:figTasks},
-  {id:'shadow', img:'i_shadow', ico:'🌑', name:'Острів Тіней', about:'Упізнай предмет за тінню', gen:shadowTasks},
-  {id:'compare', img:'i_compare', ico:'⚖️', name:'Острів Порівнянь', about:'Де більше, де менше, де порівну', gen:compareTasks},
-  {id:'num', img:'i_num', ico:'➕', name:'Острів Чисел', about:'Скільки треба додати до десяти', gen:numTasks},
-  {id:'order', img:'i_order', ico:'🔢', name:'Острів Порядку', about:'Яка картинка перша, яка третя', gen:orderTasks},
-  {id:'place', img:'i_place', ico:'📍', name:'Острів Напрямків', about:'Вгорі, внизу, поруч', gen:placeTasks},
+  {id:'math', img:'i_math', ico:'🧮', vo:'nm_math', name:'Острів Лічби', about:'Лічба до 10, додавання і віднімання', gen:mathTasks},
+  {id:'read', img:'i_read', ico:'🔤', vo:'nm_read', name:'Острів Букв', about:'Перший звук і буква у слові', gen:readTasks},
+  {id:'logic', img:'i_logic', ico:'🧩', vo:'nm_logic', name:'Острів Візерунків', about:'Знайди закономірність', gen:logicTasks},
+  {id:'memo', img:'i_memo', ico:'🧠', vo:'nm_memo', name:'Острів Пам’яті', about:'Знайди однакові картинки', gen:memoTasks},
+  {id:'write', img:'i_write', ico:'✏️', vo:'nm_write', name:'Острів Письма', about:'Обведи пальцем букву й цифру', gen:traceTasks},
+  {id:'world', img:'i_world', ico:'🌍', vo:'nm_world', name:'Острів Природи', about:'Я досліджую світ: хто де живе', gen:worldTasks},
+  {id:'en', img:'i_english', ico:'🗣️', vo:'nm_en', name:'Острів Англійської', about:'Послухай слово і вибери картинку', gen:enTasks},
+  {id:'time', img:'i_time', ico:'🕒', vo:'nm_time', name:'Острів Часу', about:'Котра година і коли це буває', gen:timeTasks},
+  {id:'money', img:'i_money', ico:'🪙', vo:'nm_money', name:'Острів Гривні', about:'Порахуй гроші', gen:moneyTasks},
+  {id:'syll', img:'i_syll', ico:'🔊', vo:'nm_syll', name:'Острів Читання', about:'Склади і перші слова на слух', gen:syllTasks},
+  {id:'sound', img:'i_sound', ico:'👏', vo:'nm_sound', name:'Острів Звуків', about:'Скільки частин у слові', gen:soundTasks},
+  {id:'fig', img:'i_fig', ico:'🔷', vo:'nm_fig', name:'Острів Фігур', about:'Фігури й кольори на слух', gen:figTasks},
+  {id:'shadow', img:'i_shadow', ico:'🌑', vo:'nm_shadow', name:'Острів Тіней', about:'Упізнай предмет за тінню', gen:shadowTasks},
+  {id:'compare', img:'i_compare', ico:'⚖️', vo:'nm_compare', name:'Острів Порівнянь', about:'Де більше, де менше, де порівну', gen:compareTasks},
+  {id:'num', img:'i_num', ico:'➕', vo:'nm_num', name:'Острів Чисел', about:'Скільки треба додати', gen:numTasks},
+  {id:'order', img:'i_order', ico:'🔢', vo:'nm_order', name:'Острів Порядку', about:'Яка картинка перша, яка третя', gen:orderTasks},
+  {id:'place', img:'i_place', ico:'📍', vo:'nm_place', name:'Острів Напрямків', about:'Вгорі, внизу, поруч', gen:placeTasks},
+  {id:'weather', img:'i_weather', ico:'🌦️', vo:'nm_weather', name:'Острів Погоди', about:'Погода, одяг і пори року', gen:weatherTasks},
 ];
+const BY_LES = Object.fromEntries(LESSONS.map(l => [l.id, l]));
+// Вісімнадцять островів в одному списку дитина не охопить оком, тому вони
+// зібрані в чотири моря — і видно, де чого ще не зібрано.
+const SEAS = [
+  {id:'snum',   ico:'🔢', vo:'sea_num',   name:'Море Чисел',
+   ls:['math','num','compare','order','money','time']},
+  {id:'slang',  ico:'🔤', vo:'sea_lang',  name:'Море Мови',
+   ls:['read','syll','sound','write','en']},
+  {id:'sworld', ico:'🌍', vo:'sea_world', name:'Море Світу',
+   ls:['world','weather','place','fig']},
+  {id:'smind',  ico:'🧠', vo:'sea_mind',  name:'Море Уваги',
+   ls:['memo','logic','shadow']},
+];
+// Наліпки — ті самі картинки, що й у завданнях: домальовувати нічого не
+// довелося, а колекція з двадцяти п'яти збирається якраз за чверть.
+const STICKERS = WORDS.map(w => [w[0], w[1]]).concat(FRUIT);
 
 // ---------- Screens
+function kidStars(k){
+  let s = 0;
+  for (const v of Object.values(k.stars || {}))
+    s += typeof v === 'number' ? v : Object.values(v).reduce((a,b)=>a+b, 0);
+  return s;
+}
 function who(){
-  $('#me').hidden = true; $('#total').textContent = 0;
+  $('#me').hidden = true; $('#total').textContent = 0; $('#crab').hidden = true;
   const list = Object.entries(DB.kids);
   $('#app').innerHTML = `<div style="display:flex;flex-direction:column;gap:16px">
     <p class="lead">Хто сьогодні грає?</p>
     <div class="map">${list.map(([id,k])=>`<div class="kidwrap">
         <button class="island" data-id="${id}"><span class="ico">${k.ava}</span>
-          <h2>${k.name}</h2><p>Зірок: ${Object.values(k.stars).reduce((a,b)=>a+b,0)}</p></button>
+          <h2>${k.name}</h2><p>Зірок: ${kidStars(k)}</p></button>
         <button class="x" data-del="${id}" aria-label="Прибрати ${k.name}">×</button></div>`).join('')}
       <button class="island" id="add"><span class="ico">➕</span><h2>Новий гравець</h2>
         <p>Для нової дитини</p></button></div></div>`;
@@ -664,28 +1077,132 @@ function addKid(){
   $('#cancel').onclick = who;
   $('#ok').onclick = () => {
     const id = 'k' + Date.now();
-    DB.kids[id] = {name: ($('#nm').value || '').trim() || 'Гравець', ava, stars:{}, log:[]};
+    DB.kids[id] = {name: ($('#nm').value || '').trim() || 'Гравець', ava, stars:{}, st:{},
+      day:'', trips:0, log:[]};
     DB.cur = id; save(); home();
   };
   $('#nm').focus();
 }
 
-function totalStars(){ return Object.values(stars()).reduce((a,b)=>a+b,0); }
+function totalStars(){
+  return LESSONS.reduce((a, l) => a + lessonStars(l.id), 0);
+}
+// Прапорець — за перші три зірки, трофей — коли всі дев'ять: щоб здалеку
+// було видно, де дитина вже була і де вже нічого не лишилось.
+const mark = s => s >= 9 ? '🏆' : s >= 3 ? '🚩' : '';
+// Острів, на якому краб щойно поставив прапорець: його прапорець прилітає
+// згори, а не просто з'являється між двома екранами.
+let NEWFLAG = null;
+function islandCard(l, fresh){
+  const s = lessonStars(l.id), m = mark(s);
+  return `<button class="island" data-id="${l.id}">
+    <span class="ico">${pic(l.img, l.ico)}${m ? `<b class="flag${fresh ? ' new' : ''}">${m}</b>` : ''}</span>
+    <h2>${l.name}</h2><p>${l.about}</p>
+    <span class="got${s>6?' nine':''}">${'★'.repeat(s)}<i>${'★'.repeat(9-s)}</i></span></button>`;
+}
 function home(){
   if (!kid()) return who();
   $('#total').textContent = totalStars();
   $('#me').hidden = false;
   $('#me').textContent = `${kid().ava} ${kid().name}`;
-  $('#app').innerHTML = `<div style="display:flex;flex-direction:column;gap:16px">
-    <p class="lead">Обери острів. На кожному кілька завдань. Якщо помилишся, не страшно: з'явиться підказка.</p>
-    <div class="map">${LESSONS.map(l=>{ const s = stars()[l.id]||0;
-      return `<button class="island" data-id="${l.id}"><span class="ico">${pic(l.img,l.ico)}</span><h2>${l.name}</h2><p>${l.about}</p>
-      <span class="got">${'★'.repeat(s)}<i>${'★'.repeat(3-s)}</i></span></button>`}).join('')}</div></div>`;
-  document.querySelectorAll('.island').forEach(b=>b.onclick=()=>start(b.dataset.id));
+  const k = kid(), doneToday = k.day === today();
+  const mine = Object.keys(k.st || {}).length;
+  $('#app').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
+    <p class="lead">Обери острів. На кожному три рівні. Якщо помилишся, не страшно: з'явиться підказка.</p>
+    <div class="map">
+      <button class="island" id="trip" ${doneToday ? 'disabled' : ''}>
+        <span class="ico">${doneToday ? '✅' : '🧭'}</span>
+        <h2>Щоденна мандрівка</h2>
+        <p>${doneToday ? 'Сьогодні вже пройдено. Приходь завтра!' : "П'ять завдань з різних островів"}</p></button>
+      <button class="island" id="alb"><span class="ico">🏅</span><h2>Мої наліпки</h2>
+        <p>Зібрано ${mine} із ${STICKERS.length}</p></button>
+    </div>
+    ${SEAS.map(s => {
+      const got = s.ls.reduce((a,id)=>a+lessonStars(id), 0), max = s.ls.length*9;
+      return `<div class="seahead"><span class="ico">${s.ico}</span>${s.name}
+        <b>${got} / ${max} ★</b></div>
+      <div class="map">${s.ls.map(id => islandCard(BY_LES[id], id === NEWFLAG)).join('')}</div>`;
+    }).join('')}</div>`;
+  document.querySelectorAll('.island[data-id]').forEach(b => b.onclick = () => levels(b.dataset.id));
+  $('#trip').onclick = startDaily;
+  $('#alb').onclick = album;
+  if (NEWFLAG){
+    const sel = `.island[data-id="${NEWFLAG}"] .flag`;
+    NEWFLAG = null;
+    guide(CRAB.flag, true, sel);
+  } else {
+    guide(CRAB.hi, !greeted); greeted = true;
+  }
 }
 
-let L, tasks, idx, mistakes, tries;
-function start(id){ L = LESSONS.find(l=>l.id===id); tasks = L.gen(); idx=0; mistakes=0; show(); }
+// Альбом наліпок: зібрані кольорові, решта — сірі силуети. Саме за цим
+// діти повертаються на вже пройдений урок удесяте.
+function album(){
+  const st = kid().st || {};
+  $('#app').innerHTML = `<section class="lesson">
+    <div class="bar"><button class="back" id="back">← Карта</button></div>
+    <div class="q"><h3>Мої наліпки</h3><button class="say" id="say" aria-label="Послухати">🔊</button></div>
+    <p class="lead" style="text-align:center">Зібрано ${Object.keys(st).length} із ${STICKERS.length}.
+      Нова наліпка — за три зірки й за щоденну мандрівку.</p>
+    <div class="album">${STICKERS.map(([id, emo]) => {
+      const c = st[id] || 0;
+      return `<div class="${c ? '' : 'off'}">${pic(id, emo)}${c>1 ? `<b>×${c}</b>` : ''}</div>`;
+    }).join('')}</div></section>`;
+  $('#back').onclick = home;
+  $('#say').onclick = () => say([CRAB.album]);
+  guide(CRAB.album, true);
+}
+
+// Вибір рівня. Закритий рівень лишається видимим, але підписано, що
+// відкриє його — дитина бачить, куди рухатись.
+function levels(id){
+  const l = BY_LES[id];
+  $('#app').innerHTML = `<section class="lesson">
+    <div class="bar"><button class="back" id="back">← Карта</button></div>
+    <div class="q"><h3>${l.name}</h3><button class="say" id="say" aria-label="Послухати">🔊</button></div>
+    <p class="lead" style="text-align:center">${l.about}</p>
+    <div class="map lvls">${LEVELS.map(v => {
+      const got = starsAt(id, v.n), open = levelOpen(id, v.n);
+      return `<button class="island lvl${open ? '' : ' shut'}" data-l="${v.n}" ${open ? '' : 'disabled'}>
+        <span class="ico">${open ? v.ico : '🔒'}</span><h2>${v.name}</h2>
+        <span class="got">${'★'.repeat(got)}<i>${'★'.repeat(3-got)}</i></span>
+        ${open ? '' : '<p>Потрібні дві зірки на попередньому</p>'}</button>`;
+    }).join('')}</div></section>`;
+  $('#back').onclick = home;
+  const line = [[l.vo, l.name], CRAB.lvl];
+  $('#say').onclick = () => say(line);
+  say(line);
+  guide(CRAB.lvl, false, null, 'walk');   // краб «доходить» до острова
+  document.querySelectorAll('.lvl').forEach(b =>
+    b.onclick = () => start(id, Number(b.dataset.l)));
+}
+
+let L, lvl, tasks, idx, mistakes, tries, DAILY = false;
+function start(id, v){
+  DAILY = false;
+  L = BY_LES[id]; lvl = v || 1;
+  tasks = L.gen(lvl); idx = 0; mistakes = 0;
+  show();
+  // Після show(), а не до нього: краб показує клешнею на саме завдання,
+  // а воно з'являється на екрані щойно тут. На Острові Звуків він плеще
+  // склади разом із дитиною, у Морі Мови — читає з книжкою.
+  const lang = SEAS.find(s => s.id === 'slang').ls.includes(id);
+  guide(CRAB.go, false, '.stage, .cards, .trace',
+        id === 'sound' ? 'clap' : lang ? 'read' : 'point');
+}
+// Щоденна мандрівка: по одному завданню з п'яти різних островів, три
+// хвилини — і наліпка. Привід зайти в гру щодня, навіть коли всі зірки є.
+function startDaily(){
+  DAILY = true;
+  L = {id:'daily', name:'Щоденна мандрівка', vo:'p_daily'};
+  lvl = 0; idx = 0; mistakes = 0; tasks = [];
+  for (const l of pick(LESSONS.filter(x => x.id !== 'memo'), 5)){
+    const got = l.gen(1 + rnd(2));
+    tasks.push(got[rnd(got.length)]);
+  }
+  guide(CRAB.daily, true, null, 'swim');   // мандрівка — краб пливе
+  show();
+}
 
 function show(){
   const t = tasks[idx]; tries = 0;
@@ -696,15 +1213,20 @@ function show(){
     <div id="body"></div>
     <p class="msg" id="msg" aria-live="polite"></p></section>`;
   $('#back').onclick = home;
-  $('#say').onclick = ()=>say(t.speak);
+  // Варіанти словами читаються вслід за питанням: дитина 1 класу їх не прочитає.
+  const full = () => t.speak.concat(
+    (t.options || []).filter(o => o.vo && o.tx).map(o => [o.vo, o.tx]));
+  $('#say').onclick = () => say(full());
   (t.kind === 'memo' ? showMemo : t.kind === 'trace' ? showTrace : showChoice)(t, $('#body'));
-  say(t.speak);
+  if (DAILY && idx === 0) setTimeout(() => say(full()), 2800);   // спершу краб
+  else say(full());
 }
 
 // Shared ending of a task: praise, then the button to move on.
-function pass(hostEl, praise = true){
+function pass(hostEl, praise){
   const msg = $('#msg');
-  if (praise){ const p = PRAISE[rnd(PRAISE.length)]; msg.className='msg good'; msg.textContent=p[1]; say([p]); }
+  if (praise !== false){ const p = PRAISE[rnd(PRAISE.length)];
+    msg.className='msg good'; msg.textContent=p[1]; say([p]); }
   const nx = document.createElement('button'); nx.className='next';
   nx.textContent = idx<tasks.length-1 ? 'Далі →' : 'Готово';
   nx.onclick = ()=>{ idx++; idx<tasks.length ? show() : finish(); };
@@ -712,26 +1234,41 @@ function pass(hostEl, praise = true){
 }
 
 function showChoice(t, host){
+  const cls = t.options.length === 2 ? ' two' : t.options.length > 3 ? ' many' : '';
   host.innerHTML = `${t.stage ? `<div class="stage">${t.stage}</div>` : ''}
-    <div class="answers">${t.options.map(o=>{
+    <div class="answers${cls}">${t.options.map(o=>{
       // Цифра чи буква має бути велика, а підпис на кілька слів — ні.
       const long = !o.html.includes('<img') && [...o.html].length > 2;
-      return `<button class="ans${long?' txt':''}" data-v="${o.v}">${o.html}</button>`;
+      return `<button class="ans${long?' txt':''}" data-v="${o.v}">${o.html}`
+        + (long && o.vo ? '<b class="sp">🔊</b>' : '') + '</button>';
     }).join('')}</div>`;
-  host.querySelectorAll('.ans').forEach(b=>b.onclick=()=>answer(b,t));
+  host.querySelectorAll('.ans').forEach(b => b.onclick = e => {
+    const o = t.options.find(x => String(x.v) === b.dataset.v);
+    // Маленький 🔊 на кнопці читає саме цю відповідь і нічого не обирає.
+    if (e.target.closest('.sp')){ if (o && o.vo) say([[o.vo, o.tx || '']]); return; }
+    answer(b, t);
+  });
 }
 
 function answer(btn,t){
   const msg = $('#msg');
   if (btn.dataset.v === t.answer){
     btn.classList.add('ok'); document.querySelectorAll('.ans').forEach(b=>b.disabled=true);
+    sfxOk(); guide(CRAB.good, false);
     pass(btn);
   } else {
     tries++; mistakes++; btn.classList.remove('no'); void btn.offsetWidth; btn.classList.add('no'); btn.disabled = true;
+    sfxNo(); guide(CRAB.oops, false);
     msg.className='msg bad';
     if (tries===1){ msg.textContent='Спробуй ще раз'; say([P.tryagain]); }
-    else { document.querySelector(`.ans[data-v="${CSS.escape(t.answer)}"]`).classList.add('hint');
-      msg.textContent='Підказка: правильна відповідь обведена'; say([P.hint]); }
+    else {
+      const right = document.querySelector(`.ans[data-v="${CSS.escape(t.answer)}"]`);
+      right.classList.add('hint');
+      msg.textContent='Підказка: правильна відповідь обведена'; say([P.hint]);
+      // Краб не просто каже «дивись» — він повертається і показує клешнею
+      // саме на ту кнопку.
+      guide(CRAB.hint, false, right);
+    }
   }
 }
 
@@ -750,11 +1287,18 @@ function showMemo(t, host){
     if (a.dataset.id === b.dataset.id){
       open = []; a.classList.add('done'); b.classList.add('done');
       const w = t.pairs.find(p => p[0] === a.dataset.id);
-      say([P.pair,[w[0],w[2]]]);
-      // Memory is meant to be tried: one wrong pair costs nothing.
-      if (--left === 0){ mistakes += Math.max(0, miss-1); pass(host); }
+      sfxOk(); say([P.pair,[w[0],w[2]]]);
+      // Wrong pairs are the game, not mistakes. Simulated play: even with
+      // perfect recall a child turns up about three wrong pairs per round of
+      // four, so the old "one free" rule handed out one star every single
+      // time. Free allowance is pairs+1, and only beyond that does every
+      // second wrong pair count as a mistake.
+      if (--left === 0){
+        mistakes += Math.max(0, Math.ceil((miss - (t.pairs.length + 1)) / 2));
+        pass(host);
+      }
     } else {
-      lock = true; miss++;
+      lock = true; miss++; sfxNo();
       const msg = $('#msg'); msg.className='msg bad'; msg.textContent='Не збіглося — спробуй ще';
       setTimeout(()=>{ a.classList.remove('open'); b.classList.remove('open');
         open = []; lock = false; msg.textContent=''; }, 900);
@@ -821,13 +1365,18 @@ function showTrace(t, host){
       if (on){ all++; if (wide[i] <= 40) stray++; }
     }
     const cover = need ? hit/need : 0, out = all ? stray/all : 1;
-    // Друга спроба оцінюється м'якше: мета — щоб дитина провела лінію, а не здалась.
-    if (tries===0 ? (cover>=.55 && out<=.35) : (cover>=.4 && out<=.5)){
+    // Складний рівень вимагає точнішої лінії; друга спроба на будь-якому
+    // рівні оцінюється м'якше — мета, щоб дитина провела лінію, а не здалась.
+    const ok = t.hard
+      ? (tries===0 ? (cover>=.65 && out<=.28) : (cover>=.5 && out<=.42))
+      : (tries===0 ? (cover>=.55 && out<=.35) : (cover>=.4 && out<=.5));
+    if (ok){
       host.querySelector('.row').remove();
-      msg.className='msg good'; msg.textContent='Гарно написано!'; say([P.traceOk]);
+      msg.className='msg good'; msg.textContent='Гарно написано!';
+      sfxOk(); say([P.traceOk]); guide(CRAB.good, false);
       pass(host, false);
     } else {
-      tries++; mistakes++; msg.className='msg bad';
+      tries++; mistakes++; msg.className='msg bad'; sfxNo();
       if (tries===1){ msg.textContent='Майже! Спробуй ще раз'; say([P.traceTry]); }
       else { drawGlyph(true); msg.textContent='Веди пальцем по товстій лінії'; say([P.hint]); }
       clear();
@@ -835,23 +1384,59 @@ function showTrace(t, host){
   };
 }
 
+// Наліпка: спершу та, якої ще немає — колекція має наповнюватись, а не
+// видавати те саме вдесяте. Коли всі зібрані, йде друга копія.
+function award(k){
+  k.st = k.st || {};
+  const missing = STICKERS.filter(([id]) => !k.st[id]);
+  const from = missing.length ? missing : STICKERS;
+  const s = from[rnd(from.length)];
+  k.st[s[0]] = (k.st[s[0]] || 0) + 1;
+  return [s, missing.length > 0];
+}
+
 function finish(){
   const s = mistakes===0?3: mistakes<=2?2:1;
   const k = kid();
-  k.stars[L.id] = Math.max(k.stars[L.id]||0, s);
+  if (DAILY){ k.day = today(); k.trips = (k.trips || 0) + 1; }
+  else {
+    const was = mark(lessonStars(L.id));
+    const at = k.stars[L.id] || (k.stars[L.id] = {});
+    at[lvl] = Math.max(at[lvl] || 0, s);
+    // Прапорець чи трофей щойно з'явився — краб поставить його на карті.
+    if (mark(lessonStars(L.id)) !== was) NEWFLAG = L.id;
+  }
   // Журнал — для звіту вчителю: що саме проходили і як вийшло.
-  k.log.push({l:L.id, s, m:mistakes, n:tasks.length, t:Date.now()});
+  k.log.push({l:L.id, v:lvl, s, m:mistakes, n:tasks.length, t:Date.now()});
   if (k.log.length > 300) k.log = k.log.slice(-300);
+  // Наліпка — за три зірки й за кожну щоденну мандрівку.
+  const gift = (s === 3 || DAILY) ? award(k) : null;
   save();
-  report({kid:k.name, ava:k.ava, lesson:L.id, stars:s, mistakes, n:tasks.length, t:Date.now()});
+  report({kid:k.name, ava:k.ava, lesson:L.id, lvl, stars:s, mistakes, n:tasks.length, t:Date.now()});
   $('#total').textContent = totalStars();
+  const lname = DAILY ? 'Щоденна мандрівка' : `${L.name}, ${LEVELS[lvl-1].name}`;
   $('#app').innerHTML = `<section class="lesson finish">
     <div class="big">${'★'.repeat(s)}</div><h3>${FIN[s][1]}</h3>
-    <p class="lead">${L.name}: ${tasks.length} із ${tasks.length} завдань. Помилок: ${mistakes}.</p>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
-      <button class="next" id="again">Ще раз</button><button class="back" id="map">До карти</button></div></section>`;
-  say([FIN[s], P.get, STARS[s]]);
-  $('#again').onclick = ()=>start(L.id); $('#map').onclick = home;
+    <p class="lead">${lname}: ${tasks.length} із ${tasks.length} завдань. Помилок: ${mistakes}.</p>
+    ${gift ? `<div class="gift">${pic(gift[0][0], gift[0][1])}
+      <span>${gift[1] ? 'Нова наліпка в альбомі!' : 'Ще одна така наліпка!'}</span></div>` : ''}
+    <div class="row">
+      ${DAILY ? '' : '<button class="next" id="again">Ще раз</button>'
+        + '<button class="back" id="lv">Інший рівень</button>'}
+      <button class="back" id="alb">Альбом</button>
+      <button class="back" id="map">До карти</button></div></section>`;
+  sfxWin();
+  const chain = [FIN[s], P.get, STARS[s]];
+  if (gift){ chain.push(P.gift); setTimeout(sfxGift, 1200); }
+  say(chain);
+  guide(s === 3 ? CRAB.fin3 : CRAB.fin, false, gift ? '.gift' : null,
+        s === 3 ? 'star' : 'joy');
+  if (!DAILY){
+    $('#again').onclick = () => start(L.id, lvl);
+    $('#lv').onclick = () => levels(L.id);
+  }
+  $('#alb').onclick = album;
+  $('#map').onclick = home;
 }
 
 $('#me').onclick = who;

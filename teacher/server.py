@@ -40,15 +40,25 @@ PORT = int(os.environ.get('OSTRIV_PORT', '8777'))
 LOCK = threading.Lock()
 
 # Порядок той самий, що на карті в грі, а не за абеткою: вчителька шукає
-# урок там, де його бачила дитина.
+# урок там, де його бачила дитина. Моря — ті самі чотири групи, що на карті.
+SEAS = [
+    ('Числа', ['math', 'num', 'compare', 'order', 'money', 'time']),
+    ('Мова',  ['read', 'syll', 'sound', 'write', 'en']),
+    ('Світ',  ['world', 'weather', 'place', 'fig']),
+    ('Увага', ['memo', 'logic', 'shadow']),
+]
 LESSON_NAMES = {
-    'math': 'Лічба', 'read': 'Букви', 'logic': 'Візерунки', 'memo': "Пам'ять",
-    'write': 'Письмо', 'world': 'Природа', 'en': 'Англійська',
-    'time': 'Час', 'money': 'Гривня', 'syll': 'Читання',
-    'fig': 'Фігури', 'shadow': 'Тіні', 'compare': 'Порівняння',
-    'num': 'Числа', 'order': 'Порядок', 'place': 'Напрямки',
+    'math': 'Лічба', 'num': 'Числа', 'compare': 'Порівняння', 'order': 'Порядок',
+    'money': 'Гривня', 'time': 'Час',
+    'read': 'Букви', 'syll': 'Читання', 'sound': 'Звуки', 'write': 'Письмо',
+    'en': 'Англійська',
+    'world': 'Природа', 'weather': 'Погода', 'place': 'Напрямки', 'fig': 'Фігури',
+    'memo': "Пам'ять", 'logic': 'Візерунки', 'shadow': 'Тіні',
+    'daily': 'Мандрівка',
 }
-LESSON_ORDER = list(LESSON_NAMES)
+LESSON_ORDER = [l for _, ls in SEAS for l in ls]
+LEVELS = (1, 2, 3)
+LEVEL_NAMES = {1: 'Легко', 2: 'Середньо', 3: 'Складно', 0: 'мандрівка'}
 
 
 def lan_ip():
@@ -83,31 +93,48 @@ def report_html():
     data = rows()
     kids = {}
     for r in data:
-        k = kids.setdefault(r.get('kid', '?'), {'ava': r.get('ava', ''), 'les': {}, 'last': 0})
-        les = k['les'].setdefault(r.get('lesson', '?'), {'best': 0, 'runs': 0, 'miss': 0})
-        les['best'] = max(les['best'], int(r.get('stars', 0)))
-        les['runs'] += 1
-        les['miss'] += int(r.get('mistakes', 0))
+        k = kids.setdefault(r.get('kid', '?'),
+                            {'ava': r.get('ava', ''), 'les': {}, 'trips': 0, 'last': 0})
+        les = r.get('lesson', '?')
+        if les == 'daily':
+            k['trips'] += 1
+        else:
+            # Зірки тепер за рівнями: в клітинці — сума найкращих по трьох
+            # рівнях, максимум дев'ять. Старі записи без «lvl» — це перший
+            # рівень, саме так їх і зберігала гра до появи рівнів.
+            v = k['les'].setdefault(les, {'best': {}, 'runs': 0, 'miss': 0})
+            lvl = int(r.get('lvl', 1) or 1)
+            v['best'][lvl] = max(v['best'].get(lvl, 0), int(r.get('stars', 0)))
+            v['runs'] += 1
+            v['miss'] += int(r.get('mistakes', 0))
         k['last'] = max(k['last'], int(r.get('t', 0)))
 
     order = LESSON_ORDER
+    # Заголовок у два рядки: моря зверху, уроки під ними — так вісімнадцять
+    # стовпців читаються так само, як карта в грі.
+    seahead = ''.join('<th colspan="%d" class="sea">%s</th>' % (len(ls), html.escape(nm))
+                      for nm, ls in SEAS)
     head = ''.join('<th>%s</th>' % html.escape(LESSON_NAMES[l]) for l in order)
     body = []
     for name, k in sorted(kids.items(), key=lambda x: -x[1]['last']):
         cells = []
         for l in order:
             v = k['les'].get(l)
-            # Самі зірки, а подробиці — у підказці: з шістнадцятьма уроками
-            # рядок «1 спроб, помилок 0» у кожній клітинці розсуває таблицю
-            # так, що на екран влазить третина.
-            cells.append('<td>%s</td>' % (
-                '<b title="спроб: %d, помилок: %d">%s</b>'
-                % (v['runs'], v['miss'], '★' * v['best'] + '☆' * (3 - v['best']))
-                if v else '<span class="no">—</span>'))
+            # Число з дев'яти, а не дев'ять зірочок: вісімнадцять стовпців
+            # по дев'ять зірок у рядок не влазять на жоден екран.
+            if v:
+                got = sum(v['best'].get(n, 0) for n in LEVELS)
+                cells.append('<td><b class="%s" title="спроб: %d, помилок: %d, рівні: %s">%d</b></td>'
+                             % ('full' if got == 9 else '', v['runs'], v['miss'],
+                                '/'.join(str(v['best'].get(n, 0)) for n in LEVELS), got))
+            else:
+                cells.append('<td><span class="no">—</span></td>')
         when = datetime.fromtimestamp(k['last'] / 1000).strftime('%d.%m %H:%M') if k['last'] else ''
-        total = sum(v['best'] for v in k['les'].values())
-        body.append('<tr><td class="kid">%s %s</td><td class="tot">%d</td>%s<td class="when">%s</td></tr>'
-                    % (html.escape(k['ava']), html.escape(name), total, ''.join(cells), when))
+        total = sum(sum(v['best'].values()) for v in k['les'].values())
+        body.append('<tr><td class="kid">%s %s</td><td class="tot">%d</td>'
+                    '<td class="trip">%s</td>%s<td class="when">%s</td></tr>'
+                    % (html.escape(k['ava']), html.escape(name), total,
+                       k['trips'] or '—', ''.join(cells), when))
 
     return """<!doctype html>
 <meta charset="utf-8"><title>Острів Знань — звіт</title>
@@ -119,9 +146,12 @@ def report_html():
    box-shadow:0 1px 3px rgba(0,0,0,.08);width:100%%}
  th,td{border-bottom:1px solid #e3eff2;padding:6px 7px;text-align:center;vertical-align:middle}
  th{background:#eef7f9;font-size:.78rem;font-weight:600;white-space:nowrap}
- td b{font-size:.95rem;letter-spacing:-1px;color:#f2b632;cursor:help}
+ td b{font-size:1rem;color:#8aa5ad;cursor:help;font-variant-numeric:tabular-nums}
+ td b.full{color:#3f9a5c}
+ th.sea{background:#dcecf0;border-right:2px solid #c3dde4;font-size:.85rem}
  td.kid{text-align:left;font-weight:700;white-space:nowrap}
  td.tot{font-weight:800;color:#f2b632}
+ td.trip{color:#2f7f99;font-weight:700}
  small{display:block;color:#8aa5ad;font-size:.72rem}
  .no{color:#c3dde4} .when{color:#8aa5ad;font-size:.85rem;white-space:nowrap}
  a.btn{display:inline-block;margin:16px 8px 0 0;padding:8px 14px;background:#2f7f99;color:#fff;
@@ -129,23 +159,27 @@ def report_html():
 </style>
 <h1>Острів Знань — звіт класу</h1>
 <p class="lead">Уроків пройдено: %(n)d. Сторінка оновлюється сама що 30 секунд.
-Наведіть курсор на зірки, щоб побачити кількість спроб і помилок.</p>
-<table><tr><th>Учень</th><th>Зірки</th>%(head)s<th>Востаннє</th></tr>%(body)s</table>
+У клітинці — скільки зірок зібрано на острові з дев'яти можливих (три рівні по три).
+Наведіть курсор, щоб побачити рівні окремо, спроби й помилки.</p>
+<table><tr><th rowspan="2">Учень</th><th rowspan="2">Зірки</th><th rowspan="2">Мандрівок</th>
+%(seahead)s<th rowspan="2">Востаннє</th></tr><tr>%(head)s</tr>%(body)s</table>
 <a class="btn" href="results.csv">Завантажити CSV</a>
 <a class="btn" href="/" style="background:#55707a">Відкрити гру</a>
 <script>setTimeout(()=>location.reload(), 30000)</script>
-""" % {'n': len(data), 'head': head,
+""" % {'n': len(data), 'head': head, 'seahead': seahead,
        'body': ''.join(body) or '<tr><td colspan="%d">Ще нічого немає. '
                                 'Відкрийте гру на планшеті й пройдіть урок.</td></tr>'
-                                % (len(order) + 3)}
+                                % (len(order) + 4)}
 
 
 def report_csv():
     buf = io.StringIO()
     w = csv.writer(buf, delimiter=';')
-    w.writerow(['Учень', 'Урок', 'Зірки', 'Помилок', 'Завдань', 'Коли'])
+    w.writerow(['Учень', 'Урок', 'Рівень', 'Зірки', 'Помилок', 'Завдань', 'Коли'])
     for r in rows():
+        lvl = int(r.get('lvl', 1) or (0 if r.get('lesson') == 'daily' else 1))
         w.writerow([r.get('kid', ''), LESSON_NAMES.get(r.get('lesson'), r.get('lesson', '')),
+                    LEVEL_NAMES.get(lvl, lvl),
                     r.get('stars', ''), r.get('mistakes', ''), r.get('n', ''),
                     datetime.fromtimestamp(int(r.get('t', 0)) / 1000).strftime('%d.%m.%Y %H:%M')
                     if r.get('t') else ''])
@@ -203,6 +237,7 @@ class Handler(SimpleHTTPRequestHandler):
                 'kid': str(it.get('kid', ''))[:40],
                 'ava': str(it.get('ava', ''))[:8],
                 'lesson': str(it.get('lesson', ''))[:16],
+                'lvl': max(0, min(3, int(it.get('lvl', 1) or 0))),
                 'stars': int(it.get('stars', 0) or 0),
                 'mistakes': int(it.get('mistakes', 0) or 0),
                 'n': int(it.get('n', 0) or 0),

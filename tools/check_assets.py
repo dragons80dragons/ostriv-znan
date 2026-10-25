@@ -37,9 +37,18 @@ def ids_from_html(src):
     Самі id лежать у масивах даних: ['o_apple','🍎'], ['w_kit','🐱','кіт','К'],
     ['s_red','🔴']. Числа n0..n10 узагалі збираються в коді ('n'+k).
     """
-    imgs = set(re.findall(r"\['((?:i|o|w|s)_[a-z0-9_]+)'\s*,", src))
+    imgs = set(re.findall(r"\['((?:i|o|w|s|we|se)_[a-z0-9_]+)'\s*,", src))
     imgs |= set(re.findall(r"img:\s*'([a-z0-9_]+)'", src))
-    voice = set(re.findall(r"\['((?:p|ok|f|st|w)_[a-z0-9_]+)'\s*,", src))
+    # Погода й пори року лежать не першими елементами (одяг — шостим),
+    # а краб узагалі приходить лише як pic('g_krab', '🦀'). Фрази краба
+    # теж починаються на g_, тому сюди їх пускати не можна.
+    imgs |= set(re.findall(r"'((?:we|se|gx)_[a-z0-9_]+)'", src))
+    imgs |= set(re.findall(r"pic\('([a-z0-9_]+)'", src))
+    voice = set(re.findall(r"\['((?:p|ok|f|st|w|g)_[a-z0-9_]+)'\s*,", src))
+    # Назви островів, морів і рівнів стоять у полі vo: острова.
+    voice |= set(re.findall(r"vo:\s*'([a-z0-9_]+)'", src))
+    # Відповіді словами (a_above, a_sunny…) озвучує кнопка з 🔊.
+    voice |= set(re.findall(r"'(a_[a-z0-9_]+)'", src))
     # Підказки уроку письма стоять другим елементом (['А','t_a','а']) або
     # збираються в коді ('t_d'+k), тому їх ловимо окремими шаблонами.
     voice |= set(re.findall(r"'(t_[a-z0-9_]+)'", src))
@@ -51,7 +60,8 @@ def ids_from_html(src):
         voice.discard('t_d')                 # це початок виразу, а не id
         voice |= {'t_d%d' % k for k in range(1, 6)}
     if "'n'+k" in src:
-        voice |= {'n%d' % k for k in range(11)}
+        # NUM тепер до дванадцяти: на годиннику є одинадцята й дванадцята.
+        voice |= {'n%d' % k for k in range(13)}
     return imgs, voice
 
 

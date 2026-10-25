@@ -19,6 +19,11 @@ _для диску/
 # Результати уроків — це дані класу, не код
 teacher/results.jsonl
 
+# Копія index.html перед великою переробкою — лежить поруч, щоб було куди
+# відкотитись; в історії для цього є git
+tools/_index_backup_*.html
+
 # Службове
 desktop.ini
 Thumbs.db
+__pycache__/

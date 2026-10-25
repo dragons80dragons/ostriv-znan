@@ -39,8 +39,12 @@ HOST = '127.0.0.1:8188'
 ROOT = os.path.dirname(os.path.abspath(__file__))
 RAW = os.path.join(ROOT, '_raw')
 COMFY_OUT = r'G:\LOCAL AI AGENTS\_OUT\images'
+COMFY_IN = r'G:\LOCAL AI AGENTS\01_IMAGE\ComfyUI\input'
 LAUNCHER = r'G:\LOCAL AI AGENTS\01_IMAGE\Запустити генератор зображень.cmd'
 FREE_EVERY = 8
+# Скільки шуму додавати поверх взірця в режимі --ref. Менше — ближче до
+# взірця, але поза майже не змінюється; більше — нова поза, але інший герой.
+REF_DENOISE = 0.62
 
 
 def api(path, payload=None, timeout=30):
@@ -104,8 +108,15 @@ def restart_server():
     return wait_server()
 
 
-def workflow(img, prompt_text, seed):
-    return {
+def workflow(img, prompt_text, seed, ref=None, denoise=1.0):
+    """Звичайний txt2img, а з ref — той самий граф, але латент не порожній.
+
+    Персонаж із кількох поз інакше не збирається: на текстовий промпт SDXL
+    щоразу малює іншого героя, і зміна пози читається як зміна героя. Тут
+    за основу береться вже вибрана картинка, і модель лише переписує її на
+    задану позу — колір, форма й стиль лишаються ті самі.
+    """
+    flow = {
         '4': {'class_type': 'CheckpointLoaderSimple',
               'inputs': {'ckpt_name': img['checkpoint']}},
         '10': {'class_type': 'VAELoader',
@@ -120,7 +131,7 @@ def workflow(img, prompt_text, seed):
         '3': {'class_type': 'KSampler',
               'inputs': {'seed': seed, 'steps': img['steps'], 'cfg': img['cfg'],
                          'sampler_name': img['sampler'], 'scheduler': img['scheduler'],
-                         'denoise': 1.0, 'model': ['4', 0], 'positive': ['6', 0],
+                         'denoise': denoise, 'model': ['4', 0], 'positive': ['6', 0],
                          'negative': ['7', 0], 'latent_image': ['5', 0]}},
         # VAEDecodeTiled, а не VAEDecode: саме декодування VAE дає шпиль
         # пам'яті, на якому 2026-10-20 сервер двічі впав в OOM і заклинив
@@ -133,14 +144,29 @@ def workflow(img, prompt_text, seed):
         '9': {'class_type': 'SaveImage',
               'inputs': {'filename_prefix': 'ostriv/x', 'images': ['8', 0]}},
     }
+    if ref:
+        flow['11'] = {'class_type': 'LoadImage', 'inputs': {'image': ref}}
+        flow['12'] = {'class_type': 'VAEEncode',
+                      'inputs': {'pixels': ['11', 0], 'vae': ['10', 0]}}
+        flow['3']['inputs']['latent_image'] = ['12', 0]
+        del flow['5']
+    return flow
 
 
-def run_one(img, cid, obj, seed, timeout=300):
+def put_ref(path):
+    """Кладе взірець туди, де його бачить LoadImage, і вертає ім'я файла."""
+    name = 'ostriv_ref_' + os.path.basename(path)
+    os.makedirs(COMFY_IN, exist_ok=True)
+    shutil.copy2(path, os.path.join(COMFY_IN, name))
+    return name
+
+
+def run_one(img, cid, obj, seed, timeout=300, ref=None, denoise=1.0):
     # Острови (i_*) мають власний промпт: із загальним SDXL малював пейзаж
     # на весь кадр, а на карті острів — іконка 96×96 (див. manifest.json).
     style = img['style_island'] if cid.startswith('i_') else img['style']
     text = style.replace('{object}', obj)
-    res = api('/prompt', {'prompt': workflow(img, text, seed)})
+    res = api('/prompt', {'prompt': workflow(img, text, seed, ref, denoise)})
     pid = res['prompt_id']
     t0 = time.time()
     last_check = t0
@@ -182,7 +208,21 @@ def main():
     ap.add_argument('--seed', type=int, default=20261020)
     ap.add_argument('--reseed', type=int, default=0,
                     help='інший варіант тієї ж картинки: --force --reseed 1')
+    ap.add_argument('--ref', default='',
+                    help='взірець: шлях до PNG або id з _raw. Нові картинки '
+                         'малюються поверх нього — так виходить один і той '
+                         'самий герой у різних позах')
+    ap.add_argument('--denoise', type=float, default=REF_DENOISE,
+                    help='наскільки відходити від взірця (0.5 — майже він, '
+                         '0.75 — вже інший герой); діє лише з --ref')
     args = ap.parse_args()
+
+    ref = None
+    if args.ref:
+        p = args.ref if os.path.exists(args.ref) else os.path.join(RAW, args.ref + '.png')
+        if not os.path.exists(p):
+            sys.exit('[img] взірця немає: %s' % p)
+        ref = put_ref(p)
 
     with open(args.manifest, encoding='utf-8') as f:
         man = json.load(f)
@@ -191,7 +231,9 @@ def main():
     # видавав песика, а тут потрібен рівний край (див. manifest.json).
     drawn = set(man.get('shapes', {}).get('items', {}))
     drawn |= set(img.get('reuse', {}))      # беруть готову картинку іншого id
-    items = {k: v for k, v in img['items'].items() if k not in drawn}
+    # Ключі на _ — це пояснення в маніфесті, а не id картинки.
+    items = {k: v for k, v in img['items'].items()
+             if k not in drawn and not k.startswith('_')}
     ids = [i.strip() for i in args.ids.split(',') if i.strip()] or list(items)
     ids = [i for i in ids if i in items]
     os.makedirs(RAW, exist_ok=True)
@@ -221,7 +263,8 @@ def main():
         ok = False
         for attempt in (1, 2):
             try:
-                dst, dt = run_one(img, cid, items[cid], seeds[cid])
+                dst, dt = run_one(img, cid, items[cid], seeds[cid],
+                                  ref=ref, denoise=args.denoise if ref else 1.0)
                 print('[img] %2d/%d %-14s %5.1f с -> %s' % (k, len(todo), cid, dt, dst),
                       flush=True)
                 ok = True
