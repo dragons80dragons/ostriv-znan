@@ -201,10 +201,10 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
    взірця герой один, але поза не змінюється. Тут натомість анімація: кожен
    настрій — свій цикл із п'яти ключів, а предмет у клешні (прапорець,
    зірка, книжка) накладається поверх окремою картинкою. */
-.crab .cr{font-size:2.6rem;line-height:1;flex:none;display:inline-block;
-  position:relative;width:88px;height:88px}
+.crab .cr{font-size:3rem;line-height:1;flex:none;display:inline-block;
+  position:relative;width:108px;height:108px}
 .crab .cr .rig{display:block;position:absolute;inset:0}
-.crab .cr .body img.pic{width:84px;height:84px;display:block}
+.crab .cr .body img.pic{width:104px;height:104px;display:block}
 .crab .cr .prop{position:absolute;right:-14px;top:-10px}
 .crab .cr .prop img.pic{width:42px;height:42px;display:block}
 /* Зміна настрою — з підскоком: дитина має помітити, що краб відреагував.
@@ -217,42 +217,66 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
   padding:10px 14px;font-size:.95rem;color:var(--ink);flex:1;min-width:0}
 @keyframes crabpop{0%{transform:scale(.7) rotate(-10deg)}60%{transform:scale(1.12) rotate(5deg)}100%{transform:none}}
 /* По п'ять ключів у кожному циклі: 0, 25, 50, 75, 100 — рух повертається
-   тим самим шляхом, яким ішов, тож цикл замикається без ривка. */
-.crab[data-mood="hi"] .body{animation:cr-wave 1.8s ease-in-out infinite}
-@keyframes cr-wave{0%{transform:rotate(-6deg)}25%{transform:rotate(3deg) translateY(-3px)}
-  50%{transform:rotate(-2deg)}75%{transform:rotate(5deg) translateY(-2px)}100%{transform:rotate(-6deg)}}
-.crab[data-mood="walk"] .body{animation:cr-walk .9s ease-in-out infinite}
-@keyframes cr-walk{0%{transform:translateX(-7px) rotate(-5deg)}
-  25%{transform:translateX(-3px) translateY(-5px) rotate(2deg)}
-  50%{transform:translateX(4px) rotate(5deg)}
-  75%{transform:translateX(0) translateY(-5px) rotate(-2deg)}
-  100%{transform:translateX(-7px) rotate(-5deg)}}
+   тим самим шляхом, яким ішов, тож цикл замикається без ривка.
+   Точка обертання — низ тіла: краб нахиляється, спираючись на ноги, а не
+   крутиться навколо власної середини. Розмах навмисне великий: дрібне
+   погойдування на 84 пікселях дитина просто не помічає. */
+.crab .cr .body{transform-origin:50% 92%}
+.crab .cr .rig::after{content:"";position:absolute;left:14px;right:14px;bottom:-4px;height:7px;
+  border-radius:50%;background:rgba(0,0,0,.18)}
+.crab[data-mood="hi"] .body{animation:cr-wave 1.4s ease-in-out infinite}
+@keyframes cr-wave{0%{transform:rotate(-13deg)}25%{transform:rotate(7deg) translateY(-7px)}
+  50%{transform:rotate(-4deg)}75%{transform:rotate(11deg) translateY(-5px)}100%{transform:rotate(-13deg)}}
+.crab[data-mood="walk"] .body{animation:cr-walk .62s ease-in-out infinite}
+.crab[data-mood="walk"] .rig::after{animation:cr-shadow .62s ease-in-out infinite}
+@keyframes cr-walk{0%{transform:translateX(-15px) rotate(-11deg)}
+  25%{transform:translateX(-7px) translateY(-11px) rotate(5deg)}
+  50%{transform:translateX(10px) rotate(11deg)}
+  75%{transform:translateX(2px) translateY(-11px) rotate(-5deg)}
+  100%{transform:translateX(-15px) rotate(-11deg)}}
 .crab[data-mood="joy"] .body,.crab[data-mood="flag"] .body,.crab[data-mood="star"] .body{
-  animation:cr-hop .8s ease-in-out infinite}
-@keyframes cr-hop{0%{transform:translateY(0) scaleY(1)}25%{transform:translateY(-14px) scaleY(1.08)}
-  50%{transform:translateY(0) scaleY(.9)}75%{transform:translateY(-7px) scaleY(1.04)}
-  100%{transform:translateY(0) scaleY(1)}}
-.crab[data-mood="clap"] .body{animation:cr-clap .5s ease-in-out infinite}
-@keyframes cr-clap{0%{transform:scaleX(1)}25%{transform:scaleX(.86)}50%{transform:scaleX(1.08)}
-  75%{transform:scaleX(.9)}100%{transform:scaleX(1)}}
-.crab[data-mood="oops"] .body{animation:cr-slump 1.3s ease-in-out infinite}
-@keyframes cr-slump{0%{transform:translateY(0) rotate(0)}25%{transform:translateY(6px) rotate(-6deg)}
-  50%{transform:translateY(7px) rotate(0)}75%{transform:translateY(6px) rotate(6deg)}
-  100%{transform:translateY(0) rotate(0)}}
-.crab[data-mood="point"] .body{animation:cr-lean 1s ease-in-out infinite}
-@keyframes cr-lean{0%{transform:rotate(0) translateX(0)}25%{transform:rotate(11deg) translateX(7px)}
-  50%{transform:rotate(14deg) translateX(10px)}75%{transform:rotate(11deg) translateX(7px)}
+  animation:cr-hop .62s ease-in-out infinite}
+.crab[data-mood="joy"] .rig::after,.crab[data-mood="flag"] .rig::after,
+.crab[data-mood="star"] .rig::after{animation:cr-shadow .62s ease-in-out infinite}
+@keyframes cr-hop{0%{transform:translateY(0) scale(1.12,.84)}
+  25%{transform:translateY(-30px) scale(.9,1.18) rotate(-7deg)}
+  50%{transform:translateY(-6px) scale(1,1)}
+  75%{transform:translateY(-22px) scale(.94,1.12) rotate(7deg)}
+  100%{transform:translateY(0) scale(1.12,.84)}}
+/* Тінь під крабом стискається, коли він угорі: без неї стрибок читається
+   як просто зсув картинки вгору */
+@keyframes cr-shadow{0%{transform:scaleX(1);opacity:.22}25%{transform:scaleX(.5);opacity:.08}
+  50%{transform:scaleX(.9);opacity:.2}75%{transform:scaleX(.6);opacity:.1}
+  100%{transform:scaleX(1);opacity:.22}}
+.crab[data-mood="clap"] .body{animation:cr-clap .34s ease-in-out infinite}
+@keyframes cr-clap{0%{transform:scale(1.14,.9)}25%{transform:scale(.78,1.12)}
+  50%{transform:scale(1.18,.88)}75%{transform:scale(.82,1.1)}100%{transform:scale(1.14,.9)}}
+.crab[data-mood="oops"] .body{animation:cr-slump 1.1s ease-in-out infinite}
+@keyframes cr-slump{0%{transform:translateY(0) rotate(0) scaleY(1)}
+  25%{transform:translateY(11px) rotate(-15deg) scaleY(.86)}
+  50%{transform:translateY(13px) rotate(0) scaleY(.82)}
+  75%{transform:translateY(11px) rotate(15deg) scaleY(.86)}
+  100%{transform:translateY(0) rotate(0) scaleY(1)}}
+.crab[data-mood="point"] .body{animation:cr-lean .8s ease-in-out infinite}
+@keyframes cr-lean{0%{transform:rotate(0) translateX(0)}
+  25%{transform:rotate(24deg) translateX(14px) translateY(-4px)}
+  50%{transform:rotate(30deg) translateX(20px) translateY(-6px)}
+  75%{transform:rotate(24deg) translateX(14px) translateY(-4px)}
   100%{transform:rotate(0) translateX(0)}}
-.crab[data-mood="think"] .body,.crab[data-mood="read"] .body{animation:cr-tilt 2.2s ease-in-out infinite}
-@keyframes cr-tilt{0%{transform:rotate(-7deg)}25%{transform:rotate(-2deg)}50%{transform:rotate(7deg)}
-  75%{transform:rotate(-2deg)}100%{transform:rotate(-7deg)}}
-.crab[data-mood="sleep"] .body{animation:cr-breathe 3.2s ease-in-out infinite}
-@keyframes cr-breathe{0%{transform:scale(1)}25%{transform:scale(1.03)}50%{transform:scale(1.06)}
-  75%{transform:scale(1.03)}100%{transform:scale(1)}}
-.crab[data-mood="swim"] .body{animation:cr-swim 1.8s ease-in-out infinite}
-@keyframes cr-swim{0%{transform:translateY(0) rotate(-7deg)}25%{transform:translateY(-6px) rotate(0)}
-  50%{transform:translateY(-10px) rotate(7deg)}75%{transform:translateY(-5px) rotate(0)}
-  100%{transform:translateY(0) rotate(-7deg)}}
+.crab[data-mood="think"] .body,.crab[data-mood="read"] .body{animation:cr-tilt 1.6s ease-in-out infinite}
+@keyframes cr-tilt{0%{transform:rotate(-15deg)}25%{transform:rotate(-4deg) translateY(-4px)}
+  50%{transform:rotate(14deg)}75%{transform:rotate(-4deg) translateY(-4px)}100%{transform:rotate(-15deg)}}
+.crab[data-mood="sleep"] .body{animation:cr-breathe 2.6s ease-in-out infinite}
+@keyframes cr-breathe{0%{transform:scale(1,1) rotate(-4deg)}25%{transform:scale(1.06,.96) rotate(-4deg)}
+  50%{transform:scale(1.1,.93) rotate(-4deg)}75%{transform:scale(1.06,.96) rotate(-4deg)}
+  100%{transform:scale(1,1) rotate(-4deg)}}
+.crab[data-mood="swim"] .body{animation:cr-swim 1.2s ease-in-out infinite}
+.crab[data-mood="swim"] .rig::after{display:none}
+@keyframes cr-swim{0%{transform:translateY(0) rotate(-16deg)}
+  25%{transform:translateY(-14px) rotate(0)}
+  50%{transform:translateY(-22px) rotate(16deg)}
+  75%{transform:translateY(-11px) rotate(0)}
+  100%{transform:translateY(0) rotate(-16deg)}}
 /* Предмет у клешні піднімається в такт тілу */
 .crab .cr .prop{animation:cr-prop 1.2s ease-in-out infinite}
 @keyframes cr-prop{0%{transform:translateY(3px) rotate(-10deg)}25%{transform:translateY(-5px) rotate(5deg)}
