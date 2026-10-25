@@ -195,7 +195,19 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 .trace .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 /* Краб-провідник: він вітає, підказує й радіє замість безликих фраз.
    Стоїть унизу сторінки, щоб ніколи не перекривав кнопки відповідей. */
-.crab{display:flex;align-items:flex-end;gap:10px;background:none;border:none;padding:0;text-align:left;width:100%}
+/* Помічник плаває поверх гри, як колись в офісних програмах: його можна
+   перетягнути пальцем куди завгодно, сховати й покликати назад. Місце й
+   стан зберігаються в профілі дитини — на планшеті їх кілька, і кожна
+   посадить краба туди, де їй зручно. */
+.crab{position:fixed;z-index:50;display:flex;flex-direction:column;align-items:flex-start;
+  gap:6px;width:min(300px,72vw);background:none;border:none;padding:0;text-align:left;
+  touch-action:none;transition:left .25s ease,top .25s ease}
+.crab.drag{transition:none;opacity:.9}
+.crab.right{align-items:flex-end}
+/* Краб став кнопкою заради дотику — тло й рамку, які браузер дає кнопці
+   типово, треба зняти, інакше він сидить на сірому прямокутнику */
+.crab .cr{background:none;border:none;padding:0;cursor:grab}
+.crab.drag .cr{cursor:grabbing}
 /* Краб — одна картинка, яка рухається кодом. Пози окремими картинками не
    вийшли (див. README): через txt2img щоразу інший герой, через img2img від
    взірця герой один, але поза не змінюється. Тут натомість анімація: кожен
@@ -213,8 +225,15 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 .crab .cr .rig.pop{animation:crabpop .4s}
 /* Коли краб показує на щось ліворуч від себе, він розвертається */
 .crab.flip .cr{transform:scaleX(-1)}
+/* Хмарка сама ховається за кілька секунд: інакше помічник закриває кнопки.
+   Торкнутися краба — показати її знову й почути фразу ще раз. */
 .crab .bub{margin:0;background:var(--card);border:2px solid var(--line);border-radius:18px 18px 18px 4px;
-  padding:10px 14px;font-size:.95rem;color:var(--ink);flex:1;min-width:0}
+  padding:10px 14px;font-size:.95rem;color:var(--ink);max-width:100%;
+  box-shadow:0 3px 10px rgba(0,0,0,.12);
+  opacity:0;transform:translateY(6px) scale(.96);pointer-events:none;
+  transition:opacity .22s,transform .22s}
+.crab.say .bub{opacity:1;transform:none}
+.crab.right .bub{border-radius:18px 18px 4px 18px}
 @keyframes crabpop{0%{transform:scale(.7) rotate(-10deg)}60%{transform:scale(1.12) rotate(5deg)}100%{transform:none}}
 /* По п'ять ключів у кожному циклі: 0, 25, 50, 75, 100 — рух повертається
    тим самим шляхом, яким ішов, тож цикл замикається без ривка.
@@ -312,13 +331,15 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
     <h1>Острів Знань</h1>
     <div class="hright">
       <button class="music" id="me" hidden aria-label="Змінити гравця"></button>
+      <button class="music" id="help" hidden aria-label="Краб Клац">🦀 Клац</button>
       <button class="music" id="music" hidden aria-label="Музика">🎵 Музика</button>
       <div class="stars">Зірки: <b id="total">0</b></div>
     </div>
   </header>
   <main id="app"></main>
-  <button class="crab" id="crab" hidden aria-label="Послухати краба">
-    <span class="cr" id="crpic"></span><p class="bub" id="bub"></p></button>
+  <div class="crab" id="crab" hidden>
+    <p class="bub" id="bub"></p>
+    <button class="cr" id="crpic" aria-label="Послухати краба"></button></div>
   <p class="note">Демо для 1 класу. Картинки, голос і музика беруться з папки assets поруч із файлом; якщо їх немає, показуються емодзі й системний голос.</p>
 </div>
 
@@ -498,7 +519,7 @@ const CRAB = {
   album: ['g_album',  'Ось твій альбом. Збери всі наліпки!', 'joy'],
   sleep: ['g_sleep',  'Я трохи подрімаю. Торкнись мене, коли будеш готовий.', 'sleep'],
 };
-let crabSaid = null, greeted = false, dozeT = null;
+let crabSaid = null, greeted = false, dozeT = null, bubT = null;
 
 function setMood(mood){
   const el = $('#crab'), cr = $('#crpic');
@@ -525,24 +546,97 @@ function lookAt(sel){
   const r = el.getBoundingClientRect(), c = $('#crab').getBoundingClientRect();
   $('#crab').classList.toggle('flip', r.left + r.width/2 < c.left + 60);
 }
+// Де сидить помічник і чи його покликано — у профілі дитини, не в браузері:
+// на планшеті профілів кілька, і кожна садить краба туди, де їй зручно.
+// Координати зберігаються частками екрана, щоб пережити поворот планшета.
+const HELP_DEF = {x: .03, y: .68, off: false};
+function helpCfg(){
+  const k = kid();
+  if (!k) return HELP_DEF;
+  if (!k.help) k.help = Object.assign({}, HELP_DEF);
+  return k.help;
+}
+function placeCrab(){
+  const el = $('#crab'), h = helpCfg();
+  const w = el.offsetWidth || 240, ht = el.offsetHeight || 150;
+  const x = Math.min(Math.max(8, innerWidth - w - 8), Math.max(8, h.x * innerWidth));
+  const y = Math.min(Math.max(8, innerHeight - ht - 8), Math.max(8, h.y * innerHeight));
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  // Біля правого краю краб стає праворуч у своїй коробці, а хвостик хмарки
+  // переїжджає на той самий бік — інакше вона показує в порожнечу.
+  el.classList.toggle('right', x + w / 2 > innerWidth / 2);
+}
+function bubble(text, ms){
+  $('#bub').textContent = text;
+  $('#crab').classList.add('say');
+  clearTimeout(bubT);
+  bubT = setTimeout(() => $('#crab').classList.remove('say'), ms || 7000);
+}
 function guide(p, speak, target, mood){
   crabSaid = p;
-  $('#crab').hidden = false;
+  const el = $('#crab');
+  $('#help').hidden = !kid();
+  if (helpCfg().off){ el.hidden = true; return; }
+  el.hidden = false;
+  placeCrab();
   setMood(mood || p[2] || 'hi');
-  $('#bub').textContent = p[1];
-  if (!target) $('#crab').classList.remove('flip');
+  bubble(p[1]);
+  if (!target) el.classList.remove('flip');
   if (speak) say([p]);
   if (target) setTimeout(() => lookAt(target), 60);
   // Якщо планшет лишили відкритим, краб засинає — і не блимає позою
   // на порожньому екрані доти, доки дитина не повернеться.
   clearTimeout(dozeT);
-  if (p !== CRAB.sleep) dozeT = setTimeout(() => { crabSaid = p; setMood('sleep');
-    $('#crab').dataset.back = '1'; $('#bub').textContent = CRAB.sleep[1]; }, 60000);
+  if (p !== CRAB.sleep) dozeT = setTimeout(() => {
+    crabSaid = p; setMood('sleep'); el.dataset.back = '1';
+    bubble(CRAB.sleep[1], 5000);
+  }, 60000);
 }
-$('#crab').onclick = () => {
-  if ($('#crab').dataset.back){ delete $('#crab').dataset.back; guide(crabSaid, true); return; }
-  if (crabSaid) say([crabSaid]);
-};
+function setHelp(off){
+  helpCfg().off = off; save();
+  $('#crab').hidden = off;
+  $('#help').textContent = off ? '🦀 Покликати' : '🦀 Клац';
+  if (!off) guide(crabSaid || CRAB.hi, true);
+}
+$('#help').onclick = () => setHelp(!helpCfg().off);
+
+// Перетягування пальцем. Поріг у шість пікселів відрізняє перетягування
+// від дотику: інакше жодне натискання на краба не спрацьовувало б, бо
+// палець на екрані завжди трохи зсувається.
+let dragSt = null;
+$('#crab').addEventListener('pointerdown', e => {
+  const r = $('#crab').getBoundingClientRect();
+  dragSt = {dx: e.clientX - r.left, dy: e.clientY - r.top,
+            x0: e.clientX, y0: e.clientY, moved: false};
+  try { $('#crab').setPointerCapture(e.pointerId); } catch(err){}
+});
+$('#crab').addEventListener('pointermove', e => {
+  if (!dragSt) return;
+  if (!dragSt.moved && Math.hypot(e.clientX - dragSt.x0, e.clientY - dragSt.y0) < 6) return;
+  dragSt.moved = true;
+  const el = $('#crab');
+  el.classList.add('drag');
+  el.style.left = (e.clientX - dragSt.dx) + 'px';
+  el.style.top = (e.clientY - dragSt.dy) + 'px';
+});
+function dragEnd(e){
+  if (!dragSt) return;
+  const el = $('#crab'), was = dragSt;
+  dragSt = null;
+  el.classList.remove('drag');
+  if (was.moved){
+    const r = el.getBoundingClientRect(), h = helpCfg();
+    h.x = r.left / innerWidth; h.y = r.top / innerHeight; save();
+    placeCrab();                      // підтягнути, якщо вилізло за край
+  } else if (e.target.closest('.cr')){
+    if (el.dataset.back){ delete el.dataset.back; guide(crabSaid, true); }
+    else if (crabSaid){ bubble(crabSaid[1]); say([crabSaid]); }
+  }
+}
+$('#crab').addEventListener('pointerup', dragEnd);
+$('#crab').addEventListener('pointercancel', dragEnd);
+addEventListener('resize', () => { if (!$('#crab').hidden) placeCrab(); });
 
 // ---------- Music: assets/music/theme.wav
 const music = new Audio(asset('music/theme.wav')); music.loop = true; music.volume = .2; music.preload = 'auto';
@@ -1066,7 +1160,8 @@ function kidStars(k){
   return s;
 }
 function who(){
-  $('#me').hidden = true; $('#total').textContent = 0; $('#crab').hidden = true;
+  $('#me').hidden = true; $('#total').textContent = 0;
+  $('#crab').hidden = true; $('#help').hidden = true;
   const list = Object.entries(DB.kids);
   $('#app').innerHTML = `<div style="display:flex;flex-direction:column;gap:16px">
     <p class="lead">Хто сьогодні грає?</p>
@@ -1129,6 +1224,8 @@ function home(){
   $('#total').textContent = totalStars();
   $('#me').hidden = false;
   $('#me').textContent = `${kid().ava} ${kid().name}`;
+  $('#help').hidden = false;
+  $('#help').textContent = helpCfg().off ? '🦀 Покликати' : '🦀 Клац';
   const k = kid(), doneToday = k.day === today();
   const mine = Object.keys(k.st || {}).length;
   $('#app').innerHTML = `<div style="display:flex;flex-direction:column;gap:14px">
