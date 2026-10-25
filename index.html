@@ -330,13 +330,16 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 @keyframes flagup{0%{transform:translateY(-22px) scale(.3);opacity:0}70%{transform:translateY(2px) scale(1.2)}100%{transform:none}}
 @media (max-width:420px){.ans{font-size:1.9rem;min-height:72px}.stage{font-size:2rem}img.pic{width:44px;height:44px}
   .card img.pic{width:48px;height:48px}}
+/* Краб із цього правила виведений цілком. Спершу я лишив йому тільки
+   перемикання кадрів — і вийшло найгірше з двох: кадри змінювались, а
+   тіло стояло, тож рухалися самі лише пікселі по контуру. Це не рух, це
+   схоже на несправність. Помічник — не прикраса інтерфейсу, а персонаж,
+   і дитина чекає, що він ворушиться; системне «прибрати анімації» на
+   планшетах часто ввімкнене заради батареї, а не свідомо.
+   Якщо браузер не зрозуміє :not() зі складним селектором, правило
+   відпаде цілком — і рухатиметься все. Для гри це безпечніший бік. */
 @media (prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
-  /* Виняток — кадри краба. Решту руху вимикаємо, бо людина про це
-     попросила налаштуванням системи, але кадри крутяться на місці й
-     нічого на сторінці не совають, а геть нерухомий помічник виглядає
-     просто зламаним. */
-  .crab .cr .body .sheet{animation:crab-run 1.33s steps(16) infinite!important}
+  *:not(.crab):not(.crab *){animation:none!important;transition:none!important}
 }
 </style>
 
