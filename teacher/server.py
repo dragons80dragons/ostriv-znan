@@ -194,6 +194,17 @@ class Handler(SimpleHTTPRequestHandler):
     def log_message(self, fmt, *args):                 # тиша замість потоку GET
         pass
 
+    def end_headers(self):
+        # http.server не шле Cache-Control, і браузер вирішує сам, скільки
+        # тримати сторінку. Планшет, який відкрив гру вчора, показував
+        # учорашню версію — і виглядало це так, ніби нове просто не працює.
+        # Для самої сторінки просимо щоразу перепитати; картинки, голос і
+        # музику лишаємо кешованими, вони й важать найбільше.
+        path = self.path.split('?', 1)[0]
+        if path.endswith('.html') or path.endswith('/') or path in ('', '/teacher', '/zvit'):
+            self.send_header('Cache-Control', 'no-cache, must-revalidate')
+        super().end_headers()
+
     def _send(self, body, ctype='text/html; charset=utf-8', code=200):
         self.send_response(code)
         self.send_header('Content-Type', ctype)
