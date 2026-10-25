@@ -217,6 +217,13 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
   position:relative;width:108px;height:108px}
 .crab .cr .rig{display:block;position:absolute;inset:0}
 .crab .cr .body img.pic{width:104px;height:104px;display:block}
+/* Кадри краба лежать однією стрічкою по шістнадцять (assets/crab/<настрій>.png).
+   Крутить її сам CSS через steps(16) — без жодного таймера в JavaScript.
+   Числа тут пов'язані: 104 — розмір краба, 1664 = 104 × 16. */
+.crab .cr .body .sheet{display:block;width:104px;height:104px;
+  background-repeat:no-repeat;background-size:1664px 104px;
+  animation:crab-run 1.33s steps(16) infinite}
+@keyframes crab-run{from{background-position:0 0}to{background-position:-1664px 0}}
 .crab .cr .prop{position:absolute;right:-14px;top:-10px}
 .crab .cr .prop img.pic{width:42px;height:42px;display:block}
 /* Зміна настрою — з підскоком: дитина має помітити, що краб відреагував.
@@ -520,13 +527,35 @@ const CRAB = {
   sleep: ['g_sleep',  'Я трохи подрімаю. Торкнись мене, коли будеш готовий.', 'sleep'],
 };
 let crabSaid = null, greeted = false, dozeT = null, bubT = null;
+// Кадри краба можуть бути, а можуть і ні — перевіряємо один раз на старті
+// однією картинкою: решта стрічок лежать поруч і або є всі, або немає.
+let SHEET = false;
+(() => { const probe = new Image();
+  probe.onload = () => {
+    SHEET = true;
+    // Перший екран малюється раніше, ніж стрічка встигає завантажитись,
+    // і краб лишався б на ньому нерухомою картинкою. Перемальовуємо
+    // поточний настрій, щойно стало відомо, що кадри є.
+    const el = document.getElementById('crab');
+    if (el && !el.hidden && el.dataset.mood){
+      const m = el.dataset.mood;
+      el.dataset.mood = '';
+      setMood(m);
+    }
+  };
+  probe.src = asset('crab/hi.png'); })();
 
 function setMood(mood){
   const el = $('#crab'), cr = $('#crpic');
   if (el.dataset.mood === mood) return;
   el.dataset.mood = mood;
   const m = MOODS[mood] || MOODS.hi;
-  cr.innerHTML = `<span class="rig"><span class="body">${pic('g_krab', '🦀')}</span>`
+  // Є стрічка кадрів — краб оживає сам; немає — лишається одна картинка,
+  // яку рухає CSS. Обидва шляхи робочі, тож гру можна віддати і без кадрів.
+  const body = SHEET && MOODS[mood]
+    ? `<i class="sheet" style="background-image:url(${asset('crab/' + mood + '.png')})"></i>`
+    : pic('g_krab', '🦀');
+  cr.innerHTML = `<span class="rig"><span class="body">${body}</span>`
     + (m.p ? `<span class="prop">${pic(m.p[0], m.p[1])}</span>` : '')
     + (m.z ? '<span class="zzz">z z z</span>' : '')
     + (m.b ? '<span class="bb b1"></span><span class="bb b2"></span><span class="bb b3"></span>' : '')

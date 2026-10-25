@@ -74,6 +74,22 @@ def main():
         embed['img/' + fn] = uri
     print('[збірка] картинок: %d' % len(embed), flush=True)
 
+    # Стрічки кадрів краба. Їх може не бути — гра тоді показує одну
+    # картинку й рухає її сама, тож папка не обов'язкова.
+    crab_dir = os.path.join(PROJ, 'assets', 'crab')
+    k = 0
+    if os.path.isdir(crab_dir):
+        for fn in sorted(os.listdir(crab_dir)):
+            if not fn.endswith('.png'):
+                continue
+            p = os.path.join(crab_dir, fn)
+            raw += os.path.getsize(p)
+            uri = as_webp(p)
+            packed += len(uri)
+            embed['crab/' + fn] = uri
+            k += 1
+    print('[збірка] стрічок краба: %d' % k, flush=True)
+
     voice_dir = os.path.join(PROJ, 'assets', 'voice')
     n = 0
     for fn in sorted(os.listdir(voice_dir)):
