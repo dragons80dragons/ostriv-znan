@@ -170,9 +170,12 @@ def main():
 
     theme = os.path.join(MUSIC, man['music']['file'])
     if os.path.exists(theme) and os.path.getsize(theme) > 200:
+        # Тема тепер MP3, а не WAV: тривалість модулем wave не прочитати,
+        # тож показуємо розмір — для «є чи немає» цього досить.
         secs = wav_seconds(theme)
-        print('\nМузика: %s%s' % (man['music']['file'],
-                                  ' — %.1f с' % secs if secs else ''))
+        print('\nМузика: %s — %s' % (
+            man['music']['file'],
+            '%.1f с' % secs if secs else '%d КБ' % (os.path.getsize(theme) // 1024)))
     else:
         print('\nМузика: НЕМАЄ %s (кнопка «Музика» в грі не з’явиться)'
               % man['music']['file'])

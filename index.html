@@ -894,7 +894,7 @@ function playTune(id){
   tuneId = id;
   if (tune){ tune.pause(); tune = null; }
   const own = id !== 'theme';
-  tune = new Audio(asset(own ? 'music/' + id + '.mp3' : 'music/theme.wav'));
+  tune = new Audio(asset('music/' + (own ? id : 'theme') + '.mp3'));
   tune.loop = true;
   tune.volume = own ? .16 : .2;              // на уроці ще тихіше
   tune.preload = 'auto';
@@ -907,7 +907,7 @@ function playTune(id){
   if (musicOn) tune.play().catch(()=>{});
 }
 // Кнопку показуємо лише коли щось справді вдалося завантажити.
-(() => { const probe = new Audio(asset('music/theme.wav'));
+(() => { const probe = new Audio(asset('music/theme.mp3'));
   probe.addEventListener('canplaythrough', () => { $('#music').hidden = false; }, {once:true});
   probe.load(); })();
 $('#music').onclick = () => {

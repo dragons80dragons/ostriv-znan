@@ -99,8 +99,9 @@ def main():
         sys.exit('частин краба лише %d — спершу tools/rig_krab.py' % k)
     print('[збірка] частин краба: %d' % k, flush=True)
 
-    # Фони екранів і мелодії островів — теж необов'язкові: немає файлів,
-    # гра просто лишається з рівним тлом і спільною темою.
+    # Фони екранів і музика — теж необов'язкові: немає файлів, гра
+    # просто лишається з рівним тлом і без звуку. Тема карти лежить у
+    # тій самій теці, що й мелодії островів, тож окремо її не беремо.
     for sub, ext in (('bg', '.jpg'), ('music', '.mp3')):
         d = os.path.join(PROJ, 'assets', sub)
         n2 = 0
@@ -132,12 +133,6 @@ def main():
         embed['voice/' + fn] = uri
         n += 1
     print('[збірка] кліпів: %d' % n, flush=True)
-
-    theme = os.path.join(PROJ, 'assets', 'music', 'theme.wav')
-    if os.path.exists(theme):
-        raw += os.path.getsize(theme)
-        embed['music/theme.wav'] = as_mp3(theme, '128k', False)
-        print('[збірка] музика вбудована', flush=True)
 
     with io.open(os.path.join(PROJ, 'index.html'), encoding='utf-8') as f:
         html = f.read()

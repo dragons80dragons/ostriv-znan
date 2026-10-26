@@ -37,6 +37,7 @@ except Exception:                                                 # noqa: BLE001
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PROJ = os.path.dirname(ROOT)
 ACE = r'G:\LOCAL AI AGENTS\05_MUSIC\ACE-Step'
+FFMPEG = r'G:\LOCAL AI AGENTS\00_SHARED\bin\ffmpeg.exe'
 OUT_DIR = os.path.join(ROOT, '_music')
 FADE = 3.0                  # секунд перехресного згасання
 
@@ -129,6 +130,8 @@ def main():
     ap.add_argument('--bpm', type=int, default=0)
     ap.add_argument('--dur', type=int, default=0)
     ap.add_argument('--file', default='')
+    ap.add_argument('--bitrate', default='128k',
+                    help='для .mp3 на виході; острови беруть 96k')
     args = ap.parse_args()
 
     with open(os.path.join(ROOT, 'manifest.json'), encoding='utf-8') as f:
@@ -168,8 +171,19 @@ def main():
     dst_dir = os.path.join(PROJ, 'assets', 'music')
     os.makedirs(dst_dir, exist_ok=True)
     dst = os.path.join(dst_dir, music['file'])
-    write_wav(dst, loop, sr)
-    print('[music] цикл %.1f с, %d Гц -> %s' % (loop.shape[0] / sr, sr, dst), flush=True)
+    if dst.lower().endswith('.mp3'):
+        # У грі лишається лише MP3: той самий цикл у WAV важить у десять
+        # разів більше, а на тлі під завданням різниці не чути.
+        tmp = os.path.join(OUT_DIR, '_loop.wav')
+        write_wav(tmp, loop, sr)
+        subprocess.run([FFMPEG, '-y', '-v', 'error', '-i', tmp,
+                        '-codec:a', 'libmp3lame', '-b:a', args.bitrate, dst],
+                       check=True)
+        os.remove(tmp)
+    else:
+        write_wav(dst, loop, sr)
+    print('[music] цикл %.1f с, %d Гц -> %s (%d КБ)'
+          % (loop.shape[0] / sr, sr, dst, os.path.getsize(dst) // 1024), flush=True)
 
 
 if __name__ == '__main__':

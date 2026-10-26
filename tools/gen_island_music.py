@@ -28,7 +28,6 @@ except Exception:                                                 # noqa: BLE001
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PROJ = os.path.dirname(ROOT)
 MUSIC = os.path.join(PROJ, 'assets', 'music')
-FFMPEG = r'G:\LOCAL AI AGENTS\00_SHARED\bin\ffmpeg.exe'
 BASE = ('gentle instrumental background music for a children game, '
         'soft and quiet, simple melody, no vocals, ')
 
@@ -61,25 +60,24 @@ ISLANDS = {
 
 
 def run(cid, prompt, bpm, dur, keep):
-    wav = os.path.join(MUSIC, cid + '.wav')
+    # Зведенням у MP3 займається сам gen_music.py: він бачить розширення
+    # у --file. Тут лишилося тільки сказати, з яким бітрейтом.
     mp3 = os.path.join(MUSIC, cid + '.mp3')
-    r = subprocess.run([sys.executable, os.path.join(ROOT, 'gen_music.py'),
-                        '--prompt', prompt, '--bpm', str(bpm), '--dur', str(dur),
-                        '--file', cid + '.wav'])
-    if r.returncode != 0 or not os.path.exists(wav):
-        return None
-    subprocess.run([FFMPEG, '-y', '-v', 'error', '-i', wav,
-                    '-codec:a', 'libmp3lame', '-b:a', '96k', mp3], check=True)
-    if not keep:
-        os.remove(wav)                  # у грі лишається лише MP3
-    return mp3
+    cmd = [sys.executable, os.path.join(ROOT, 'gen_music.py'),
+           '--prompt', prompt, '--bpm', str(bpm), '--dur', str(dur),
+           '--file', cid + '.mp3', '--bitrate', '96k']
+    if keep:
+        cmd.append('--keep')            # лишити сирий трек ACE-Step
+    r = subprocess.run(cmd)
+    return mp3 if r.returncode == 0 and os.path.exists(mp3) else None
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--only', default='', help='через кому; типово — усі')
     ap.add_argument('--dur', type=int, default=30)
-    ap.add_argument('--keep-wav', action='store_true')
+    ap.add_argument('--keep-raw', action='store_true',
+                    help='не видаляти сирий трек ACE-Step у tools\\_music')
     args = ap.parse_args()
 
     ids = [i.strip() for i in args.only.split(',') if i.strip()] or list(ISLANDS)
@@ -93,7 +91,7 @@ def main():
         prompt, bpm = ISLANDS[cid]
         print('[music] %2d/%d %-8s %s' % (k, len(ids), cid, prompt[60:100]), flush=True)
         t1 = time.time()
-        mp3 = run(cid, prompt, bpm, args.dur, args.keep_wav)
+        mp3 = run(cid, prompt, bpm, args.dur, args.keep_raw)
         if mp3:
             done += 1
             print('[music] %-8s готово за %.0f с -> %s (%d КБ)'
