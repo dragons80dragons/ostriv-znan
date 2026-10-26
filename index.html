@@ -236,37 +236,23 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 .crab .cr .rig{display:block;position:absolute;inset:0}
 .crab .cr .body img.pic{width:104px;height:104px;display:block}
 /* ---------- Краб у векторі: кожна частина рухається окремо ---------- */
-.krab{width:124px;height:102px;display:block;overflow:visible}
-/* Пластиліновий краб: чорного контуру немає зовсім — форму тримають
-   відтінки й тінь, як у глиняної фігурки. Саме цим обраний варіант і
-   відрізняється від плаского мальованого. */
-.krab .shell{fill:url(#krshell)}
-.krab .rim{fill:none;stroke:rgba(120,25,16,.35);stroke-width:5;stroke-linecap:round}
-.krab .gloss{fill:rgba(255,255,255,.22)}
-.krab .white{fill:#fff}
-.krab .pupil{fill:#5b1a1f}
+/* Краб — порізаний на частини малюнок: тіло, дві клешні, шість ніг
+   окремими картинками, очі й рот домальовані вектором поверх. */
+.krab{position:relative;width:124px;aspect-ratio:826/726;display:block}
+.krab .kp{position:absolute;display:block;will-change:transform}
+.krab .shell{left:0;top:0;width:100%}
+/* Обличчя лежить у тих самих координатах, що й тіло, тож повіка й
+   зіниця точно накривають місце прибраних намальованих очей. */
+.krab .face{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+.krab .white{fill:#fff;stroke:#7a2a1e;stroke-width:5}
+.krab .pupil{fill:#4a1620}
 .krab .spark{fill:#fff;opacity:.95}
-.krab .mouth{fill:none;stroke:#8e2318;stroke-width:4;stroke-linecap:round}
-.krab .leg{transform-box:fill-box}
-.krab .leg path{fill:none;stroke-linecap:round}
-.krab .leg-up{stroke:#d2342a;stroke-width:15}
-.krab .leg-dn{stroke:#c02e24;stroke-width:10}
-.krab .arm{fill:none;stroke:#cc342a;stroke-width:15;stroke-linecap:round}
-.krab .palm,.krab .fing{fill:url(#krclaw)}
-.krab .shade{fill:rgba(120,25,16,.25)}
-.krab .shadow{fill:rgba(0,0,0,.16)}
-/* Повіка стоїть піднята й опускається лише на час кліпання */
-.krab .lid{fill:#d8392b;transform-box:fill-box;
+.krab .look{transform-box:fill-box;transform-origin:50% 50%}
+.krab .mouth{fill:none;stroke:#7d2217;stroke-width:13;stroke-linecap:round;
+  transform-box:fill-box;transform-origin:50% 0}
+/* Повіка кольору панцира: опускається лише на час кліпання */
+.krab .lid{fill:#e04c3a;stroke:#7a2a1e;stroke-width:5;transform-box:fill-box;
   transform-origin:50% 100%;transform:scaleY(0)}
-/* Клешня обертається у плечі, а не їздить по екрану */
-.krab .claw{transform-box:fill-box;transform-origin:0 100%}
-.krab .body,.krab .face{transform-box:fill-box;transform-origin:50% 60%}
-.krab .mouth{transform-box:fill-box;transform-origin:50% 50%}
-/* Нога обертається там, де росте з панцира: ліві — правим краєм своєї
-   рамки, праві — лівим. Інакше вона не крокує, а їздить убік. */
-.krab .leg1,.krab .leg2,.krab .leg3{transform-origin:100% 0}
-.krab .leg4,.krab .leg5,.krab .leg6{transform-origin:0 0}
-
 /* ---------- Рух частин: саме він робить краба живим ----------
    Раніше це намагалися зробити готовими кадрами з AnimateDiff — і кадри
    виходили майже однакові, ворушився лише контур. Тут кожна частина має
@@ -275,8 +261,8 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 @keyframes kr-blink{0%,92%{transform:scaleY(0)}95%{transform:scaleY(1)}
   98%,100%{transform:scaleY(0)}}
 
-.crab[data-mood="hi"] .side-l .claw{animation:kr-wave 1.4s ease-in-out infinite}
-.crab[data-mood="hi"] .side-r .claw{animation:kr-wave2 1.4s ease-in-out infinite}
+.crab[data-mood="hi"] .cl-l{animation:kr-wave 1.4s ease-in-out infinite}
+.crab[data-mood="hi"] .cl-r{animation:kr-wave2 1.4s ease-in-out infinite}
 @keyframes kr-wave{0%{transform:rotate(0)}25%{transform:rotate(-30deg)}
   50%{transform:rotate(-8deg)}75%{transform:rotate(-24deg)}100%{transform:rotate(0)}}
 @keyframes kr-wave2{0%{transform:rotate(-10deg)}25%{transform:rotate(4deg)}
@@ -312,14 +298,28 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
   100%{transform:rotate(16deg)}}
 .crab[data-mood="oops"] .mouth{transform:translateY(8px) scaleY(-.7)}
 
-.crab[data-mood="point"] .side-l .claw{animation:kr-point 1s ease-in-out infinite}
+.crab[data-mood="point"] .cl-l{animation:kr-point 1s ease-in-out infinite}
 @keyframes kr-point{0%{transform:rotate(-12deg)}50%{transform:rotate(-30deg)}
   100%{transform:rotate(-12deg)}}
 
-.crab[data-mood="think"] .side-r .claw{animation:kr-chin 2.2s ease-in-out infinite}
+.crab[data-mood="think"] .cl-r{animation:kr-chin 2.2s ease-in-out infinite}
 @keyframes kr-chin{0%{transform:rotate(-48deg)}50%{transform:rotate(-56deg)}
   100%{transform:rotate(-48deg)}}
 
+/* Обличчя: рот і зіниці живуть окремо від тіла, бо саме вони й
+   показують настрій. Зіниця зміщується туди, куди краб дивиться. */
+.crab[data-mood="joy"] .mouth{transform:scaleY(2) translateY(-2px)}
+.crab[data-mood="clap"] .mouth{transform:scaleY(1.6)}
+.crab[data-mood="oops"] .mouth{transform:scaleY(-1) translateY(26px)}
+.crab[data-mood="think"] .mouth{transform:scaleX(.6) translateX(28px)}
+.crab[data-mood="point"] .look{animation:kr-look 1s ease-in-out infinite}
+.crab[data-mood="think"] .look{animation:kr-look2 2.2s ease-in-out infinite}
+@keyframes kr-look{0%,100%{transform:translate(0,0)}50%{transform:translate(-9px,2px)}}
+@keyframes kr-look2{0%,100%{transform:translate(0,-4px)}50%{transform:translate(7px,-7px)}}
+/* Підморгування: закривається лише одне око, і лише зрідка */
+.crab[data-mood="joy"] .eye-r .lid{animation:kr-wink 1.9s ease-in-out infinite}
+@keyframes kr-wink{0%,55%{transform:scaleY(0)}68%{transform:scaleY(1)}
+  80%,100%{transform:scaleY(0)}}
 /* Уві сні повіки опущені назовсім, а не кліпають */
 .crab[data-mood="sleep"] .lid{animation:none;transform:scaleY(1)}
 .crab[data-mood="sleep"] .claw{transform:rotate(18deg)}
@@ -673,71 +673,52 @@ let crabSaid = null, greeted = false, dozeT = null, bubT = null, moodT = null,
 // і це читається як несправність, а не як рух. У векторі кожна частина
 // окрема, тож клешня справді обертається у плечі, повіка справді
 // опускається, а нога справді крокує. Плюс нуль байтів і будь-який розмір.
-function crabSVG(){
-  // Нога пластилінового краба: два колінця різної товщини, без контуру.
-  // Форму тримає сама товщина лінії з круглими кінцями — як ковбаска з
-  // пластиліну, а не намальована паличка.
-  const leg = (n, x, y, k, a, b) => {
-    const up = `M${x} ${y} q${k*a} ${b*0.5} ${k*a*1.5} ${b}`;
-    const dn = `M${x+k*a*1.5} ${y+b} q${k*6} ${b*0.5} ${k*4} ${b}`;
-    return `<g class="leg leg${n}">
-      <path class="leg-up" d="${up}"/><path class="leg-dn" d="${dn}"/>
-    </g>`;
+// Краб — не намальований кодом, а порізаний на частини справжній малюнок.
+// Тіло, дві клешні й шість ніг лежать окремими картинками (assets/krab),
+// кожна зі своїм суглобом; очі та рот домальовані вектором поверх, бо
+// впечені в картинку зіниці не зрушиш і повікою не кліпнеш.
+//
+// Координати частин рахував tools/rig_krab.py по самій картинці: ноги
+// нижче панцира розходяться віялом, тож кожну відрізано кутовим сектором
+// із центра тіла.
+const RIG = {
+  claw_l: {left:3.63,  top:-7.3,  width:25.79, ox:75.1, oy:89.6, cls:'claw cl-l'},
+  claw_r: {left:53.63, top:-8.13, width:40.92, ox:53.6, oy:89.2, cls:'claw cl-r'},
+  leg1:   {left:74.21, top:72.87, width:25.3,  ox:33.5, oy:0, cls:'leg leg1'},
+  leg2:   {left:64.65, top:72.87, width:25.79, ox:25.8, oy:0, cls:'leg leg2'},
+  leg3:   {left:63.44, top:72.87, width:17.92, ox:10.8, oy:0, cls:'leg leg3'},
+  leg4:   {left:18.52, top:72.87, width:16.83, ox:82.7, oy:0, cls:'leg leg4'},
+  leg5:   {left:3.63,  top:72.87, width:29.9,  ox:85.8, oy:0, cls:'leg leg5'},
+  leg6:   {left:0.12,  top:72.87, width:18.04, ox:53.7, oy:0, cls:'leg leg6'},
+};
+function crabRig(){
+  const img = (n) => {
+    const s = RIG[n];
+    return `<img class="kp ${s.cls}" src="${asset('krab/' + n + '.png')}" alt=""
+      style="left:${s.left}%;top:${s.top}%;width:${s.width}%;
+             transform-origin:${s.ox}% ${s.oy}%">`;
   };
-  // Клешня: товста заокруглена долоня й один вигнутий палець над нею,
-  // між ними проміжок. Плече — в нулі групи, тож обертання виглядає як
-  // рух у суглобі, а не поїздка картинки по екрану.
-  const claw = `
-    <g class="claw">
-      <path class="arm" d="M0 0 q-10 -10 -17 -20"/>
-      <g class="pin">
-        <path class="palm" d="M-17 -20 q-20 -2 -26 -18 q-4 -16 11 -19 q18 -3 25 13 q7 16 -10 24 z"/>
-        <path class="shade" d="M-24 -14 q-10 -6 -12 -17 q10 10 20 12 z"/>
-        <path class="fing" d="M-40 -42 q-6 -20 -18 -26 q-4 14 6 29 q6 7 12 4 z"/>
-      </g>
-    </g>`;
-  // Очі — дві кульки зверху на панцирі, а не на стеблах.
-  const eye = (side, x) => `
+  // Повіка й зіниця — окремі фігури в тих самих координатах, що й
+  // картинка (viewBox збігається з розміром тіла), тож вони лягають
+  // точно на місце прибраних очей.
+  const eye = (side, cx, cy) => `
     <g class="eye eye-${side}">
-      <ellipse class="white" cx="${x}" cy="64" rx="13" ry="14"/>
-      <circle class="pupil" cx="${x + 2}" cy="66" r="7"/>
-      <circle class="spark" cx="${x - 3}" cy="60" r="3.2"/>
-      <path class="lid" d="M${x - 13} 64 a13 14 0 0 1 26 0 z"/>
-    </g>`;
-  return `<svg class="krab" viewBox="0 0 210 172" role="img" aria-label="краб Клац">
-    <defs>
-      <linearGradient id="krshell" x1=".3" y1="0" x2=".6" y2="1">
-        <stop offset="0" stop-color="#ef5a46"/><stop offset=".5" stop-color="#d8392b"/>
-        <stop offset="1" stop-color="#ad2920"/>
-      </linearGradient>
-      <linearGradient id="krclaw" x1="0" y1="0" x2=".7" y2="1">
-        <stop offset="0" stop-color="#e8513e"/><stop offset="1" stop-color="#bc2f24"/>
-      </linearGradient>
-    </defs>
-    <ellipse class="shadow" cx="105" cy="160" rx="54" ry="8"/>
-    <g class="legs">
-      ${leg(1, 74, 112, -1, 16, 10)}${leg(2, 80, 124, -1, 14, 13)}
-      ${leg(3, 90, 133, -1, 11, 14)}
-      ${leg(4, 136, 112, 1, 16, 10)}${leg(5, 130, 124, 1, 14, 13)}
-      ${leg(6, 120, 133, 1, 11, 14)}
-    </g>
-    <g class="arms">
-      <g class="side-l" transform="translate(62,96) scale(1.1)">${claw}</g>
-      <g class="side-r" transform="translate(148,96) scale(-1.1,1.1)">${claw}</g>
-    </g>
-    <g class="body">
-      <!-- Панцир: широкий округлий купол, донизу звужений. Контуру немає
-           зовсім — форму тримають тінь і м'яке ребро внизу. -->
-      <path class="shell" d="M105 56 q40 0 55 24 q10 16 6 32 q-5 20 -25 29
-        q-16 7 -36 7 q-20 0 -36 -7 q-20 -9 -25 -29 q-4 -16 6 -32 q15 -24 55 -24 z"/>
-      <path class="rim" d="M58 116 q20 24 47 24 q27 0 47 -24"/>
-      <ellipse class="gloss" cx="84" cy="82" rx="16" ry="11"/>
-      <g class="face">
-        ${eye('l', 90)}${eye('r', 122)}
-        <path class="mouth" d="M93 100 q13 14 26 0"/>
+      <ellipse class="white" cx="${cx}" cy="${cy}" rx="46" ry="50"/>
+      <g class="look">
+        <circle class="pupil" cx="${cx + 3}" cy="${cy + 5}" r="21"/>
+        <circle class="spark" cx="${cx - 9}" cy="${cy - 10}" r="8"/>
       </g>
-    </g>
-  </svg>`;
+      <path class="lid" d="M${cx - 46} ${cy} a46 50 0 0 1 92 0 z"/>
+    </g>`;
+  return `<div class="krab">
+    ${['leg1','leg2','leg3','leg4','leg5','leg6'].map(img).join('')}
+    ${img('claw_l')}${img('claw_r')}
+    <img class="kp shell" src="${asset('krab/body.png')}" alt="краб Клац">
+    <svg class="face" viewBox="0 0 826 726" aria-hidden="true">
+      ${eye('l', 290, 161)}${eye('r', 535, 168)}
+      <path class="mouth" d="M320 258 q82 50 165 0"/>
+    </svg>
+  </div>`;
 }
 
 function setMood(mood){
@@ -745,7 +726,7 @@ function setMood(mood){
   if (el.dataset.mood === mood) return;
   el.dataset.mood = mood;
   const m = MOODS[mood] || MOODS.hi;
-  cr.innerHTML = `<span class="rig"><span class="body">${crabSVG()}</span>`
+  cr.innerHTML = `<span class="rig"><span class="body">${crabRig()}</span>`
     + (m.p ? `<span class="prop">${pic(m.p[0], m.p[1])}</span>` : '')
     + (m.z ? '<span class="zzz">z z z</span>' : '')
     + (m.b ? '<span class="bb b1"></span><span class="bb b2"></span><span class="bb b3"></span>' : '')

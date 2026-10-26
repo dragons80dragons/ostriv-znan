@@ -1,0 +1,71 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Краб із частин — проба</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!--
+  Проба: той самий намальований краб, порізаний на тіло й дві клешні.
+  Кожна клешня обертається навколо свого зап'ястя, тіло підстрибує й
+  гойдається. Три рухи, щоб було видно, чи варто робити решту.
+-->
+<style>
+ body{margin:0;padding:20px;background:#dff0f5;color:#173a45;
+   font:16px/1.4 "Nunito",system-ui,sans-serif;text-align:center}
+ h1{font-size:1.2rem;margin:0 0 16px}
+ .row{display:flex;gap:24px;justify-content:center;flex-wrap:wrap}
+ figure{margin:0;background:#fff;border-radius:20px;padding:14px;
+   box-shadow:0 3px 12px rgba(23,58,69,.12)}
+ figcaption{font-weight:800;margin-top:6px}
+ /* Сцена: тіло лежить у потоці, клешні — поверх нього на тих самих
+    місцях, де були в початковій картинці. */
+ .krab{position:relative;width:260px;height:229px;margin:0 auto}
+ .krab img{position:absolute;image-rendering:auto}
+ .body{left:0;top:0;width:260px}
+ .cl{transform-box:border-box}
+ .cl-l{left:3.6%;top:-7.3%;width:25.8%;transform-origin:75.1% 89.6%}
+ .cl-r{left:53.6%;top:-8.1%;width:40.9%;transform-origin:53.6% 89.2%}
+ .shadow{position:absolute;left:18%;right:18%;bottom:-6px;height:12px;
+   border-radius:50%;background:rgba(0,0,0,.16)}
+
+ /* --- Рух 1: вітається --- */
+ .hi .body{animation:sway 1.6s ease-in-out infinite}
+ .hi .cl-l{animation:waveL 1.1s ease-in-out infinite}
+ .hi .cl-r{animation:waveR 1.6s ease-in-out infinite}
+ @keyframes sway{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+ @keyframes waveL{0%,100%{transform:rotate(0)}50%{transform:rotate(-26deg)}}
+ @keyframes waveR{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-8deg)}}
+
+ /* --- Рух 2: радіє --- */
+ .joy .body{animation:hop .62s ease-in-out infinite}
+ .joy .cl-l{animation:upL .62s ease-in-out infinite}
+ .joy .cl-r{animation:upR .62s ease-in-out infinite}
+ @keyframes hop{0%,100%{transform:translateY(0) scale(1.05,.93)}
+   45%{transform:translateY(-26px) scale(.96,1.08)}}
+ @keyframes upL{0%,100%{transform:rotate(0)}45%{transform:rotate(-34deg)}}
+ @keyframes upR{0%,100%{transform:rotate(0)}45%{transform:rotate(34deg)}}
+
+ /* --- Рух 3: іде боком --- */
+ .walk .body{animation:step .5s ease-in-out infinite}
+ .walk .cl-l{animation:swingL .5s ease-in-out infinite}
+ .walk .cl-r{animation:swingL .5s ease-in-out infinite reverse}
+ @keyframes step{0%,100%{transform:translateX(-10px) rotate(-4deg)}
+   50%{transform:translateX(10px) rotate(4deg)}}
+ @keyframes swingL{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(10deg)}}
+
+ @media (prefers-reduced-motion:reduce){*{animation-duration:inherit}}
+</style>
+<h1>Той самий краб, порізаний на частини — три рухи</h1>
+<div class="row" id="r"></div>
+<script>
+const P = 'krab_parts/';
+const MOVES = [['hi','вітається'], ['joy','радіє'], ['walk','іде боком']];
+document.getElementById('r').innerHTML = MOVES.map(([c, name]) => `
+  <figure>
+    <div class="krab ${c}">
+      <img class="body" src="${P}body.png" alt="">
+      <img class="cl cl-l" src="${P}claw_l.png" alt="">
+      <img class="cl cl-r" src="${P}claw_r.png" alt="">
+      <span class="shadow"></span>
+    </div>
+    <figcaption>${name}</figcaption>
+  </figure>`).join('');
+</script>
