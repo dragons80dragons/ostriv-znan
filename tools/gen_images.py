@@ -164,7 +164,10 @@ def put_ref(path):
 def run_one(img, cid, obj, seed, timeout=300, ref=None, denoise=1.0):
     # Острови (i_*) мають власний промпт: із загальним SDXL малював пейзаж
     # на весь кадр, а на карті острів — іконка 96×96 (див. manifest.json).
-    style = img['style_island'] if cid.startswith('i_') else img['style']
+    # Три стилі: острів-іконка, суцільний фон і звичайний вирізаний предмет.
+    style = (img['style_island'] if cid.startswith('i_')
+             else img['style_bg'] if cid.startswith('bg_')
+             else img['style'])
     text = style.replace('{object}', obj)
     res = api('/prompt', {'prompt': workflow(img, text, seed, ref, denoise)})
     pid = res['prompt_id']

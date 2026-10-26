@@ -123,10 +123,24 @@ def main():
     ap.add_argument('--keep', action='store_true', help='не видаляти сирий трек')
     ap.add_argument('--use-existing', action='store_true',
                     help='не генерувати заново, взяти останній трек із tools\\_music')
+    # Окремі мелодії для островів: та сама машинерія, лише інший опис і
+    # інший файл на виході. Описи лежать у gen_island_music.py.
+    ap.add_argument('--prompt', default='')
+    ap.add_argument('--bpm', type=int, default=0)
+    ap.add_argument('--dur', type=int, default=0)
+    ap.add_argument('--file', default='')
     args = ap.parse_args()
 
     with open(os.path.join(ROOT, 'manifest.json'), encoding='utf-8') as f:
         music = json.load(f)['music']
+    if args.prompt:
+        music = dict(music, prompt=args.prompt)
+    if args.bpm:
+        music['bpm'] = args.bpm
+    if args.dur:
+        music['duration'] = args.dur
+    if args.file:
+        music['file'] = args.file
     os.makedirs(OUT_DIR, exist_ok=True)
     cfg = write_config(os.path.join(OUT_DIR, 'music.toml'), music, args.seed)
 

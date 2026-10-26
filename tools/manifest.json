@@ -97,9 +97,15 @@
    "kr07": "a friendly cartoon crab for a children game, front view, full body, paper cut collage crab, layered coloured paper, simple shapes, centered on an empty pure white background, no text",
    "kr08": "a friendly cartoon crab for a children game, front view, full body, retro 1960s cartoon crab, limited palette, thin elegant lines, centered on an empty pure white background, no text",
    "kr09": "a friendly cartoon crab for a children game, front view, full body, cute chibi crab with eyes on stalks, shiny glossy shell, sparkle highlights, centered on an empty pure white background, no text",
-   "kr10": "a friendly cartoon crab for a children game, front view, full body, hand drawn crayon style crab, childlike drawing, visible crayon texture, centered on an empty pure white background, no text"
+   "kr10": "a friendly cartoon crab for a children game, front view, full body, hand drawn crayon style crab, childlike drawing, visible crayon texture, centered on an empty pure white background, no text",
+   "bg_map": "a calm sunny sea seen from above with tiny islands and soft waves",
+   "bg_lesson": "a quiet sandy beach with gentle waves and a few seashells",
+   "bg_finish": "a bright sky with soft clouds, confetti and paper streamers",
+   "bg_album": "an open scrapbook page with soft paper texture and corner stickers"
   },
-  "_krab_note": "Краб-провідник — одна картинка g_krab (взірець tools/_ref/g_krab_ref.png). Пози окремими картинками НЕ малюємо, перевірено тричі 25.10.2026: (1) txt2img з однаковим описом персонажа — сім різних крабів; (2) img2img від взірця (--ref) на denoise 0.62 і 0.78 — герой один, поза не змінюється; (3) поза першою в промпті і denoise 0.88 — модель додала прапорець у клешню, але стрибок, вказівку й сон намалювала тією ж стійкою. Тобто SDXL уміє додати предмет, а переставити кінцівки — ні. Саме так гра і влаштована: краб рухається CSS-анімацією в index.html, а предмети (gx_flag, gx_book, o_star) накладаються поверх тіла. Нову картинку краба малювати тільки з --ref."
+  "_krab_note": "Краб-провідник — одна картинка g_krab (взірець tools/_ref/g_krab_ref.png). Пози окремими картинками НЕ малюємо, перевірено тричі 25.10.2026: (1) txt2img з однаковим описом персонажа — сім різних крабів; (2) img2img від взірця (--ref) на denoise 0.62 і 0.78 — герой один, поза не змінюється; (3) поза першою в промпті і denoise 0.88 — модель додала прапорець у клешню, але стрибок, вказівку й сон намалювала тією ж стійкою. Тобто SDXL уміє додати предмет, а переставити кінцівки — ні. Саме так гра і влаштована: краб рухається CSS-анімацією в index.html, а предмети (gx_flag, gx_book, o_star) накладаються поверх тіла. Нову картинку краба малювати тільки з --ref.",
+  "_bg_note": "Фони (bg_*) мають власний стиль style_bg: суцільна світла сцена замість вирізаного предмета на білому. Навмисно малоконтрастні — поверх них лежать текст і кнопки. Фон НЕ проганяти через cut_bg.py: там вирізається тло, а тут воно і є картинкою.",
+  "style_bg": "children book illustration background, {object}, soft pastel colours, very light, low contrast, simple shapes, no text, no characters, plenty of empty space, gentle and calm"
  },
  "shapes": {
   "_about": "Фігури для візерунків малюються кодом (draw_shapes.py), а не SDXL: на запит 'red circle' модель видавала песика, а рівне коло з чітким краєм тут важливіше за ілюстрацію. gen_images.py ці id пропускає.",

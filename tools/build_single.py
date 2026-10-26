@@ -58,6 +58,13 @@ def as_mp3(path, bitrate, mono):
     return 'data:audio/mpeg;base64,' + base64.b64encode(data).decode()
 
 
+def as_data_uri(path):
+    """Файл як є, без перекодування: фони вже JPEG, мелодії вже MP3."""
+    kind = {'.jpg': 'image/jpeg', '.mp3': 'audio/mpeg'}[os.path.splitext(path)[1]]
+    with open(path, 'rb') as f:
+        return 'data:%s;base64,' % kind + base64.b64encode(f.read()).decode()
+
+
 def main():
     if not os.path.exists(FFMPEG):
         sys.exit('немає ffmpeg: %s' % FFMPEG)
@@ -89,6 +96,23 @@ def main():
             embed['crab/' + fn] = uri
             k += 1
     print('[збірка] стрічок краба: %d' % k, flush=True)
+
+    # Фони екранів і мелодії островів — теж необов'язкові: немає файлів,
+    # гра просто лишається з рівним тлом і спільною темою.
+    for sub, ext in (('bg', '.jpg'), ('music', '.mp3')):
+        d = os.path.join(PROJ, 'assets', sub)
+        n2 = 0
+        if os.path.isdir(d):
+            for fn in sorted(os.listdir(d)):
+                if not fn.endswith(ext):
+                    continue
+                p = os.path.join(d, fn)
+                raw += os.path.getsize(p)
+                uri = as_data_uri(p)
+                packed += len(uri)
+                embed[sub + '/' + fn] = uri
+                n2 += 1
+        print('[збірка] %s: %d' % (sub, n2), flush=True)
 
     voice_dir = os.path.join(PROJ, 'assets', 'voice')
     n = 0
