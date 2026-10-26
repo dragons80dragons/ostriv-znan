@@ -81,21 +81,23 @@ def main():
         embed['img/' + fn] = uri
     print('[збірка] картинок: %d' % len(embed), flush=True)
 
-    # Стрічки кадрів краба. Їх може не бути — гра тоді показує одну
-    # картинку й рухає її сама, тож папка не обов'язкова.
-    crab_dir = os.path.join(PROJ, 'assets', 'crab')
+    # Частини краба: тіло, дві клешні, шість ніг. Без них краба в грі
+    # не буде взагалі — він складається саме з цих картинок, — тому тут
+    # не «якщо є», а перевірка: нема частин, збірка не має сенсу.
+    krab_dir = os.path.join(PROJ, 'assets', 'krab')
     k = 0
-    if os.path.isdir(crab_dir):
-        for fn in sorted(os.listdir(crab_dir)):
-            if not fn.endswith('.png'):
-                continue
-            p = os.path.join(crab_dir, fn)
-            raw += os.path.getsize(p)
-            uri = as_webp(p)
-            packed += len(uri)
-            embed['crab/' + fn] = uri
-            k += 1
-    print('[збірка] стрічок краба: %d' % k, flush=True)
+    for fn in sorted(os.listdir(krab_dir)):
+        if not fn.endswith('.png'):
+            continue
+        p = os.path.join(krab_dir, fn)
+        raw += os.path.getsize(p)
+        uri = as_webp(p)
+        packed += len(uri)
+        embed['krab/' + fn] = uri
+        k += 1
+    if k < 9:
+        sys.exit('частин краба лише %d — спершу tools/rig_krab.py' % k)
+    print('[збірка] частин краба: %d' % k, flush=True)
 
     # Фони екранів і мелодії островів — теж необов'язкові: немає файлів,
     # гра просто лишається з рівним тлом і спільною темою.
@@ -108,7 +110,11 @@ def main():
                     continue
                 p = os.path.join(d, fn)
                 raw += os.path.getsize(p)
-                uri = as_data_uri(p)
+                # Вісімнадцять мелодій по 96 кбіт у base64 — це вісім
+                # мегабайтів в одному рядку, які планшет тримає в пам'яті
+                # разом із усією сторінкою. Для тла на гучності 16 %
+                # вистачає 64 кбіт моно, і файл худне на третину.
+                uri = as_mp3(p, '64k', True) if sub == 'music' else as_data_uri(p)
                 packed += len(uri)
                 embed[sub + '/' + fn] = uri
                 n2 += 1

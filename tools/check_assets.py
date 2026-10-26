@@ -28,6 +28,15 @@ HTML = os.path.join(PROJ, 'index.html')
 IMG = os.path.join(PROJ, 'assets', 'img')
 VOICE = os.path.join(PROJ, 'assets', 'voice')
 MUSIC = os.path.join(PROJ, 'assets', 'music')
+# Шпалери лежать окремо й не в PNG: фото 1024 px важило б більше за всю
+# решту гри, тому pack_bg.py зводить їх у JPEG (assets/bg).
+BG = os.path.join(PROJ, 'assets', 'bg')
+# Краб у грі — не картинка, а порізаний на частини малюнок (rig_krab.py).
+KRAB = os.path.join(PROJ, 'assets', 'krab')
+# Десять намальованих крабів — чернетки, з яких вибирали одного. У грі
+# не лишилося жодного цілою картинкою, тому гра їх і не просить; у
+# маніфесті вони потрібні, щоб було чим перегенерувати.
+DRAFTS = {'g_krab'} | {'kr%02d' % k for k in range(1, 11)}
 
 
 def ids_from_html(src):
@@ -65,6 +74,28 @@ def ids_from_html(src):
     return imgs, voice
 
 
+def krab_parts():
+    """Які частини краба мусять лежати: список бере сам риг.
+
+    parts.json пише rig_krab.py, і там же лежать координати, якими гра
+    складає краба. Якщо частини не збігаються зі списком — гра збере
+    краба з дірками, і це видно лише оком, тому звіряємо списком.
+    """
+    try:
+        with open(os.path.join(KRAB, 'parts.json'), encoding='utf-8') as f:
+            return set(json.load(f)['parts']) | {'body'}
+    except Exception:                                             # noqa: BLE001
+        return {'body'}
+
+
+def lesson_ids(src):
+    """Id уроків — із переліку морів (ls: ['math','num', …])."""
+    out = set()
+    for block in re.findall(r"ls:\s*\[([^\]]*)\]", src):
+        out |= set(re.findall(r"'([a-z0-9_]+)'", block))
+    return out
+
+
 def wav_seconds(path):
     try:
         with wave.open(path, 'rb') as f:
@@ -98,7 +129,7 @@ def main():
         man = json.load(f)
 
     html_img, html_voice = ids_from_html(src)
-    man_img = set(man['image']['items'])
+    man_img = set(man['image']['items']) - DRAFTS
     # Матрицю «фігура × колір» гра збирає рядком (`f_${фігура}_${колір}`),
     # у маніфесті вона описана списками — звідти й беремо очікувані id.
     fig = man.get('figures')
@@ -114,6 +145,12 @@ def main():
         if fn in src:
             html_voice |= {i for i in man_voice if i.startswith(pref)}
 
+    # Шпалери гра просить не як id, а рядком у scene() — звідси й беремо.
+    scenes = {'bg_' + n for n in re.findall(r'scene\("([a-z]+)"\)', src)}
+    bgs = {i for i in man_img if i.startswith('bg_')} | scenes
+    html_img -= bgs
+    man_img -= bgs
+
     print('index.html просить: %d картинок, %d голосових кліпів'
           % (len(html_img), len(html_voice)))
     for name, a, b in (('картинок', html_img, man_img),
@@ -127,7 +164,9 @@ def main():
 
     bad = []
     bad += report('Картинки assets/img', html_img | man_img, IMG, '.png')
+    bad += report('Шпалери assets/bg', bgs, BG, '.jpg')
     bad += report('Голос assets/voice', html_voice | man_voice, VOICE, '.wav')
+    bad += report('Частини краба assets/krab', krab_parts(), KRAB, '.png')
 
     theme = os.path.join(MUSIC, man['music']['file'])
     if os.path.exists(theme) and os.path.getsize(theme) > 200:
@@ -138,6 +177,16 @@ def main():
         print('\nМузика: НЕМАЄ %s (кнопка «Музика» в грі не з’явиться)'
               % man['music']['file'])
         bad.append('theme')
+
+    # Мелодія кожного острова. Без неї гра не падає — просто грає тишу,
+    # тому це попередження, а не брак: 18 треків генеруються пів години.
+    tunes = lesson_ids(src)
+    lack = sorted(t for t in tunes
+                  if not os.path.exists(os.path.join(MUSIC, t + '.mp3')))
+    print('Мелодії островів: %d з %d' % (len(tunes) - len(lack), len(tunes)))
+    if lack:
+        print('  НЕМАЄ (%d): %s' % (len(lack), ', '.join(lack)))
+        print('  зробити: python gen_island_music.py --only %s' % ','.join(lack))
 
     short = [f for f in sorted(os.listdir(VOICE)) if f.endswith('.wav')
              and (wav_seconds(os.path.join(VOICE, f)) or 1) < 0.2] \

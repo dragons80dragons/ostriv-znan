@@ -893,10 +893,17 @@ function playTune(id){
   if (id === tuneId) return;
   tuneId = id;
   if (tune){ tune.pause(); tune = null; }
-  tune = new Audio(asset(id === 'theme' ? 'music/theme.wav' : 'music/' + id + '.mp3'));
+  const own = id !== 'theme';
+  tune = new Audio(asset(own ? 'music/' + id + '.mp3' : 'music/theme.wav'));
   tune.loop = true;
-  tune.volume = id === 'theme' ? .2 : .16;   // на уроці ще тихіше
+  tune.volume = own ? .16 : .2;              // на уроці ще тихіше
   tune.preload = 'auto';
+  // Мелодії острова може й не бути: її генерують окремо, а на флешку
+  // беруть не завжди. Тоді грає спільна тема, а не тиша — інакше вхід
+  // на острів виглядає як поламаний звук.
+  if (own) tune.addEventListener('error', () => {
+    if (tuneId === id){ tuneId = ''; playTune('theme'); }
+  }, {once: true});
   if (musicOn) tune.play().catch(()=>{});
 }
 // Кнопку показуємо лише коли щось справді вдалося завантажити.

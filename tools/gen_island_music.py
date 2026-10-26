@@ -104,6 +104,10 @@ def main():
             print('[music] %-8s збій' % cid, flush=True)
     print('[music] разом: %d мелодій, збоїв %d, %.1f хв'
           % (done, fail, (time.time() - t0) / 60), flush=True)
+    # Останнім ділом зрівнюємо гучність: ACE-Step видає треки з розкидом
+    # у чотири децибели, і перехід між островами чути як стрибок.
+    if done:
+        subprocess.run([sys.executable, os.path.join(ROOT, 'level_music.py')])
 
 
 if __name__ == '__main__':
