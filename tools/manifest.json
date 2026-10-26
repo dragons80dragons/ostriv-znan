@@ -87,7 +87,17 @@
    "se_autumn": "a tree with yellow and orange leaves falling down",
    "se_winter": "a bare tree covered with white snow",
    "gx_flag": "a small red triangular flag on a thin wooden stick",
-   "gx_book": "an open book with white pages and a blue cover"
+   "gx_book": "an open book with white pages and a blue cover",
+   "kr01": "a friendly cartoon crab for a children game, front view, full body, flat vector illustration, thick black outline, bright red shell, big round eyes, centered on an empty pure white background, no text",
+   "kr02": "a friendly cartoon crab for a children game, front view, full body, soft watercolour children book illustration, coral pink crab, gentle smile, centered on an empty pure white background, no text",
+   "kr03": "a friendly cartoon crab for a children game, front view, full body, chunky kawaii mascot, very big head, tiny claws, pastel orange, blush cheeks, centered on an empty pure white background, no text",
+   "kr04": "a friendly cartoon crab for a children game, front view, full body, bold comic style, strong black ink outline, cherry red, confident grin, centered on an empty pure white background, no text",
+   "kr05": "a friendly cartoon crab for a children game, front view, full body, plush toy crab made of felt, visible stitches, warm orange fabric, centered on an empty pure white background, no text",
+   "kr06": "a friendly cartoon crab for a children game, front view, full body, claymation style crab, soft modelling clay, rounded shapes, matte red, centered on an empty pure white background, no text",
+   "kr07": "a friendly cartoon crab for a children game, front view, full body, paper cut collage crab, layered coloured paper, simple shapes, centered on an empty pure white background, no text",
+   "kr08": "a friendly cartoon crab for a children game, front view, full body, retro 1960s cartoon crab, limited palette, thin elegant lines, centered on an empty pure white background, no text",
+   "kr09": "a friendly cartoon crab for a children game, front view, full body, cute chibi crab with eyes on stalks, shiny glossy shell, sparkle highlights, centered on an empty pure white background, no text",
+   "kr10": "a friendly cartoon crab for a children game, front view, full body, hand drawn crayon style crab, childlike drawing, visible crayon texture, centered on an empty pure white background, no text"
   },
   "_krab_note": "Краб-провідник — одна картинка g_krab (взірець tools/_ref/g_krab_ref.png). Пози окремими картинками НЕ малюємо, перевірено тричі 25.10.2026: (1) txt2img з однаковим описом персонажа — сім різних крабів; (2) img2img від взірця (--ref) на denoise 0.62 і 0.78 — герой один, поза не змінюється; (3) поза першою в промпті і denoise 0.88 — модель додала прапорець у клешню, але стрибок, вказівку й сон намалювала тією ж стійкою. Тобто SDXL уміє додати предмет, а переставити кінцівки — ні. Саме так гра і влаштована: краб рухається CSS-анімацією в index.html, а предмети (gx_flag, gx_book, o_star) накладаються поверх тіла. Нову картинку краба малювати тільки з --ref."
  },
