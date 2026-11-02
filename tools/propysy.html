@@ -1,0 +1,74 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Прописи — аркуш для звірки</title>
+<!--
+  Аркуш усіх рукописних літер одразу. Потрібен, щоб правити форми:
+  поодинці буква завжди виглядає пристойно, а поруч із сусідками видно,
+  що в однієї овал завеликий, а інша стоїть вище за рядок.
+
+  Дані НЕ дублюються: сторінка витягує PEN просто з index.html, тож
+  правити треба там, а тут лише дивитися (F5 після кожної правки).
+-->
+<style>
+  body{margin:0;padding:18px;background:#0f2a33;color:#eaf4f7;
+       font:15px/1.5 system-ui,sans-serif}
+  h1{font-size:18px;margin:0 0 4px}
+  p{margin:0 0 14px;opacity:.7}
+  .sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  figure{margin:0;background:#15323c;border:1px solid #2b5362;border-radius:12px;padding:6px}
+  figcaption{text-align:center;font-size:13px;opacity:.75;padding-top:2px}
+  svg{display:block;width:100%;aspect-ratio:1}
+  .rule{stroke:#8fd2e8;stroke-width:.5;opacity:.35}
+  .slant{stroke:#8fd2e8;stroke-width:.4;opacity:.2;stroke-dasharray:2 2}
+  .road{fill:none;stroke:#8fd2e8;stroke-width:12;opacity:.18;
+        stroke-linecap:round;stroke-linejoin:round}
+  .dash{fill:none;stroke:#8fd2e8;stroke-width:1.6;opacity:.75;
+        stroke-dasharray:3 3.5;stroke-linecap:round}
+  .start{fill:#e8684a}
+  .num{fill:#e8684a;font:bold 6px system-ui;opacity:.9}
+</style>
+<h1>Прописи — аркуш для звірки</h1>
+<p>Дані беруться з <code>index.html</code>. Крапка — початок штриха, цифра біля неї — порядок.</p>
+<div class="sheet" id="sheet"></div>
+<script>
+const SRC = '/index.html';
+
+function guides(){
+  let s = '';
+  for (const y of [18, 35, 72, 90])
+    s += `<line class="rule" x1="2" y1="${y}" x2="98" y2="${y}"/>`;
+  // Похилі лінії — як у зошиті в косу лінію: по них видно, чи збігається
+  // нахил літери з тим, під яким дитина писатиме.
+  for (let x = 10; x < 110; x += 16)
+    s += `<line class="slant" x1="${x}" y1="90" x2="${x + 10}" y2="18"/>`;
+  return s;
+}
+
+function glyph(ch, strokes){
+  const paths = strokes.map(d => `<path class="road" d="${d}"/>`).join('')
+              + strokes.map(d => `<path class="dash" d="${d}"/>`).join('');
+  return `<figure><svg viewBox="0 0 100 100">${guides()}
+    <g transform="translate(7 0) skewX(-8)" data-g="${ch}">${paths}</g>
+    </svg><figcaption>${ch} — штрихів: ${strokes.length}</figcaption></figure>`;
+}
+
+(async () => {
+  const src = await (await fetch(SRC)).text();
+  const m = src.match(/const PEN = \{[\s\S]*?\n\};/);
+  if (!m) { document.body.insertAdjacentHTML('beforeend', '<p>не знайшов PEN в index.html</p>'); return; }
+  const PEN = eval('(' + m[0].replace(/^const PEN = /, '').replace(/;$/, '') + ')');
+  document.getElementById('sheet').innerHTML =
+    Object.entries(PEN).map(([ch, s]) => glyph(ch, s)).join('');
+  // Крапки початку й номери штрихів ставимо вже по готових шляхах:
+  // getPointAtLength працює тільки на вставленому в сторінку елементі.
+  for (const g of document.querySelectorAll('[data-g]')){
+    const ps = [...g.querySelectorAll('.dash')];
+    ps.forEach((p, i) => {
+      const a = p.getPointAtLength(0);
+      g.insertAdjacentHTML('beforeend',
+        `<circle class="start" cx="${a.x}" cy="${a.y}" r="2.2"/>
+         <text class="num" x="${a.x + 3}" y="${a.y - 2.5}">${i + 1}</text>`);
+    });
+  }
+})();
+</script>

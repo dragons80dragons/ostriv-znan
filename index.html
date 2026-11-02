@@ -200,9 +200,26 @@ img.pic{width:56px;height:56px;object-fit:contain;vertical-align:middle}
 /* Tracing lesson: finger draws on the top canvas, the letter sits under it */
 .trace{display:flex;flex-direction:column;align-items:center;gap:12px}
 .pad{position:relative;width:min(320px,80vw);aspect-ratio:1}
-.pad canvas{position:absolute;inset:0;width:100%;height:100%;border-radius:18px}
+.pad canvas,.pad svg{position:absolute;inset:0;width:100%;height:100%;border-radius:18px}
 .pad canvas.ink{touch-action:none;cursor:crosshair}
-.pad canvas.glyph{background:var(--sea);border:2px solid var(--line)}
+.pad svg.glyph{background:var(--sea);border:2px solid var(--line)}
+/* Зошит у косу лінію: горизонтальні лінії рядка й похилі — по них видно,
+   під яким нахилом вести. */
+.glyph .rl{stroke:var(--line);stroke-width:.6;opacity:.75}
+.glyph .sl{stroke:var(--line);stroke-width:.5;opacity:.4;stroke-dasharray:2 2}
+/* Доріжка, пунктир посередині й лінія показу — три шари однієї літери. */
+.glyph .road{fill:none;stroke:var(--sea-deep);opacity:.26;stroke-width:var(--road);
+  stroke-linecap:round;stroke-linejoin:round}
+.glyph .dash{fill:none;stroke:var(--sea-deep);opacity:.7;stroke-width:1.5;
+  stroke-dasharray:3 3.5;stroke-linecap:round}
+/* Коли показ дописав літеру, коралова лінія гасне: інакше дитина бачить
+   букву вже написаною й обводити нема чого. */
+.glyph .let.done .pen{opacity:0;transition:opacity .5s}
+.glyph .pen{fill:none;stroke:var(--coral);stroke-width:2.6;
+  stroke-linecap:round;stroke-linejoin:round}
+.glyph .dot{fill:var(--coral)}
+.glyph .no{fill:var(--coral);font:bold 6px system-ui;opacity:.85}
+.pad.bold .road{opacity:.3}
 .trace .row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 /* Краб-провідник: він вітає, підказує й радіє замість безликих фраз.
    Стоїть унизу сторінки, щоб ніколи не перекривав кнопки відповідей. */
@@ -1038,19 +1055,93 @@ function memoTasks(v){
     pairs: pick(WORDS, k)}));
 }
 
+// ---------- Прописи: літера як рух руки, а не як силует шрифту.
+//
+// Друкована буква в Comfortaa дитині на уроці письма не потрібна: у зошиті
+// вона пише рукописну, з іншими формами. Тому кожна літера тут — набір
+// штрихів у тому порядку, у якому її пишуть, і кожен штрих записаний як
+// шлях SVG у сітці 100×100. Сітка однакова для всіх:
+//
+//     y=18  надрядкова лінія (де закінчуються великі літери)
+//     y=35  верхня лінія рядка
+//     y=72  нижня лінія рядка (на ній стоять усі літери)
+//     y=90  підрядкова лінія (куди спускаються хвостики «у», «р»)
+//
+// Писали б одразу похилими — довелося б рахувати нахил у кожній кривій;
+// натомість літери намальовані прямо, а нахил дає перетворення при показі
+// (penT нижче). Тому ж і перевірка нахиляє маску тим самим перетворенням.
+const PEN = {
+  // Малі літери
+  'а': ['M61 41 C56 34 44 33 38 41 C31 49 31 63 38 70 C44 77 56 75 61 67 C64 61 64 47 61 41',
+        'M61 41 C61 52 61 62 62 70 C64 75 69 76 73 71'],
+  'о': ['M63 41 C58 34 46 33 39 41 C32 49 32 63 39 70 C46 77 58 75 63 67 C67 60 67 47 63 41 C65 39 68 37 72 37'],
+  'у': ['M35 36 C33 52 35 66 43 70 C49 73 53 64 54 36 C54 54 55 72 52 82 C49 91 41 91 37 85'],
+  'и': ['M34 36 C32 52 35 67 43 70 C49 72 52 63 53 36 C52 53 55 68 63 71 C69 73 72 68 74 63'],
+  'м': ['M26 70 C28 56 32 41 35 36 C37 52 37 62 38 70 C40 56 44 41 47 36 C49 52 49 62 50 70 C52 56 56 41 59 36 C61 52 61 62 62 70 C64 75 69 76 73 71'],
+  'н': ['M30 70 C32 55 35 41 37 36 C38 52 38 62 39 70',
+        'M39 55 C46 54 54 54 61 55',
+        'M61 36 C62 52 62 62 63 70 C65 75 70 76 74 71'],
+  'л': ['M26 68 C28 73 33 72 35 65 C38 54 41 44 45 36 C47 50 49 62 51 70 C53 75 58 76 62 71'],
+  'с': ['M67 44 C63 36 50 32 42 39 C34 45 32 61 38 68 C45 75 59 73 66 65'],
+  'к': ['M31 41 C33 37 35 36 36 36 C37 52 37 62 38 70',
+        'M61 36 C55 44 48 50 41 54',
+        'M44 52 C50 58 56 64 60 70 C62 75 67 76 71 71'],
+  // Великі літери
+  'А': ['M24 72 C30 56 40 36 50 20 C56 40 62 56 68 72 C70 76 75 77 79 72',
+        'M34 56 L62 56'],
+  'О': ['M66 28 C58 19 42 20 34 31 C25 44 25 62 33 70 C42 79 58 77 65 66 C72 54 72 36 66 28'],
+  'У': ['M30 26 C34 20 42 19 46 26 C50 34 50 50 50 60 C50 48 54 30 62 22 C62 40 60 64 55 78 C50 90 40 92 34 86'],
+  'И': ['M26 72 C30 56 34 36 36 22 C36 44 36 62 38 72 C46 58 56 38 62 22 C62 44 62 62 64 72 C66 76 71 77 75 72'],
+  'М': ['M22 72 C26 56 30 36 32 22 C36 44 40 58 44 68 C50 56 56 38 60 22 C62 44 64 60 66 72 C68 76 73 77 77 72'],
+  'Н': ['M24 72 C28 56 32 36 34 22 C34 44 34 62 36 72',
+        'M36 48 C46 46 56 46 64 48',
+        'M60 22 C60 44 62 62 64 72 C66 76 71 77 75 72'],
+  'Л': ['M22 70 C24 76 30 75 33 68 C38 52 44 34 50 22 C52 44 54 60 58 72 C60 76 65 77 69 72'],
+  'С': ['M70 32 C64 20 46 18 36 28 C26 38 24 60 32 69 C40 78 58 78 68 68'],
+  'К': ['M26 26 C30 20 34 21 35 26 C36 44 36 60 38 72',
+        'M66 22 C58 36 50 46 40 52',
+        'M44 50 C50 58 56 66 60 72 C62 76 67 77 71 72'],
+  // Цифри
+  '1': ['M36 45 C40 43 46 39 50 34 C50 48 50 60 50 72'],
+  '2': ['M33 44 C35 35 45 31 53 35 C62 39 61 50 52 58 C44 65 38 69 32 72 L68 72'],
+  '3': ['M33 42 C37 34 50 31 57 36 C63 41 59 50 49 52 C60 52 67 58 64 66 C61 74 44 76 34 69'],
+  '4': ['M56 33 L30 62 L66 62', 'M56 33 L56 72'],
+  '5': ['M64 34 L41 34 L38 50 C47 45 59 48 62 56 C65 65 55 74 40 70'],
+};
+// Нахил письма — той самий, що в зошиті в косу лінію: верх літери йде
+// вправо приблизно на вісім градусів. TX повертає літеру на середину,
+// бо нахил зсуває її вліво тим сильніше, чим вона вища.
+const PEN_SH = -0.1405, PEN_TX = 7;
+const penT = `translate(${PEN_TX} 0) skewX(-8)`;
+// Видиме вікно сітки. Літери живуть між 18 і 90 по висоті, тож показувати
+// всі сто клітинок немає сенсу — з обрізаним вікном буква більша, а палець
+// у шість років влучає погано.
+const PEN_VB = [8, 10, 84, 84];
+// Те саме перетворення для полотна: воно рахує маску, якою перевіряється
+// обведення, і мусить лягати точно на те, що дитина бачить. Тому матриця
+// рахується з тих самих чисел, а не пишеться окремо.
+function penMatrix(S){
+  const [vx, vy, vw] = PEN_VB, k = S / vw;
+  return [k, 0, k*PEN_SH, k, k*(PEN_TX - vx), -k*vy];
+}
+
 // ---------- Tracing with a finger. Vowels first, then consonants, then both.
 // Each prompt is one recorded phrase, not a letter clip glued to a phrase:
 // a letter on its own comes out of the synthesiser as noise, and the name of
 // a consonant («ем», «ен») is what a first-grader is taught anyway.
-const TRACE_V = [['А','t_a','а'],['О','t_o','о'],['У','t_u','у'],['И','t_y','и']];
-const TRACE_C = [['М','t_m','ем'],['Н','t_en','ен'],['Л','t_el','ел'],['С','t_es','ес'],['К','t_ka','ка']];
+// Спершу малі — їх дитина пише в зошиті найчастіше, — і аж на третьому
+// рівні великі: вони вищі, у них більше штрихів, і писати їх важче.
+const TRACE_V = [['а','t_a','а'],['о','t_o','о'],['у','t_u','у'],['и','t_y','и']];
+const TRACE_C = [['м','t_m','ем'],['н','t_en','ен'],['л','t_el','ел'],['с','t_es','ес'],['к','t_ka','ка']];
+const TRACE_B = [['А','t_v_a','а'],['О','t_v_o','о'],['У','t_v_u','у'],['И','t_v_y','и'],
+  ['М','t_v_m','ем'],['Н','t_v_en','ен'],['Л','t_v_el','ел'],['С','t_v_es','ес'],['К','t_v_ka','ка']];
 function traceTasks(v){
   const t = [];
-  const lets = v===1 ? pick(TRACE_V, 3) : v===2 ? pick(TRACE_C, 3)
-                                                : pick(TRACE_V.concat(TRACE_C), 3);
+  const lets = v===1 ? pick(TRACE_V, 3) : v===2 ? pick(TRACE_C, 3) : pick(TRACE_B, 3);
+  const how = v===3 ? 'Обведи пальцем велику букву ' : 'Обведи пальцем букву ';
   for (const [ch,id,name] of lets)
-    t.push({kind:'trace', glyph:ch, hard:v===3, prompt:'Обведи пальцем букву '+ch,
-      speak:[[id, 'Обведи пальцем букву '+name]]});
+    t.push({kind:'trace', glyph:ch, hard:v===3, prompt:how+ch,
+      speak:[[id, how+name]]});
   const digits = v===1 ? pick([1,2,3], 2) : v===2 ? pick([2,3,4,5], 2) : pick([1,2,3,4,5], 2);
   for (const k of digits)
     t.push({kind:'trace', glyph:String(k), hard:v===3, prompt:'Обведи пальцем цифру '+k,
@@ -1717,30 +1808,78 @@ function showMemo(t, host){
 // ---------- Tracing: finger draws on the top canvas, the letter sits under it.
 // Scoring: how much of the letter is covered, and how much ink went outside it.
 function showTrace(t, host){
-  host.innerHTML = `<div class="trace">
-    <div class="pad"><canvas class="glyph"></canvas><canvas class="ink"></canvas></div>
-    <div class="row"><button class="back" id="clear">Стерти</button>
-      <button class="next" id="check">Готово</button></div></div>`;
   const S = 320;                                   // internal size; CSS scales it
-  const gc = host.querySelector('canvas.glyph'), ic = host.querySelector('canvas.ink');
-  [gc,ic].forEach(c => { c.width = S; c.height = S; });
-  const g = gc.getContext('2d'), k = ic.getContext('2d');
-  const font = `700 ${S*0.72}px "Comfortaa","Nunito",system-ui,sans-serif`;
+  const strokes = PEN[t.glyph] || [];
+  // Доріжка вужча на складному рівні: там уже треба вести точно.
+  const road = t.hard ? 9 : 12;
+  // Лінійки зошита в косу лінію. Малювати їх руками в розмітці не
+  // випадало б: їх вісім, і всі залежать від однієї сітки.
+  const rules = [18, 35, 72, 90].map(y =>
+      `<line class="rl" x1="2" y1="${y}" x2="98" y2="${y}"/>`).join('')
+    + [10, 26, 42, 58, 74, 90].map(x =>
+      `<line class="sl" x1="${x}" y1="90" x2="${x + 10}" y2="18"/>`).join('');
+  const lay = cls => strokes.map(d => `<path class="${cls}" d="${d}"/>`).join('');
+  host.innerHTML = `<div class="trace">
+    <div class="pad">
+      <svg class="glyph" viewBox="${PEN_VB.join(' ')}" aria-hidden="true">
+        ${rules}
+        <g class="let" transform="${penT}" style="--road:${road}">
+          ${lay('road')}${lay('dash')}${lay('pen')}
+        </g>
+      </svg>
+      <canvas class="ink"></canvas></div>
+    <div class="row"><button class="back" id="clear">Стерти</button>
+      <button class="back" id="again">Покажи</button>
+      <button class="next" id="check">Готово</button></div></div>`;
+  const svg = host.querySelector('svg.glyph'), ic = host.querySelector('canvas.ink');
+  ic.width = ic.height = S;
+  const k = ic.getContext('2d');
 
-  function drawGlyph(bold){
-    g.clearRect(0,0,S,S); g.textAlign='center'; g.textBaseline='middle'; g.font = font;
-    g.fillStyle = bold ? 'rgba(47,127,153,.5)' : 'rgba(47,127,153,.25)';
-    g.fillText(t.glyph, S/2, S/2);
+  // Крапка-початок і номер штриха. Ставимо по готових шляхах, бо
+  // getPointAtLength працює лише на вставленому в сторінку елементі.
+  const pens = [...svg.querySelectorAll('.pen')];
+  pens.forEach((p, i) => {
+    const a = p.getPointAtLength(0);
+    svg.querySelector('.let').insertAdjacentHTML('beforeend',
+      `<circle class="dot" cx="${a.x}" cy="${a.y}" r="2.4"/>`
+      + (pens.length > 1 ? `<text class="no" x="${a.x + 3.4}" y="${a.y - 3}">${i + 1}</text>` : ''));
+  });
+
+  // Показ: літера пишеться сама, штрих за штрихом. Саме цього бракувало
+  // друкованому силуету — дитина має побачити, звідки вести й куди.
+  let show = 0;                       // номер показу; обриває попередній
+  const let_ = svg.querySelector('.let');
+  function demo(){
+    const my = ++show;
+    let_.classList.remove('done');
+    pens.forEach(p => { const L = p.getTotalLength();
+      p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+    (function run(i){
+      if (my !== show) return;
+      if (i >= pens.length){ setTimeout(() => { if (my === show) let_.classList.add('done'); }, 500); return; }
+      const p = pens[i], L = p.getTotalLength(), ms = Math.max(650, L * 13), t0 = performance.now();
+      (function step(now){
+        if (my !== show) return;
+        const f = Math.min(1, (now - t0) / ms);
+        p.style.strokeDashoffset = L * (1 - f);
+        if (f < 1) requestAnimationFrame(step); else setTimeout(() => run(i + 1), 240);
+      })(t0);
+    })(0);
   }
-  drawGlyph(false);
+  demo();
 
-  // Two masks off-screen: the letter itself, and the letter widened by a finger.
+  // Дві маски поза екраном: вузька доріжка (нею міряємо, чи проведено
+  // лінію) і широка (за неї виходити не можна). Обидві — ті самі шляхи
+  // з тим самим нахилом, тож перевірка збігається з тим, що видно.
   const mask = document.createElement('canvas'); mask.width = mask.height = S;
   const m = mask.getContext('2d');
-  m.textAlign='center'; m.textBaseline='middle'; m.font = font; m.fillStyle='#000';
-  m.fillText(t.glyph, S/2, S/2);
+  m.setTransform(...penMatrix(S));
+  m.lineCap = 'round'; m.lineJoin = 'round'; m.strokeStyle = '#000';
+  const paint = w => { m.lineWidth = w;
+    for (const d of strokes) m.stroke(new Path2D(d)); };
+  paint(5);
   const strict = m.getImageData(0,0,S,S).data;
-  m.lineWidth = 46; m.strokeStyle='#000'; m.strokeText(t.glyph, S/2, S/2);
+  paint(road + 8);                  // доріжка плюс товщина самого пальця
   const wide = m.getImageData(0,0,S,S).data;
 
   k.lineWidth = 26; k.lineCap='round'; k.lineJoin='round'; k.strokeStyle='#e8684a';
@@ -1749,6 +1888,8 @@ function showTrace(t, host){
     return [(e.clientX-r.left)*S/r.width, (e.clientY-r.top)*S/r.height]; };
   ic.addEventListener('pointerdown', e => {
     try { ic.setPointerCapture(e.pointerId); } catch(err){}
+    show++;                            // дитина почала — показ обриваємо
+    pens.forEach(p => { p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; });
     drawing = true; last = pt(e); painted = true;
     k.beginPath(); k.moveTo(last[0], last[1]); k.lineTo(last[0]+0.1, last[1]); k.stroke();
   });
@@ -1762,6 +1903,7 @@ function showTrace(t, host){
 
   const clear = () => { k.clearRect(0,0,S,S); painted = false; };
   host.querySelector('#clear').onclick = clear;
+  host.querySelector('#again').onclick = () => { clear(); demo(); };
   host.querySelector('#check').onclick = () => {
     const msg = $('#msg');
     if (!painted){ msg.className='msg bad'; msg.textContent='Спершу обведи пальцем'; return; }
@@ -1786,7 +1928,13 @@ function showTrace(t, host){
     } else {
       tries++; mistakes++; msg.className='msg bad'; sfxNo();
       if (tries===1){ msg.textContent='Майже! Спробуй ще раз'; say([P.traceTry]); }
-      else { drawGlyph(true); msg.textContent='Веди пальцем по товстій лінії'; say([P.hint]); }
+      else {
+        // Друга помилка — не просто темніша лінія, а ще один показ:
+        // найчастіше дитина веде не туди, бо не бачила, звідки починати.
+        host.querySelector('.pad').classList.add('bold');
+        msg.textContent='Дивись, звідки вести'; say([P.hint]);
+        setTimeout(demo, 300);
+      }
       clear();
     }
   };
