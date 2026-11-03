@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="uk">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Острів Знань — на планшет</title>
+<!--
+  Сторінка для планшета: відкрити на ньому ОДНУ коротку адресу
+  http://<адреса ПК>:8777/planshet.html — і далі все дотиками.
+
+  Навіщо окрема сторінка, коли є ЯК_РОЗГОРНУТИ.md: інструкцію читають з
+  комп'ютера, а роблять на планшеті, де немає ні файлового менеджера під
+  рукою, ні зручного способу щось переписати. Тут усе, що треба, лежить
+  посиланнями — натиснув і маєш файл.
+
+  Адреса підставляється сама з того, звідки сторінку відкрито: вписувати
+  її вдруге (як у _address.txt) означало б мати два місця, які
+  розходяться.
+-->
+<style>
+  :root{color-scheme:light dark;
+    --bg:#0f2a33; --card:#1b3f4a; --ink:#e7f4f7; --dim:#9fbcc5;
+    --line:#2b5664; --go:#6cc3dc; --warm:#ff8a6d}
+  @media (prefers-color-scheme: light){:root{
+    --bg:#d8eef3; --card:#fff; --ink:#173a45; --dim:#55707a;
+    --line:#c3dde4; --go:#2f7f99; --warm:#e8684a}}
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px 16px 40px;background:var(--bg);color:var(--ink);
+    font:17px/1.6 "Nunito",system-ui,sans-serif;max-width:720px;margin-inline:auto}
+  h1{font-size:24px;margin:0 0 4px}
+  p.lead{margin:0 0 20px;color:var(--dim)}
+  section{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px;margin-bottom:14px}
+  h2{font-size:18px;margin:0 0 6px}
+  p{margin:0 0 10px}
+  a.btn{display:block;text-align:center;text-decoration:none;font-weight:700;
+    background:var(--go);color:var(--bg);padding:14px 18px;border-radius:12px;
+    margin:12px 0 4px;font-size:18px}
+  a.btn.second{background:transparent;color:var(--go);border:2px solid var(--go)}
+  ol{margin:8px 0 0;padding-left:22px}
+  li{margin-bottom:6px}
+  code{background:rgba(127,127,127,.18);padding:1px 6px;border-radius:6px;
+    font-size:15px;word-break:break-all}
+  .note{color:var(--dim);font-size:15px}
+</style>
+<h1>Острів Знань — на планшет</h1>
+<p class="lead">Три способи. Перший — одразу грати, останній — щоб гра сама
+відкривалась на весь екран.</p>
+
+<section>
+  <h2>1. Просто грати</h2>
+  <p>Нічого ставити не треба: поки ПК учителя увімкнений і планшет у тій
+  самій мережі, гра відкривається за адресою нижче. Результати йдуть у звіт
+  учителя самі.</p>
+  <a class="btn" href="/">Відкрити гру</a>
+  <p class="note">Адреса: <code id="addr">—</code></p>
+</section>
+
+<section>
+  <h2>2. Покласти на планшет, щоб працювало без ПК</h2>
+  <p>Один файл, усередині якого вже все: картинки, голос і музика.
+  Завантажити, потім відкрити його на планшеті подвійним дотиком —
+  інтернет і ПК учителя вже не потрібні.</p>
+  <a class="btn second" href="/ostriv-znan-%D0%BE%D0%B4%D0%B8%D0%BD-%D1%84%D0%B0%D0%B9%D0%BB.html"
+     download="ostriv-znan.html">Завантажити гру одним файлом</a>
+  <p class="note">Близько 14 МБ. Звіту вчителя в цьому режимі не буде:
+  результати лишаються на планшеті.</p>
+</section>
+
+<section>
+  <h2>3. Кіоск: гра на весь екран, без виходу</h2>
+  <p>Дитина не вийде з гри — ні адресного рядка, ні вкладок, ні меню.
+  Вихід для вчителя — <code>Alt+F4</code>. Треба два файли в одній теці:</p>
+  <a class="btn second" href="/teacher/%D0%9A%D1%96%D0%BE%D1%81%D0%BA%20%D0%BD%D0%B0%20%D0%BF%D0%BB%D0%B0%D0%BD%D1%88%D0%B5%D1%82%D1%96.cmd"
+     download>Кіоск на планшеті.cmd</a>
+  <a class="btn second" href="/teacher/_address.txt" download>_address.txt</a>
+  <ol>
+    <li>Обидва файли покласти в одну теку на планшеті.</li>
+    <li>Запустити <code>Кіоск на планшеті.cmd</code>.</li>
+    <li>Щоб гра відкривалась сама після ввімкнення: <code>Win+R</code> →
+      <code>shell:startup</code> → покласти туди ярлик на цей же файл.</li>
+  </ol>
+  <p class="note">У <code>_address.txt</code> уже вписано адресу цього ПК.
+  Якщо вона колись зміниться — виправити рядок у цьому файлі на планшеті.</p>
+</section>
+
+<script>
+  // Адресу беремо з рядка браузера, а не з тексту сторінки: так вона
+  // завжди та, за якою планшет справді достукався.
+  document.getElementById('addr').textContent = location.origin + '/';
+</script>
+</html>
