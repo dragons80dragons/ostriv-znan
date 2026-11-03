@@ -32,3 +32,6 @@ tools/_index_backup_*.html
 desktop.ini
 Thumbs.db
 __pycache__/
+
+# ...крім того, що дає теці «на флешку» її іконку: це вже джерело збірки
+!flash/desktop.ini
