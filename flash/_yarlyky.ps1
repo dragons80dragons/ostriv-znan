@@ -18,11 +18,14 @@ foreach ($n in 'gra.ico', 'zvit.ico') {
     if (Test-Path $s) { Copy-Item $s (Join-Path $iconDir $n) -Force }
 }
 
-function New-Lnk($name, $target, $workDir, $icon, $note) {
+function New-Lnk($name, $target, $workDir, $icon, $note, $hidden) {
     $sc = $ws.CreateShortcut((Join-Path $desk ($name + '.lnk')))
     $sc.TargetPath = $target
     $sc.WorkingDirectory = $workDir
     $sc.Description = $note
+    # Згорнуте вікно для ярликів на .cmd: інакше перед грою блимає чорне
+    # вікно консолі, і дитина думає, що щось зламалося.
+    if ($hidden) { $sc.WindowStyle = 7 }
     if (Test-Path $icon) { $sc.IconLocation = "$icon,0" }
     $sc.Save()
     Write-Host ('  створено: ' + $name)
@@ -46,6 +49,17 @@ $teach = Join-Path (Join-Path $here 'teacher') 'Режим вчителя.cmd'
 if (Test-Path $teach) {
     New-Lnk 'Острів Знань — режим вчителя' $teach (Split-Path -Parent $teach) `
             (Join-Path $iconDir 'zvit.ico') 'Роздає гру планшетам по Wi-Fi і збирає звіт'
+}
+
+# Кіоск — те, що потрібно на планшеті: гра на весь екран, без адресного
+# рядка, вкладок і меню. Адресу ярлик у собі не тримає, її читає сам .cmd
+# із teacher\_address.txt, тож коли ПК учителя змінить адресу, правити
+# треба один рядок, а не ярлик.
+$kiosk = Join-Path (Join-Path $here 'teacher') 'Кіоск на планшеті.cmd'
+if (Test-Path $kiosk) {
+    New-Lnk 'Острів Знань — на весь екран' $kiosk (Split-Path -Parent $kiosk) `
+            (Join-Path $iconDir 'gra.ico') `
+            'Гра на весь екран із ПК вчителя. Вихід - Alt+F4' $true
 }
 
 # Онлайн-посилання: .url, увесь текст латиницею
