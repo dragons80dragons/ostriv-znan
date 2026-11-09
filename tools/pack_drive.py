@@ -37,7 +37,9 @@ ZIP = 'ostriv-znan-повний.zip'
 
 # Що кладемо в архів. Теки беруться цілком, окрім винятків нижче.
 FOLDERS = ['assets', 'teacher', 'icons']
-FILES = ['index.html', 'README.md', 'HANDOVER.md']
+# index.html — зібрана гра на весь клас, demo.html — демоверсія (і чисте
+# джерело збірки). Беремо обидві: в архіві є assets, тож гра там робоча.
+FILES = ['index.html', 'demo.html', 'README.md', 'HANDOVER.md']
 SKIP_NAMES = {'results.jsonl', 'desktop.ini', 'Thumbs.db'}
 SKIP_DIRS = {'__pycache__'}
 

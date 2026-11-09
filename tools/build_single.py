@@ -134,14 +134,20 @@ def main():
         n += 1
     print('[збірка] кліпів: %d' % n, flush=True)
 
-    with io.open(os.path.join(PROJ, 'index.html'), encoding='utf-8') as f:
+    # Саме demo.html, а не index.html (зібрана гра), і це навмисно: сюди
+    # вбудовуються УСІ ресурси рядками base64, а їх 113 МБ. Демо з його
+    # підмножиною дає 13,4 МБ при межі сторінки-артефакта в 16 МБ; повна
+    # гра не влізла б туди в принципі. Їй це й не потрібно: у хмарі вона
+    # лежить на Pages разом із текою assets, а одним файлом її носять
+    # хіба на флешці, де теку можна покласти поруч.
+    with io.open(os.path.join(PROJ, 'demo.html'), encoding='utf-8') as f:
         html = f.read()
     tag = ('<script>window.EMBED=%s</script>\n'
            % json.dumps(embed, ensure_ascii=False, separators=(',', ':')))
     # Вставляємо ПЕРЕД головним скриптом, щоб asset() уже бачив мапу.
     marker = '<script>\nconst $ = s => document.querySelector(s);'
     if marker not in html:
-        sys.exit('не знайшов місця для вставки — index.html змінився?')
+        sys.exit('не знайшов місця для вставки — demo.html змінився?')
     html = html.replace(marker, tag + marker, 1)
 
     with io.open(OUT, 'w', encoding='utf-8', newline='\n') as f:

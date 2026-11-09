@@ -27,7 +27,7 @@ except Exception:                                                 # noqa: BLE001
 ROOT = os.path.dirname(os.path.abspath(__file__))
 VOICE = os.path.join(os.path.dirname(ROOT), 'assets', 'voice')
 HTML = os.path.join(os.path.dirname(ROOT), sys.argv[2] if len(sys.argv) > 2
-                    else 'index-1klas.html')
+                    else 'index.html')
 
 with open(os.path.join(ROOT, 'manifest.json'), encoding='utf-8') as f:
     man = json.load(f)['voice']['items']

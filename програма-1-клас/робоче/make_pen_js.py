@@ -5,7 +5,8 @@
 import io, re, os
 G = r'G:\ostriv-znan'
 W = r'G:\ostriv-znan\програма-1-клас\робоче'
-src = io.open(os.path.join(G, 'index.html'), encoding='utf-8').read()
+# PEN лежить у чистому джерелі, яке тепер зветься demo.html
+src = io.open(os.path.join(G, 'demo.html'), encoding='utf-8').read()
 pen = re.search(r'const PEN = \{.*?\n\};', src, re.S).group(0)
 add = io.open(os.path.join(W, '\u0432\u0441\u0442\u0430\u0432\u043a\u0430_1_\u043f\u0440\u043e\u043f\u0438\u0441\u0438.js'),
               encoding='utf-8').read()

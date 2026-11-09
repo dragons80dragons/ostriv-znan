@@ -24,17 +24,14 @@ except Exception:                                                 # noqa: BLE001
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PROJ = os.path.dirname(ROOT)
-# Яку збірку перевіряти. Типово — ТУ, ЩО В ГРІ: `index-1klas.html`, зібрана
-# з вставок. Раніше тут стояло демонстраційне `index.html`, і від цього
+# Яку збірку перевіряти. Типово — ТУ, ЩО В ГРІ: `index.html`. Раніше під
+# цим ім'ям лежало демо, і від цього
 # перевірка була не просто неточна, а шкідлива: демо просить утричі менше,
 # тож звіт писав «ВСЕ НА МІСЦІ» незалежно від справжнього стану, а сотні
 # справді потрібних записів оголошував зайвими. Першим аргументом можна
 # дати будь-яку іншу збірку.
-BUILT = 'index-1klas.html'
 ARGS = [a for a in sys.argv[1:] if not a.startswith('--')]
-HTML = os.path.join(PROJ, ARGS[0] if ARGS
-                    else (BUILT if os.path.exists(os.path.join(PROJ, BUILT))
-                          else 'index.html'))
+HTML = os.path.join(PROJ, ARGS[0] if ARGS else 'index.html')
 # Другий напрямок звірки («у маніфесті є, а пошук у коді не знайшов») тепер
 # друкується лише на вимогу. Причина цих розбіжностей не в маніфесті, а в
 # самому пошуку за лапками: гра будує більшість id у коді — `img/sc_${t.scn}
