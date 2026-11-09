@@ -59,6 +59,21 @@ def write_config(path, music, seed):
         # запуску stdin порожній — процес падає з EOFError ще до генерації.
         # Побічно це й швидше: саме LM з'їдав дві третини часу.
         'thinking = false',
+        # Мовну модель беремо МЕНШУ, на 0,6 мільярда. Чому це вирішальне:
+        # cli.py без вказівки бере 1.7B, і в журналі це видно поруч із
+        # власним же рядком «Available LM Models: ['acestep-5Hz-lm-0.6B']».
+        # У float32 (а інакше на Pascal NaN-латенти) 1,7 млрд ваг — це
+        # близько 6,8 ГБ, і разом із DiT вони не лишають на картці нічого:
+        # генерація падала на спробі виділити останні 24 МБ. Менша модель
+        # бере ~2,4 ГБ і звільняє понад чотири гігабайти.
+        'lm_model_path = "acestep-5Hz-lm-0.6B"',
+        # Вивантажувати саму DiT в оперативну пам'ять. Звичайне
+        # offload_to_cpu тут і так увімкнене саме́ (cli.py вмикає його, коли
+        # на картці менше 16 ГБ), але його не вистачає: падіння стається
+        # якраз усередині завантаження моделі на картку, коли там уже
+        # зайнято 10,1 ГБ. DiT — найбільша частина, і лише її вивантаження
+        # справді звільняє місце. Платимо швидкістю: ваги їздять туди-сюди.
+        'offload_dit_to_cpu = true',
         'seed = %d' % seed,
         'use_random_seed = false',
     ]
@@ -88,7 +103,11 @@ def read_audio(path):
     Тому будь-який вхід проганяємо в 16-бітний PCM.
     """
     wav = os.path.join(OUT_DIR, '_decoded.wav')
-    subprocess.run(['ffmpeg', '-y', '-i', path, '-ac', '2', '-ar', '44100',
+    # Саме FFMPEG, а не голе 'ffmpeg': у PATH на цій машині лежить збірка
+    # 2016 року (libavcodec 57), у якій немає навіть кодувальника
+    # pcm_s16le — вона падає з «Unknown encoder 'pcm_s16le'». Коментар
+    # вище обіцяв ffmpeg із 00_SHARED\bin, а код брав з PATH.
+    subprocess.run([FFMPEG, '-y', '-i', path, '-ac', '2', '-ar', '44100',
                     '-c:a', 'pcm_s16le', wav], check=True, capture_output=True)
     path = wav
     with wave.open(path, 'rb') as f:
@@ -154,6 +173,12 @@ def main():
     else:
         env = dict(os.environ)
         env['ACESTEP_DTYPE'] = 'float32'      # інакше NaN-латенти на Pascal
+        # float32 на Pascal з'їдає 10,1 ГБ з наявних 11, і генерація стоїть
+        # на самому краю: падає вона не на великому блоці, а на останніх
+        # 24 МБ, маючи 233 МБ «зарезервованих, але не виданих». Це не брак
+        # пам'яті, а її роздробленість, і саме для цього випадку в PyTorch є
+        # expandable_segments. Перейти на float16 не можна — буде NaN.
+        env['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
         print('[music] генерую %d с (%s)...' % (music['duration'], music['prompt'][:60]),
               flush=True)
         r = subprocess.run([sys.executable, 'cli.py', '-c', cfg], cwd=ACE, env=env)
@@ -161,6 +186,19 @@ def main():
             sys.exit('[music] cli.py завершився з кодом %d' % r.returncode)
 
     src = newest_audio(OUT_DIR, t0 - 5 if t0 else 0)
+    # cli.py повертає 0 навіть тоді, коли генерація впала з нестачі пам'яті:
+    # помилку він друкує, а кодом виходу її не показує. Єдина надійна ознака
+    # — чи з'явився файл. Коротший трек потребує меншої послідовності, тож
+    # друга спроба проходить там, де перша не влізла; для фонової петлі
+    # двадцяти секунд цілком досить.
+    if not src and not args.use_existing and music['duration'] > 20:
+        short = dict(music, duration=20)
+        print('[music] не влізло в пам\'ять — друга спроба, %d с'
+              % short['duration'], flush=True)
+        cfg2 = write_config(os.path.join(OUT_DIR, 'music.toml'), short, args.seed)
+        t1 = time.time()
+        subprocess.run([sys.executable, 'cli.py', '-c', cfg2], cwd=ACE, env=env)
+        src = newest_audio(OUT_DIR, t1 - 5)
     if not src:
         sys.exit('[music] не знайшов згенерованого файлу в %s' % OUT_DIR)
     print('[music] сирий трек: %s%s' % (

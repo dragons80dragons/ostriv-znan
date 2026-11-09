@@ -1,980 +1,4356 @@
 {
- "_about": "Єдине джерело правди для генерації ресурсів. Ідентифікатори мають збігатися з index.html.",
- "image": {
-  "_style_note": "Базовий промпт із завдання давав кругле тло зі сценою (квіти, трава) — після rembg вирізався б увесь круг, а не предмет. Слово 'sticker' теж не підійшло: SDXL малював аркуш наліпок, тобто десяток предметів. Робоче формулювання — 'one {object}, full object visible, centered on an empty pure white background'.",
-  "style": "children's book flat illustration of one {object}, full object visible, centered on an empty pure white background, thick clean outline, bright friendly colors, simple shapes, no text",
-  "_island_note": "Для трьох островів (id на i_) потрібен інший кадр: із загальним промптом SDXL малював пейзаж на весь кадр, а гра показує острів іконкою 96×96. Тому окремий промпт — маленький острів цілком, довкола порожньо.",
-  "style_island": "children's book flat illustration of one small tropical island with {object}, the whole island seen from the side, small in the middle of an empty pure white background, thick clean outline, bright friendly colors, simple shapes, no text",
-  "_reuse_note": "w_yabluko (урок букв, слово «яблуко») і o_apple (урок лічби) — це той самий предмет із тим самим промптом. Окремі спроби щоразу давали або два яблука, або яблуко на книжці, тож у грі стоїть одна картинка. gen_images.py id зі списку reuse пропускає, cut_bg.py копіює готовий файл.",
-  "reuse": {
-   "w_yabluko": "o_apple"
+  "_about": "Єдине джерело правди для генерації ресурсів. Ідентифікатори мають збігатися з index.html.",
+  "image": {
+    "_style_note": "Базовий промпт із завдання давав кругле тло зі сценою (квіти, трава) — після rembg вирізався б увесь круг, а не предмет. Слово 'sticker' теж не підійшло: SDXL малював аркуш наліпок, тобто десяток предметів. Робоче формулювання — 'one {object}, full object visible, centered on an empty pure white background'.",
+    "style": "children's book flat illustration of one {object}, full object visible, centered on an empty pure white background, thick clean outline, bright friendly colors, simple shapes, no text",
+    "_island_note": "Для трьох островів (id на i_) потрібен інший кадр: із загальним промптом SDXL малював пейзаж на весь кадр, а гра показує острів іконкою 96×96. Тому окремий промпт — маленький острів цілком, довкола порожньо.",
+    "style_island": "children's book flat illustration of one small tropical island with {object}, the whole island seen from the side, small in the middle of an empty pure white background, thick clean outline, bright friendly colors, simple shapes, no text",
+    "_reuse_note": "w_yabluko (урок букв, слово «яблуко») і o_apple (урок лічби) — це той самий предмет із тим самим промптом. Окремі спроби щоразу давали або два яблука, або яблуко на книжці, тож у грі стоїть одна картинка. gen_images.py id зі списку reuse пропускає, cut_bg.py копіює готовий файл.",
+    "reuse": {
+      "w_yabluko": "o_apple"
+    },
+    "_negative_note": "Декорації довкола предмета — не косметика: у завданні «порахуй» гра повторює картинку 3–10 разів, і розсипані зірочки чи промені дитина порахує теж.",
+    "negative": "starburst, sunburst, book, plate, two objects, sticker sheet, collage, grid of objects, multiple objects, two objects, pair, duplicate object, repeated, pattern, sparkles, glitter, confetti, motion lines, speed lines, rays, small decorations around, scenery, landscape, grass, flowers, wall, table, floor, frame, border, circle background, gradient background, text, letters, watermark, realistic photo, scary, cropped",
+    "size": [
+      1024,
+      1024
+    ],
+    "out_size": 512,
+    "steps": 30,
+    "cfg": 7.0,
+    "sampler": "dpmpp_2m",
+    "scheduler": "karras",
+    "checkpoint": "sd_xl_base_1.0.safetensors",
+    "vae": "sdxl_vae_fp16fix.safetensors",
+    "items": {
+      "i_math": "a wooden abacus and a palm tree",
+      "i_read": "big alphabet blocks and a palm tree",
+      "i_logic": "colorful puzzle pieces and a palm tree",
+      "o_apple": "one whole red apple with a single green leaf",
+      "o_pear": "green pear",
+      "o_strawberry": "one whole red strawberry with a green top, nothing around it",
+      "o_carrot": "carrot",
+      "o_fish": "small orange goldfish with orange fins, bright orange body",
+      "o_star": "one plain flat yellow five-pointed star, nothing around it",
+      "o_balloon": "red balloon",
+      "o_ladybug": "ladybug",
+      "w_kit": "cat",
+      "w_yabluko": "one whole red apple with a single green leaf, nothing around it",
+      "w_ryba": "fish",
+      "w_sontse": "smiling yellow sun with simple triangular rays",
+      "w_khata": "traditional Ukrainian white cottage (khata) with thatched roof",
+      "w_bdzhola": "bee",
+      "w_lysytsia": "fox",
+      "w_vedmid": "bear",
+      "w_misiats": "one plain yellow crescent moon, thin crescent shape",
+      "w_zhaba": "green frog sitting",
+      "w_kachka": "yellow duckling standing",
+      "w_slon": "elephant",
+      "w_derevo": "green leafy tree with a brown trunk",
+      "w_puhach": "cartoon owl with big round eyes",
+      "w_lymon": "lemon",
+      "w_mysha": "small grey mouse standing",
+      "w_podarunok": "bright blue gift box with a big red ribbon bow",
+      "s_red": "red circle",
+      "s_blue": "blue circle",
+      "s_yellow": "yellow circle",
+      "s_green": "green circle",
+      "s_purple": "purple circle",
+      "s_star": "yellow star shape",
+      "s_triangle": "red triangle",
+      "s_square": "orange square",
+      "i_memo": "two playing cards with pictures and a palm tree",
+      "i_write": "a big pencil writing a letter and a palm tree",
+      "i_world": "a globe, a green leaf and a palm tree",
+      "i_english": "a red double-decker bus and a palm tree",
+      "i_time": "a big round wall clock and a palm tree",
+      "i_money": "a pile of golden coins and a palm tree",
+      "i_syll": "two big alphabet blocks and a palm tree",
+      "i_fig": "a blue circle, a red triangle and a palm tree",
+      "i_shadow": "a palm tree casting a long shadow on sand",
+      "i_compare": "a balance scale and a palm tree",
+      "i_num": "a big plus sign made of wood and a palm tree",
+      "i_order": "wooden blocks with numbers one two three and a palm tree",
+      "i_place": "a signpost with arrows and a palm tree",
+      "i_sound": "a large colorful drum",
+      "i_weather": "a sun behind a rain cloud with a rainbow and a palm tree",
+      "g_krab": "a cheerful red cartoon crab with a round body, two big claws, four small legs, huge friendly round eyes and a wide smile, standing and waving one claw hello",
+      "we_rain": "a grey rain cloud with blue raindrops falling from it",
+      "we_snow": "one big light blue snowflake",
+      "we_cloud": "one white fluffy cloud",
+      "we_panama": "a yellow summer sun hat",
+      "we_umbrella": "an open red umbrella",
+      "we_scarf": "a folded red and white striped scarf lying flat, no person",
+      "we_jacket": "a warm blue winter jacket",
+      "se_spring": "a tree with pink blossoms and fresh green grass",
+      "se_summer": "a tree with thick green leaves and ripe red cherries",
+      "se_autumn": "a tree with yellow and orange leaves falling down",
+      "se_winter": "a bare tree covered with white snow",
+      "gx_flag": "a small red triangular flag on a thin wooden stick",
+      "gx_book": "an open book with white pages and a blue cover",
+      "kr01": "a friendly cartoon crab for a children game, front view, full body, flat vector illustration, thick black outline, bright red shell, big round eyes, centered on an empty pure white background, no text",
+      "kr02": "a friendly cartoon crab for a children game, front view, full body, soft watercolour children book illustration, coral pink crab, gentle smile, centered on an empty pure white background, no text",
+      "kr03": "a friendly cartoon crab for a children game, front view, full body, chunky kawaii mascot, very big head, tiny claws, pastel orange, blush cheeks, centered on an empty pure white background, no text",
+      "kr04": "a friendly cartoon crab for a children game, front view, full body, bold comic style, strong black ink outline, cherry red, confident grin, centered on an empty pure white background, no text",
+      "kr05": "a friendly cartoon crab for a children game, front view, full body, plush toy crab made of felt, visible stitches, warm orange fabric, centered on an empty pure white background, no text",
+      "kr06": "a friendly cartoon crab for a children game, front view, full body, claymation style crab, soft modelling clay, rounded shapes, matte red, centered on an empty pure white background, no text",
+      "kr07": "a friendly cartoon crab for a children game, front view, full body, paper cut collage crab, layered coloured paper, simple shapes, centered on an empty pure white background, no text",
+      "kr08": "a friendly cartoon crab for a children game, front view, full body, retro 1960s cartoon crab, limited palette, thin elegant lines, centered on an empty pure white background, no text",
+      "kr09": "a friendly cartoon crab for a children game, front view, full body, cute chibi crab with eyes on stalks, shiny glossy shell, sparkle highlights, centered on an empty pure white background, no text",
+      "kr10": "a friendly cartoon crab for a children game, front view, full body, hand drawn crayon style crab, childlike drawing, visible crayon texture, centered on an empty pure white background, no text",
+      "bg_map": "a calm sunny sea seen from above with tiny islands and soft waves",
+      "bg_lesson": "a quiet sandy beach with gentle waves and a few seashells",
+      "bg_finish": "a bright sky with soft clouds, confetti and paper streamers",
+      "bg_album": "an open scrapbook page with soft paper texture and corner stickers",
+      "i_num20": "twenty small round stones laid in two rows of ten and a palm tree",
+      "i_num100": "ten stacks of ten coins and a palm tree",
+      "i_add100": "a big wooden plus sign and a big wooden minus sign and a palm tree",
+      "i_measure": "a long wooden ruler, a balance scale and a glass jug, and a palm tree",
+      "i_task": "an open notebook with a pencil and a thinking lightbulb, and a palm tree",
+      "i_data": "a wooden board with a simple two column table drawn on it and a palm tree",
+      "i_lines": "a straight line, a zigzag line and a circle drawn in the sand, and a palm tree",
+      "i_stress": "a drum with one big beater raised above it and a palm tree",
+      "i_sent": "a wooden sign with a full stop, a question mark and an exclamation mark, and a palm tree",
+      "i_abc": "wooden letter tiles lined up in a row and a palm tree",
+      "i_mean": "two speech bubbles facing each other and a palm tree",
+      "i_group": "three wicker baskets with different things sorted into them and a palm tree",
+      "i_quest": "a big wooden question mark and a palm tree",
+      "i_text": "an open storybook with a bookmark and a palm tree",
+      "i_body": "a friendly cartoon face with big eye, ear and nose, and a palm tree",
+      "i_safe": "a traffic light and a small first aid kit and a palm tree",
+      "i_signs": "three warning road signs on posts and a palm tree",
+      "i_country": "a blue and yellow flag on a pole, a sunflower and a palm tree",
+      "i_jobs": "a doctor hat, a chef hat and a builder helmet on a shelf, and a palm tree",
+      "i_alive": "a green sprout in soil next to a grey stone, and a palm tree",
+      "i_animals": "a butterfly, a fish and a small bird together, and a palm tree",
+      "i_stuff": "a wooden plank, a glass jar and a ball of yarn, and a palm tree",
+      "i_invent": "an old wooden wheel and a glowing lightbulb and a palm tree",
+      "i_info": "a big eye, a big ear and a big hand around a palm tree",
+      "i_ask": "three speech bubbles with question marks and a palm tree",
+      "i_code": "a green circle and a red circle and the digits zero and one, and a palm tree",
+      "i_true": "a balance scale with a tick on one side and a cross on the other, and a palm tree",
+      "i_plan": "four numbered wooden stepping stones in a row and a palm tree",
+      "i_card": "a wooden instruction card with small pictures on it, scissors and glue, and a palm tree",
+      "i_rhythm": "a tambourine and two clapping hands and a palm tree",
+      "i_tempo": "a metronome and a palm tree",
+      "i_instr": "a drum, a triangle and a wooden flute together, and a palm tree",
+      "i_notes": "a music staff with a treble clef and two notes, and a palm tree",
+      "i_ornament": "a painted Ukrainian easter egg and a paper cut snowflake, and a palm tree",
+      "w_avtobus": "yellow school bus seen from the side",
+      "w_hryb": "one mushroom with a red cap and white spots",
+      "w_gava": "one black crow standing",
+      "w_eskimo": "one ice cream cone with one scoop",
+      "w_yenot": "one raccoon standing",
+      "w_zaiets": "one grey hare sitting",
+      "w_indyk": "one turkey bird standing",
+      "w_yizhak": "one hedgehog standing",
+      "w_yohurt": "one glass of milk",
+      "w_nizh": "one kitchen knife",
+      "w_olivets": "one yellow pencil with a sharpened tip",
+      "w_tort": "one round birthday cake with candles",
+      "w_udav": "one green snake coiled",
+      "w_farba": "one paint palette with colourful paints and a brush",
+      "w_tsybulia": "one onion bulb",
+      "w_cherepakha": "one tortoise standing",
+      "w_shapka": "one knitted winter hat",
+      "w_shchuka": "one pike fish swimming",
+      "w_yula": "one spinning top toy",
+      "w_dim": "one small house with a red roof",
+      "w_vikno": "one window with a wooden frame",
+      "w_kvitka": "one daisy flower with a stem",
+      "w_more": "one blue wave of the sea",
+      "w_ptakh": "one small bird standing",
+      "w_raketa": "one rocket flying up",
+      "w_sumka": "one school backpack",
+      "w_litak": "one aeroplane flying",
+      "w_bananu": "one yellow banana",
+      "w_zholud": "one acorn with its cap",
+      "w_khmara": "one white fluffy cloud",
+      "d_school": "a school bag, a traffic light and a palm tree",
+      "d_autumn": "falling yellow leaves and a palm tree",
+      "d_home": "a small cottage with a warm window and a palm tree",
+      "d_winter": "animal footprints in snow and a palm tree",
+      "d_country": "a blue and yellow flag and a sunflower and a palm tree",
+      "d_water": "a spring of clear water running into the sea and a palm tree",
+      "d_workshop": "a workbench with simple tools and a palm tree",
+      "d_world": "a globe and a small sailing boat and a palm tree",
+      "sc_forest": "a simple empty forest clearing with sky above and grass below, nothing in the middle, plenty of empty space",
+      "sc_room": "a simple empty child room with a wall above and a wooden floor below, nothing in the middle, plenty of empty space",
+      "sc_sea": "a simple empty sea view with sky above and calm water below, nothing in the middle, plenty of empty space"
+    },
+    "_krab_note": "Краб-провідник — одна картинка g_krab (взірець tools/_ref/g_krab_ref.png). Пози окремими картинками НЕ малюємо, перевірено тричі 25.10.2026: (1) txt2img з однаковим описом персонажа — сім різних крабів; (2) img2img від взірця (--ref) на denoise 0.62 і 0.78 — герой один, поза не змінюється; (3) поза першою в промпті і denoise 0.88 — модель додала прапорець у клешню, але стрибок, вказівку й сон намалювала тією ж стійкою. Тобто SDXL уміє додати предмет, а переставити кінцівки — ні. Саме так гра і влаштована: краб рухається CSS-анімацією в index.html, а предмети (gx_flag, gx_book, o_star) накладаються поверх тіла. Нову картинку краба малювати тільки з --ref.",
+    "_bg_note": "Фони (bg_*) мають власний стиль style_bg: суцільна світла сцена замість вирізаного предмета на білому. Навмисно малоконтрастні — поверх них лежать текст і кнопки. Фон НЕ проганяти через cut_bg.py: там вирізається тло, а тут воно і є картинкою.",
+    "style_bg": "children book illustration background, {object}, soft pastel colours, very light, low contrast, simple shapes, no text, no characters, plenty of empty space, gentle and calm",
+    "_scene_note": "Сцени sc_* — тло для «знайди на картині». Їх НЕ проганяти через cut_bg.py: там вирізається тло, а тут воно і є картинкою — так само, як bg_*."
   },
-  "_negative_note": "Декорації довкола предмета — не косметика: у завданні «порахуй» гра повторює картинку 3–10 разів, і розсипані зірочки чи промені дитина порахує теж.",
-  "negative": "starburst, sunburst, book, plate, two objects, sticker sheet, collage, grid of objects, multiple objects, two objects, pair, duplicate object, repeated, pattern, sparkles, glitter, confetti, motion lines, speed lines, rays, small decorations around, scenery, landscape, grass, flowers, wall, table, floor, frame, border, circle background, gradient background, text, letters, watermark, realistic photo, scary, cropped",
-  "size": [
-   1024,
-   1024
-  ],
-  "out_size": 512,
-  "steps": 30,
-  "cfg": 7.0,
-  "sampler": "dpmpp_2m",
-  "scheduler": "karras",
-  "checkpoint": "sd_xl_base_1.0.safetensors",
-  "vae": "sdxl_vae_fp16fix.safetensors",
-  "items": {
-   "i_math": "a wooden abacus and a palm tree",
-   "i_read": "big alphabet blocks and a palm tree",
-   "i_logic": "colorful puzzle pieces and a palm tree",
-   "o_apple": "one whole red apple with a single green leaf",
-   "o_pear": "green pear",
-   "o_strawberry": "one whole red strawberry with a green top, nothing around it",
-   "o_carrot": "carrot",
-   "o_fish": "small orange goldfish with orange fins, bright orange body",
-   "o_star": "one plain flat yellow five-pointed star, nothing around it",
-   "o_balloon": "red balloon",
-   "o_ladybug": "ladybug",
-   "w_kit": "cat",
-   "w_yabluko": "one whole red apple with a single green leaf, nothing around it",
-   "w_ryba": "fish",
-   "w_sontse": "smiling yellow sun with simple triangular rays",
-   "w_khata": "traditional Ukrainian white cottage (khata) with thatched roof",
-   "w_bdzhola": "bee",
-   "w_lysytsia": "fox",
-   "w_vedmid": "bear",
-   "w_misiats": "one plain yellow crescent moon, thin crescent shape",
-   "w_zhaba": "green frog sitting",
-   "w_kachka": "yellow duckling standing",
-   "w_slon": "elephant",
-   "w_derevo": "green leafy tree with a brown trunk",
-   "w_puhach": "cartoon owl with big round eyes",
-   "w_lymon": "lemon",
-   "w_mysha": "small grey mouse standing",
-   "w_podarunok": "bright blue gift box with a big red ribbon bow",
-   "s_red": "red circle",
-   "s_blue": "blue circle",
-   "s_yellow": "yellow circle",
-   "s_green": "green circle",
-   "s_purple": "purple circle",
-   "s_star": "yellow star shape",
-   "s_triangle": "red triangle",
-   "s_square": "orange square",
-   "i_memo": "two playing cards with pictures and a palm tree",
-   "i_write": "a big pencil writing a letter and a palm tree",
-   "i_world": "a globe, a green leaf and a palm tree",
-   "i_english": "a red double-decker bus and a palm tree",
-   "i_time": "a big round wall clock and a palm tree",
-   "i_money": "a pile of golden coins and a palm tree",
-   "i_syll": "two big alphabet blocks and a palm tree",
-   "i_fig": "a blue circle, a red triangle and a palm tree",
-   "i_shadow": "a palm tree casting a long shadow on sand",
-   "i_compare": "a balance scale and a palm tree",
-   "i_num": "a big plus sign made of wood and a palm tree",
-   "i_order": "wooden blocks with numbers one two three and a palm tree",
-   "i_place": "a signpost with arrows and a palm tree",
-   "i_sound": "a large colorful drum",
-   "i_weather": "a sun behind a rain cloud with a rainbow and a palm tree",
-   "g_krab": "a cheerful red cartoon crab with a round body, two big claws, four small legs, huge friendly round eyes and a wide smile, standing and waving one claw hello",
-   "we_rain": "a grey rain cloud with blue raindrops falling from it",
-   "we_snow": "one big light blue snowflake",
-   "we_cloud": "one white fluffy cloud",
-   "we_panama": "a yellow summer sun hat",
-   "we_umbrella": "an open red umbrella",
-   "we_scarf": "a folded red and white striped scarf lying flat, no person",
-   "we_jacket": "a warm blue winter jacket",
-   "se_spring": "a tree with pink blossoms and fresh green grass",
-   "se_summer": "a tree with thick green leaves and ripe red cherries",
-   "se_autumn": "a tree with yellow and orange leaves falling down",
-   "se_winter": "a bare tree covered with white snow",
-   "gx_flag": "a small red triangular flag on a thin wooden stick",
-   "gx_book": "an open book with white pages and a blue cover",
-   "kr01": "a friendly cartoon crab for a children game, front view, full body, flat vector illustration, thick black outline, bright red shell, big round eyes, centered on an empty pure white background, no text",
-   "kr02": "a friendly cartoon crab for a children game, front view, full body, soft watercolour children book illustration, coral pink crab, gentle smile, centered on an empty pure white background, no text",
-   "kr03": "a friendly cartoon crab for a children game, front view, full body, chunky kawaii mascot, very big head, tiny claws, pastel orange, blush cheeks, centered on an empty pure white background, no text",
-   "kr04": "a friendly cartoon crab for a children game, front view, full body, bold comic style, strong black ink outline, cherry red, confident grin, centered on an empty pure white background, no text",
-   "kr05": "a friendly cartoon crab for a children game, front view, full body, plush toy crab made of felt, visible stitches, warm orange fabric, centered on an empty pure white background, no text",
-   "kr06": "a friendly cartoon crab for a children game, front view, full body, claymation style crab, soft modelling clay, rounded shapes, matte red, centered on an empty pure white background, no text",
-   "kr07": "a friendly cartoon crab for a children game, front view, full body, paper cut collage crab, layered coloured paper, simple shapes, centered on an empty pure white background, no text",
-   "kr08": "a friendly cartoon crab for a children game, front view, full body, retro 1960s cartoon crab, limited palette, thin elegant lines, centered on an empty pure white background, no text",
-   "kr09": "a friendly cartoon crab for a children game, front view, full body, cute chibi crab with eyes on stalks, shiny glossy shell, sparkle highlights, centered on an empty pure white background, no text",
-   "kr10": "a friendly cartoon crab for a children game, front view, full body, hand drawn crayon style crab, childlike drawing, visible crayon texture, centered on an empty pure white background, no text",
-   "bg_map": "a calm sunny sea seen from above with tiny islands and soft waves",
-   "bg_lesson": "a quiet sandy beach with gentle waves and a few seashells",
-   "bg_finish": "a bright sky with soft clouds, confetti and paper streamers",
-   "bg_album": "an open scrapbook page with soft paper texture and corner stickers"
+  "shapes": {
+    "_about": "Фігури для візерунків малюються кодом (draw_shapes.py), а не SDXL: на запит 'red circle' модель видавала песика, а рівне коло з чітким краєм тут важливіше за ілюстрацію. gen_images.py ці id пропускає.",
+    "outline": "#2d3b42",
+    "_o_star_note": "o_star теж малюється кодом: SDXL із трьох спроб жодного разу не дав просту зірку — щоразу або сяйво з промінцями, або розсипані дрібні зірочки. А в завданні «порахуй» ця картинка повторюється до десяти разів, тож зайві деталі дитина порахує теж.",
+    "items": {
+      "o_star": [
+        "star",
+        "#f6c338"
+      ],
+      "s_red": [
+        "circle",
+        "#e8453c"
+      ],
+      "s_blue": [
+        "circle",
+        "#2f84d8"
+      ],
+      "s_yellow": [
+        "circle",
+        "#f6c338"
+      ],
+      "s_green": [
+        "circle",
+        "#3f9a5c"
+      ],
+      "s_purple": [
+        "circle",
+        "#8a5cd1"
+      ],
+      "s_star": [
+        "star",
+        "#f6c338"
+      ],
+      "s_triangle": [
+        "triangle",
+        "#e8453c"
+      ],
+      "s_square": [
+        "square",
+        "#ef8b2c"
+      ]
+    }
   },
-  "_krab_note": "Краб-провідник — одна картинка g_krab (взірець tools/_ref/g_krab_ref.png). Пози окремими картинками НЕ малюємо, перевірено тричі 25.10.2026: (1) txt2img з однаковим описом персонажа — сім різних крабів; (2) img2img від взірця (--ref) на denoise 0.62 і 0.78 — герой один, поза не змінюється; (3) поза першою в промпті і denoise 0.88 — модель додала прапорець у клешню, але стрибок, вказівку й сон намалювала тією ж стійкою. Тобто SDXL уміє додати предмет, а переставити кінцівки — ні. Саме так гра і влаштована: краб рухається CSS-анімацією в index.html, а предмети (gx_flag, gx_book, o_star) накладаються поверх тіла. Нову картинку краба малювати тільки з --ref.",
-  "_bg_note": "Фони (bg_*) мають власний стиль style_bg: суцільна світла сцена замість вирізаного предмета на білому. Навмисно малоконтрастні — поверх них лежать текст і кнопки. Фон НЕ проганяти через cut_bg.py: там вирізається тло, а тут воно і є картинкою.",
-  "style_bg": "children book illustration background, {object}, soft pastel colours, very light, low contrast, simple shapes, no text, no characters, plenty of empty space, gentle and calm"
- },
- "shapes": {
-  "_about": "Фігури для візерунків малюються кодом (draw_shapes.py), а не SDXL: на запит 'red circle' модель видавала песика, а рівне коло з чітким краєм тут важливіше за ілюстрацію. gen_images.py ці id пропускає.",
-  "outline": "#2d3b42",
-  "_o_star_note": "o_star теж малюється кодом: SDXL із трьох спроб жодного разу не дав просту зірку — щоразу або сяйво з промінцями, або розсипані дрібні зірочки. А в завданні «порахуй» ця картинка повторюється до десяти разів, тож зайві деталі дитина порахує теж.",
-  "items": {
-   "o_star": [
-    "star",
-    "#f6c338"
-   ],
-   "s_red": [
-    "circle",
-    "#e8453c"
-   ],
-   "s_blue": [
-    "circle",
-    "#2f84d8"
-   ],
-   "s_yellow": [
-    "circle",
-    "#f6c338"
-   ],
-   "s_green": [
-    "circle",
-    "#3f9a5c"
-   ],
-   "s_purple": [
-    "circle",
-    "#8a5cd1"
-   ],
-   "s_star": [
-    "star",
-    "#f6c338"
-   ],
-   "s_triangle": [
-    "triangle",
-    "#e8453c"
-   ],
-   "s_square": [
-    "square",
-    "#ef8b2c"
-   ]
+  "figures": {
+    "_about": "Урок фігур: кожна фігура в чотирьох кольорах. Малює draw_shapes.py, id — f_<фігура>_<колір>. Усі назви фігур чоловічого роду («круг», не «коло»), тому прикметник кольору в грі склеюється з будь-якою з них без узгодження.",
+    "shapes": [
+      "circle",
+      "square",
+      "triangle",
+      "rect",
+      "oval"
+    ],
+    "colors": {
+      "red": "#e8453c",
+      "blue": "#2f84d8",
+      "yellow": "#f6c338",
+      "green": "#3f9a5c"
+    }
+  },
+  "voice": {
+    "_about": "kind=word — рівна інтонація, кліп склеюється у фразу; kind=phrase — окреме речення.",
+    "_letters_note": "Підказки уроку письма — цілі фрази (t_*), а не буква окремим кліпом. Перевірено: ізольовану букву StyleTTS2 озвучує шумом — Whisper чув з «М» «дякую за перегляд», з «Л» — «ом». У фразі модель читає чисто, а приголосні названо так, як їх учать у першому класі: ем, ен, ел, ес, ка.",
+    "_speaker_note": "Ім'я голосу живе тут, а не в .cmd: запускачі мають бути чистим ASCII (CLAUDE.md агентів, розділ 1). Зразки всіх 31 голосу — в tools/voice_samples.",
+    "speaker": "Поліна Еккерт",
+    "speed": 0.95,
+    "items": {
+      "a_above": [
+        "вгорі",
+        "word"
+      ],
+      "a_add": [
+        "додати",
+        "word"
+      ],
+      "a_alive": [
+        "жива",
+        "word"
+      ],
+      "a_autumn": [
+        "осінь",
+        "word"
+      ],
+      "a_cloudy": [
+        "хмарно",
+        "word"
+      ],
+      "a_day": [
+        "день",
+        "word"
+      ],
+      "a_down": [
+        "вниз",
+        "word"
+      ],
+      "a_evening": [
+        "вечір",
+        "word"
+      ],
+      "a_fast": [
+        "швидко",
+        "word"
+      ],
+      "a_forest": [
+        "у лісі",
+        "word"
+      ],
+      "a_high": [
+        "високо",
+        "word"
+      ],
+      "a_house": [
+        "у хаті",
+        "word"
+      ],
+      "a_left": [
+        "зліва",
+        "word"
+      ],
+      "a_loud": [
+        "гучно",
+        "word"
+      ],
+      "a_low": [
+        "низько",
+        "word"
+      ],
+      "a_more_l": [
+        "зліва більше",
+        "word"
+      ],
+      "a_more_r": [
+        "справа більше",
+        "word"
+      ],
+      "a_morning": [
+        "ранок",
+        "word"
+      ],
+      "a_near": [
+        "поруч",
+        "word"
+      ],
+      "a_ni": [
+        "ні",
+        "word"
+      ],
+      "a_night": [
+        "ніч",
+        "word"
+      ],
+      "a_no": [
+        "ні",
+        "word"
+      ],
+      "a_pravda": [
+        "правда",
+        "word"
+      ],
+      "a_quiet": [
+        "тихо",
+        "word"
+      ],
+      "a_rain": [
+        "дощ",
+        "word"
+      ],
+      "a_right": [
+        "справа",
+        "word"
+      ],
+      "a_same": [
+        "порівну",
+        "word"
+      ],
+      "a_slow": [
+        "повільно",
+        "word"
+      ],
+      "a_snow": [
+        "сніг",
+        "word"
+      ],
+      "a_spring": [
+        "весна",
+        "word"
+      ],
+      "a_sub": [
+        "відняти",
+        "word"
+      ],
+      "a_summer": [
+        "літо",
+        "word"
+      ],
+      "a_sunny": [
+        "сонячно",
+        "word"
+      ],
+      "a_tak": [
+        "так",
+        "word"
+      ],
+      "a_tame": [
+        "свійські",
+        "word"
+      ],
+      "a_thing": [
+        "нежива",
+        "word"
+      ],
+      "a_under": [
+        "внизу",
+        "word"
+      ],
+      "a_up": [
+        "вгору",
+        "word"
+      ],
+      "a_vyhadka": [
+        "вигадка",
+        "word"
+      ],
+      "a_water": [
+        "у воді",
+        "word"
+      ],
+      "a_wild": [
+        "дикі",
+        "word"
+      ],
+      "a_winter": [
+        "зима",
+        "word"
+      ],
+      "a_yes": [
+        "так",
+        "word"
+      ],
+      "ak_open": [
+        "треба відповісти словами",
+        "phrase"
+      ],
+      "ak_utoch": [
+        "уточнює те, що вже сказали",
+        "phrase"
+      ],
+      "ak_yesno": [
+        "можна відповісти «так» або «ні»",
+        "phrase"
+      ],
+      "an_komakha": [
+        "комаха",
+        "word"
+      ],
+      "an_ptakh": [
+        "птах",
+        "word"
+      ],
+      "an_ryba": [
+        "риба",
+        "word"
+      ],
+      "an_zvir": [
+        "звір",
+        "word"
+      ],
+      "aq_brat": [
+        "У тебе є брат?",
+        "phrase"
+      ],
+      "aq_druh": [
+        "Як звати твого друга?",
+        "phrase"
+      ],
+      "aq_hodyna": [
+        "А котра саме година?",
+        "phrase"
+      ],
+      "aq_kit": [
+        "Це кіт?",
+        "phrase"
+      ],
+      "aq_lito": [
+        "Що ти робив улітку?",
+        "phrase"
+      ],
+      "aq_lystia": [
+        "Чому восени падає листя?",
+        "phrase"
+      ],
+      "aq_velyka": [
+        "Ти сказав про велику чи малу?",
+        "phrase"
+      ],
+      "aq_yabluka": [
+        "Ти любиш яблука?",
+        "phrase"
+      ],
+      "bd_ear": [
+        "вухо",
+        "word"
+      ],
+      "bd_eye": [
+        "око",
+        "word"
+      ],
+      "bd_hand": [
+        "рука",
+        "word"
+      ],
+      "bd_head": [
+        "голова",
+        "word"
+      ],
+      "bd_leg": [
+        "нога",
+        "word"
+      ],
+      "bd_tooth": [
+        "зуб",
+        "word"
+      ],
+      "bn_orhanika": [
+        "органіка",
+        "word"
+      ],
+      "bn_papir": [
+        "папір",
+        "word"
+      ],
+      "bn_plastyk": [
+        "пластик",
+        "word"
+      ],
+      "bn_sklo": [
+        "скло",
+        "word"
+      ],
+      "c_blue": [
+        "синій",
+        "word"
+      ],
+      "c_green": [
+        "зелений",
+        "word"
+      ],
+      "c_red": [
+        "червоний",
+        "word"
+      ],
+      "c_yellow": [
+        "жовтий",
+        "word"
+      ],
+      "cd_green": [
+        "Зелений — це…",
+        "phrase"
+      ],
+      "cd_khata": [
+        "склеїти хатинку",
+        "word"
+      ],
+      "cd_likht": [
+        "зробити ліхтарик із паперу",
+        "phrase"
+      ],
+      "cd_nod": [
+        "Кивок головою — це…",
+        "phrase"
+      ],
+      "cd_one": [
+        "Один — це…",
+        "phrase"
+      ],
+      "cd_ptashka": [
+        "зліпити пташку",
+        "word"
+      ],
+      "cd_red": [
+        "Червоний — це…",
+        "phrase"
+      ],
+      "cd_zero": [
+        "Нуль — це…",
+        "phrase"
+      ],
+      "cn_flag": [
+        "прапор України",
+        "word"
+      ],
+      "cn_kalyna": [
+        "калина",
+        "word"
+      ],
+      "cn_kyiv": [
+        "Київ",
+        "word"
+      ],
+      "cn_sonyash": [
+        "соняшник",
+        "word"
+      ],
+      "cn_tryzub": [
+        "герб — тризуб",
+        "phrase"
+      ],
+      "cn_vyshyv": [
+        "вишиванка",
+        "word"
+      ],
+      "ct_kyiv": [
+        "Київ",
+        "word"
+      ],
+      "ct_lviv": [
+        "Львів",
+        "word"
+      ],
+      "ct_odesa": [
+        "Одеса",
+        "word"
+      ],
+      "dn_autumn": [
+        "Осінь на острові",
+        "phrase"
+      ],
+      "dn_country": [
+        "Моя країна",
+        "word"
+      ],
+      "dn_home": [
+        "Дім і сім’я",
+        "phrase"
+      ],
+      "dn_school": [
+        "Я йду до школи",
+        "phrase"
+      ],
+      "dn_water": [
+        "Жива вода",
+        "word"
+      ],
+      "dn_winter": [
+        "Зима і сліди",
+        "phrase"
+      ],
+      "dn_workshop": [
+        "Майстерня винаходів",
+        "word"
+      ],
+      "dn_world": [
+        "Великий світ",
+        "word"
+      ],
+      "dst_autumn": [
+        "Листя пожовкло, птахи збираються в дорогу. Подивимось, що осінь зробила з островом.",
+        "phrase"
+      ],
+      "dst_country": [
+        "Острів — частина великої країни. Дізнаємось, як вона зветься і що її впізнає.",
+        "phrase"
+      ],
+      "dst_home": [
+        "У кожного на острові є дім. Поглянемо, хто в ньому живе і хто яку справу робить.",
+        "phrase"
+      ],
+      "dst_school": [
+        "Перший тиждень на острові. Краб Клац покаже дорогу до школи й те, що треба знати дорогою.",
+        "phrase"
+      ],
+      "dst_water": [
+        "Довкола острова — вода. Без неї тут не росло б нічого. Подивимось, чому.",
+        "phrase"
+      ],
+      "dst_winter": [
+        "На снігу хтось лишив сліди. Підемо по них і дізнаємось, хто тут був.",
+        "phrase"
+      ],
+      "dst_workshop": [
+        "У майстерні краба повно речей. Кожну хтось колись вигадав. Розберемось, із чого вони.",
+        "phrase"
+      ],
+      "dst_world": [
+        "Острів не один. За морем є інші землі, інші тварини й дуже великі числа.",
+        "phrase"
+      ],
+      "em_banka": [
+        "банка",
+        "word"
+      ],
+      "em_bloknot": [
+        "блокнот",
+        "word"
+      ],
+      "em_budylnyk": [
+        "будильник",
+        "word"
+      ],
+      "em_chajnyk": [
+        "чайник",
+        "word"
+      ],
+      "em_chashka": [
+        "чашка",
+        "word"
+      ],
+      "em_dveri": [
+        "двері",
+        "word"
+      ],
+      "em_futbolka": [
+        "футболка",
+        "word"
+      ],
+      "em_hazeta": [
+        "газета",
+        "word"
+      ],
+      "em_hora": [
+        "гора",
+        "word"
+      ],
+      "em_hrushka": [
+        "грушка",
+        "word"
+      ],
+      "em_kamin": [
+        "камінь",
+        "word"
+      ],
+      "em_kaptsi": [
+        "капці",
+        "word"
+      ],
+      "em_kartoplia": [
+        "картопля",
+        "word"
+      ],
+      "em_kartyna": [
+        "картина",
+        "word"
+      ],
+      "em_kliuch": [
+        "ключ",
+        "word"
+      ],
+      "em_knyzhka": [
+        "книжка",
+        "word"
+      ],
+      "em_korova": [
+        "корова",
+        "word"
+      ],
+      "em_kraplia": [
+        "крапля",
+        "word"
+      ],
+      "em_kurka": [
+        "курка",
+        "word"
+      ],
+      "em_kurtka": [
+        "куртка",
+        "word"
+      ],
+      "em_kvitka": [
+        "квітка",
+        "word"
+      ],
+      "em_lialka": [
+        "лялька",
+        "word"
+      ],
+      "em_lizhko": [
+        "ліжко",
+        "word"
+      ],
+      "em_lozhka": [
+        "ложка",
+        "word"
+      ],
+      "em_lupa": [
+        "лупа",
+        "word"
+      ],
+      "em_lystok": [
+        "листок",
+        "word"
+      ],
+      "em_metelyk": [
+        "метелик",
+        "word"
+      ],
+      "em_miach": [
+        "м'яч",
+        "word"
+      ],
+      "em_molotok": [
+        "молоток",
+        "word"
+      ],
+      "em_morkva": [
+        "морква",
+        "word"
+      ],
+      "em_murashka": [
+        "мурашка",
+        "word"
+      ],
+      "em_ochi": [
+        "очі",
+        "word"
+      ],
+      "em_panamka": [
+        "панамка",
+        "word"
+      ],
+      "em_papir": [
+        "папір",
+        "word"
+      ],
+      "em_parasolka": [
+        "парасолька",
+        "word"
+      ],
+      "em_pesyk": [
+        "песик",
+        "word"
+      ],
+      "em_pishokhid": [
+        "пішохід",
+        "word"
+      ],
+      "em_pliashka": [
+        "пляшка",
+        "word"
+      ],
+      "em_potiah": [
+        "потяг",
+        "word"
+      ],
+      "em_pylka": [
+        "пилка",
+        "word"
+      ],
+      "em_rostok": [
+        "росток",
+        "word"
+      ],
+      "em_rozetka": [
+        "розетка",
+        "word"
+      ],
+      "em_sharf": [
+        "шарф",
+        "word"
+      ],
+      "em_shkarpetky": [
+        "шкарпетки",
+        "word"
+      ],
+      "em_shtany": [
+        "штани",
+        "word"
+      ],
+      "em_sik": [
+        "сік",
+        "word"
+      ],
+      "em_sklianka": [
+        "склянка",
+        "word"
+      ],
+      "em_steblo": [
+        "стебло",
+        "word"
+      ],
+      "em_stilets": [
+        "стілець",
+        "word"
+      ],
+      "em_stop": [
+        "знак «стоп»",
+        "word"
+      ],
+      "em_svitlofor": [
+        "світлофор",
+        "word"
+      ],
+      "em_tabletky": [
+        "таблетки",
+        "word"
+      ],
+      "em_tarilka": [
+        "тарілка",
+        "word"
+      ],
+      "em_vazon": [
+        "вазон",
+        "word"
+      ],
+      "em_vedmedyk": [
+        "ведмедик",
+        "word"
+      ],
+      "em_vidro": [
+        "відро",
+        "word"
+      ],
+      "em_vohon": [
+        "вогонь",
+        "word"
+      ],
+      "em_vykrutka": [
+        "викрутка",
+        "word"
+      ],
+      "em_yama": [
+        "яма",
+        "word"
+      ],
+      "f_1": [
+        "Урок пройдено!",
+        "phrase"
+      ],
+      "f_2": [
+        "Дуже добре!",
+        "phrase"
+      ],
+      "f_3": [
+        "Бездоганно!",
+        "phrase"
+      ],
+      "f_alive": [
+        "Знайди на картині все живе",
+        "phrase"
+      ],
+      "f_danger": [
+        "Знайди на картині все, що небезпечне",
+        "phrase"
+      ],
+      "f_fig": [
+        "Знайди на картині всі такі фігури",
+        "phrase"
+      ],
+      "f_group": [
+        "Знайди на картині всіх, хто належить до групи",
+        "phrase"
+      ],
+      "f_grp": [
+        "Знайди на картині все, що належить до групи",
+        "phrase"
+      ],
+      "f_letter": [
+        "Знайди на картині все, що починається на букву",
+        "phrase"
+      ],
+      "f_mat": [
+        "Знайди на картині все, що зроблено з цього матеріалу",
+        "phrase"
+      ],
+      "f_num": [
+        "Знайди на картині всі числа, більші за це",
+        "phrase"
+      ],
+      "f_syl": [
+        "Знайди на картині слова, у яких стільки частин",
+        "phrase"
+      ],
+      "g_album": [
+        "Ось твій альбом. Збери всі наліпки!",
+        "phrase"
+      ],
+      "g_daily": [
+        "Щоденна мандрівка: п'ять завдань з різних островів.",
+        "phrase"
+      ],
+      "g_fin": [
+        "Урок пройдено. Ходімо далі.",
+        "phrase"
+      ],
+      "g_fin3": [
+        "Три зірки! Тримай наліпку в альбом.",
+        "phrase"
+      ],
+      "g_flag": [
+        "Ставлю прапорець! Цей острів ти вже пройшов.",
+        "phrase"
+      ],
+      "g_frukty": [
+        "фрукти",
+        "word"
+      ],
+      "g_go": [
+        "Слухай уважно. Я поруч.",
+        "phrase"
+      ],
+      "g_good": [
+        "Ось так! Ти молодець.",
+        "phrase"
+      ],
+      "g_hi": [
+        "Привіт! Я краб Клац. Обери острів, і попливли.",
+        "phrase"
+      ],
+      "g_hint": [
+        "Дивись, ось правильна відповідь.",
+        "phrase"
+      ],
+      "g_instr": [
+        "інструменти",
+        "word"
+      ],
+      "g_kaz": [
+        "казка",
+        "word"
+      ],
+      "g_lich": [
+        "лічилка",
+        "word"
+      ],
+      "g_lvl": [
+        "Вибери рівень. Починай із легкого.",
+        "phrase"
+      ],
+      "g_mebli": [
+        "меблі",
+        "word"
+      ],
+      "g_odiah": [
+        "одяг",
+        "word"
+      ],
+      "g_oops": [
+        "Ой! Не страшно, спробуй ще.",
+        "phrase"
+      ],
+      "g_opov": [
+        "оповідання",
+        "word"
+      ],
+      "g_ovochi": [
+        "овочі",
+        "word"
+      ],
+      "g_posud": [
+        "посуд",
+        "word"
+      ],
+      "g_ptakhy": [
+        "птахи",
+        "word"
+      ],
+      "g_sko": [
+        "скоромовка",
+        "word"
+      ],
+      "g_sleep": [
+        "Я трохи подрімаю. Торкнись мене, коли будеш готовий.",
+        "phrase"
+      ],
+      "g_transport": [
+        "транспорт",
+        "word"
+      ],
+      "g_vir": [
+        "вірш",
+        "word"
+      ],
+      "g_zah": [
+        "загадка",
+        "word"
+      ],
+      "hw_doroha": [
+        "дорога",
+        "word"
+      ],
+      "hw_kvitka": [
+        "квітка",
+        "word"
+      ],
+      "hw_mama": [
+        "мама",
+        "word"
+      ],
+      "hw_moloko": [
+        "молоко",
+        "word"
+      ],
+      "hw_raketa": [
+        "ракета",
+        "word"
+      ],
+      "hw_ryba": [
+        "риба",
+        "word"
+      ],
+      "hw_sumka": [
+        "сумка",
+        "word"
+      ],
+      "hw_voda": [
+        "вода",
+        "word"
+      ],
+      "if_dotyk": [
+        "дотикова",
+        "word"
+      ],
+      "if_niukh": [
+        "нюхова",
+        "word"
+      ],
+      "if_slukh": [
+        "слухова",
+        "word"
+      ],
+      "if_smak": [
+        "смакова",
+        "word"
+      ],
+      "if_zor": [
+        "зорова",
+        "word"
+      ],
+      "ih_bandura": [
+        "смикають струни",
+        "word"
+      ],
+      "ih_baraban": [
+        "бʼють паличками",
+        "word"
+      ],
+      "ih_buben": [
+        "бʼють рукою",
+        "word"
+      ],
+      "ih_ksylofon": [
+        "бʼють молоточками",
+        "word"
+      ],
+      "ih_skrypka": [
+        "водять смичком",
+        "word"
+      ],
+      "ih_sopilka": [
+        "дмухають",
+        "word"
+      ],
+      "ih_trykutnyk": [
+        "бʼють паличкою",
+        "word"
+      ],
+      "in_dotyk_0": [
+        "гаряче",
+        "word"
+      ],
+      "in_dotyk_1": [
+        "шорстке",
+        "word"
+      ],
+      "in_dotyk_2": [
+        "мʼяке",
+        "word"
+      ],
+      "in_dotyk_3": [
+        "холодне",
+        "word"
+      ],
+      "in_niukh_0": [
+        "запах хліба",
+        "word"
+      ],
+      "in_niukh_1": [
+        "дим",
+        "word"
+      ],
+      "in_niukh_2": [
+        "квіти",
+        "word"
+      ],
+      "in_slukh_0": [
+        "пісня",
+        "word"
+      ],
+      "in_slukh_1": [
+        "дзвінок",
+        "word"
+      ],
+      "in_slukh_2": [
+        "грім",
+        "word"
+      ],
+      "in_slukh_3": [
+        "голос",
+        "word"
+      ],
+      "in_smak_0": [
+        "солодке",
+        "word"
+      ],
+      "in_smak_1": [
+        "кисле",
+        "word"
+      ],
+      "in_smak_2": [
+        "солоне",
+        "word"
+      ],
+      "in_zor_0": [
+        "малюнок",
+        "word"
+      ],
+      "in_zor_1": [
+        "колір",
+        "word"
+      ],
+      "in_zor_2": [
+        "світлофор",
+        "word"
+      ],
+      "in_zor_3": [
+        "усмішка",
+        "word"
+      ],
+      "is_bandura": [
+        "бандура",
+        "word"
+      ],
+      "is_baraban": [
+        "барабан",
+        "word"
+      ],
+      "is_buben": [
+        "бубон",
+        "word"
+      ],
+      "is_ksylofon": [
+        "ксилофон",
+        "word"
+      ],
+      "is_skrypka": [
+        "скрипка",
+        "word"
+      ],
+      "is_sopilka": [
+        "сопілка",
+        "word"
+      ],
+      "is_tryk": [
+        "трикутник",
+        "word"
+      ],
+      "iv_kholodylnyk": [
+        "холодильник",
+        "word"
+      ],
+      "iv_knyzhka": [
+        "книжка",
+        "word"
+      ],
+      "iv_koleso": [
+        "колесо",
+        "word"
+      ],
+      "iv_lampa": [
+        "лампа",
+        "word"
+      ],
+      "iv_litak": [
+        "літак",
+        "word"
+      ],
+      "iv_telefon": [
+        "телефон",
+        "word"
+      ],
+      "jb_budiv": [
+        "будівельник",
+        "word"
+      ],
+      "jb_fermer": [
+        "фермер",
+        "word"
+      ],
+      "jb_likar": [
+        "лікар",
+        "word"
+      ],
+      "jb_pekar": [
+        "пекар",
+        "word"
+      ],
+      "jb_poshtar": [
+        "поштар",
+        "word"
+      ],
+      "jb_pozhezh": [
+        "пожежник",
+        "word"
+      ],
+      "jb_uchytel": [
+        "учитель",
+        "word"
+      ],
+      "jb_vodii": [
+        "водій",
+        "word"
+      ],
+      "jd_budiv": [
+        "будує будинки",
+        "word"
+      ],
+      "jd_fermer": [
+        "вирощує овочі",
+        "word"
+      ],
+      "jd_likar": [
+        "лікує людей",
+        "word"
+      ],
+      "jd_pekar": [
+        "пече хліб",
+        "word"
+      ],
+      "jd_poshtar": [
+        "розносить листи",
+        "word"
+      ],
+      "jd_pozhezh": [
+        "гасить пожежі",
+        "word"
+      ],
+      "jd_uchytel": [
+        "навчає дітей",
+        "word"
+      ],
+      "jd_vodii": [
+        "возить людей",
+        "word"
+      ],
+      "kv_doshka": [
+        "дошка",
+        "word"
+      ],
+      "kv_izhak": [
+        "їжак",
+        "word"
+      ],
+      "kv_lis": [
+        "ліс",
+        "word"
+      ],
+      "kv_ptakh": [
+        "птах",
+        "word"
+      ],
+      "kv_sadok": [
+        "садок",
+        "word"
+      ],
+      "kv_shpakivnia": [
+        "шпаківня",
+        "word"
+      ],
+      "kv_vesna": [
+        "весна",
+        "word"
+      ],
+      "kv_vyshnia": [
+        "вишня",
+        "word"
+      ],
+      "kv_zyma": [
+        "зима",
+        "word"
+      ],
+      "kw_izhak": [
+        "Хочу дізнатися, чим живляться їжаки",
+        "phrase"
+      ],
+      "kw_shpak": [
+        "Хочу дізнатися, як збудувати шпаківню",
+        "phrase"
+      ],
+      "kw_vysh": [
+        "Хочу дізнатися, коли цвіте вишня",
+        "phrase"
+      ],
+      "ky_nota": [
+        "нота",
+        "word"
+      ],
+      "ky_pauza": [
+        "пауза",
+        "word"
+      ],
+      "ky_skrypkovyj": [
+        "скрипковий ключ",
+        "word"
+      ],
+      "let_a": [
+        "а",
+        "word"
+      ],
+      "let_be": [
+        "бе",
+        "word"
+      ],
+      "let_che": [
+        "че",
+        "word"
+      ],
+      "let_de": [
+        "де",
+        "word"
+      ],
+      "let_e": [
+        "е",
+        "word"
+      ],
+      "let_ef": [
+        "еф",
+        "word"
+      ],
+      "let_el": [
+        "ел",
+        "word"
+      ],
+      "let_en": [
+        "ен",
+        "word"
+      ],
+      "let_er": [
+        "ер",
+        "word"
+      ],
+      "let_es": [
+        "ес",
+        "word"
+      ],
+      "let_ge": [
+        "ґе",
+        "word"
+      ],
+      "let_ha": [
+        "ха",
+        "word"
+      ],
+      "let_he": [
+        "ге",
+        "word"
+      ],
+      "let_i": [
+        "і",
+        "word"
+      ],
+      "let_j": [
+        "йот",
+        "word"
+      ],
+      "let_ka": [
+        "ка",
+        "word"
+      ],
+      "let_m": [
+        "ем",
+        "word"
+      ],
+      "let_o": [
+        "о",
+        "word"
+      ],
+      "let_pe": [
+        "пе",
+        "word"
+      ],
+      "let_sha": [
+        "ша",
+        "word"
+      ],
+      "let_shcha": [
+        "ща",
+        "word"
+      ],
+      "let_soft": [
+        "знак м’якшення",
+        "word"
+      ],
+      "let_te": [
+        "те",
+        "word"
+      ],
+      "let_tse": [
+        "це",
+        "word"
+      ],
+      "let_u": [
+        "у",
+        "word"
+      ],
+      "let_ve": [
+        "ве",
+        "word"
+      ],
+      "let_y": [
+        "и",
+        "word"
+      ],
+      "let_ya": [
+        "я",
+        "word"
+      ],
+      "let_ye": [
+        "є",
+        "word"
+      ],
+      "let_yi": [
+        "ї",
+        "word"
+      ],
+      "let_yu": [
+        "ю",
+        "word"
+      ],
+      "let_ze": [
+        "зе",
+        "word"
+      ],
+      "let_zhe": [
+        "же",
+        "word"
+      ],
+      "ln_broken": [
+        "ламана",
+        "word"
+      ],
+      "ln_circ": [
+        "коло",
+        "word"
+      ],
+      "ln_curve": [
+        "крива",
+        "word"
+      ],
+      "ln_dot": [
+        "точка",
+        "word"
+      ],
+      "ln_line": [
+        "пряма",
+        "word"
+      ],
+      "ln_ray": [
+        "промінь",
+        "word"
+      ],
+      "ln_seg": [
+        "відрізок",
+        "word"
+      ],
+      "lv_1": [
+        "Легко",
+        "word"
+      ],
+      "lv_2": [
+        "Середньо",
+        "word"
+      ],
+      "lv_3": [
+        "Складно",
+        "word"
+      ],
+      "mt_derevo": [
+        "дерево",
+        "word"
+      ],
+      "mt_metal": [
+        "метал",
+        "word"
+      ],
+      "mt_papir": [
+        "папір",
+        "word"
+      ],
+      "mt_plastyk": [
+        "пластик",
+        "word"
+      ],
+      "mt_sklo": [
+        "скло",
+        "word"
+      ],
+      "mt_tkanyna": [
+        "тканина",
+        "word"
+      ],
+      "n0": [
+        "нуль",
+        "word"
+      ],
+      "n1": [
+        "один",
+        "word"
+      ],
+      "n10": [
+        "десять",
+        "word"
+      ],
+      "n100": [
+        "сто",
+        "word"
+      ],
+      "n11": [
+        "одинадцять",
+        "word"
+      ],
+      "n110": [
+        "сто десять",
+        "word"
+      ],
+      "n12": [
+        "дванадцять",
+        "word"
+      ],
+      "n13": [
+        "тринадцять",
+        "word"
+      ],
+      "n14": [
+        "чотирнадцять",
+        "word"
+      ],
+      "n15": [
+        "п'ятнадцять",
+        "word"
+      ],
+      "n16": [
+        "шістнадцять",
+        "word"
+      ],
+      "n17": [
+        "сімнадцять",
+        "word"
+      ],
+      "n18": [
+        "вісімнадцять",
+        "word"
+      ],
+      "n19": [
+        "дев'ятнадцять",
+        "word"
+      ],
+      "n2": [
+        "два",
+        "word"
+      ],
+      "n20": [
+        "двадцять",
+        "word"
+      ],
+      "n21": [
+        "двадцять один",
+        "word"
+      ],
+      "n22": [
+        "двадцять два",
+        "word"
+      ],
+      "n23": [
+        "двадцять три",
+        "word"
+      ],
+      "n24": [
+        "двадцять чотири",
+        "word"
+      ],
+      "n25": [
+        "двадцять п'ять",
+        "word"
+      ],
+      "n26": [
+        "двадцять шість",
+        "word"
+      ],
+      "n27": [
+        "двадцять сім",
+        "word"
+      ],
+      "n28": [
+        "двадцять вісім",
+        "word"
+      ],
+      "n29": [
+        "двадцять дев'ять",
+        "word"
+      ],
+      "n3": [
+        "три",
+        "word"
+      ],
+      "n30": [
+        "тридцять",
+        "word"
+      ],
+      "n31": [
+        "тридцять один",
+        "word"
+      ],
+      "n32": [
+        "тридцять два",
+        "word"
+      ],
+      "n33": [
+        "тридцять три",
+        "word"
+      ],
+      "n34": [
+        "тридцять чотири",
+        "word"
+      ],
+      "n35": [
+        "тридцять п'ять",
+        "word"
+      ],
+      "n36": [
+        "тридцять шість",
+        "word"
+      ],
+      "n37": [
+        "тридцять сім",
+        "word"
+      ],
+      "n38": [
+        "тридцять вісім",
+        "word"
+      ],
+      "n39": [
+        "тридцять дев'ять",
+        "word"
+      ],
+      "n4": [
+        "чотири",
+        "word"
+      ],
+      "n40": [
+        "сорок",
+        "word"
+      ],
+      "n41": [
+        "сорок один",
+        "word"
+      ],
+      "n42": [
+        "сорок два",
+        "word"
+      ],
+      "n43": [
+        "сорок три",
+        "word"
+      ],
+      "n44": [
+        "сорок чотири",
+        "word"
+      ],
+      "n45": [
+        "сорок п'ять",
+        "word"
+      ],
+      "n46": [
+        "сорок шість",
+        "word"
+      ],
+      "n47": [
+        "сорок сім",
+        "word"
+      ],
+      "n48": [
+        "сорок вісім",
+        "word"
+      ],
+      "n49": [
+        "сорок дев'ять",
+        "word"
+      ],
+      "n5": [
+        "п'ять",
+        "word"
+      ],
+      "n50": [
+        "п'ятдесят",
+        "word"
+      ],
+      "n51": [
+        "п'ятдесят один",
+        "word"
+      ],
+      "n52": [
+        "п'ятдесят два",
+        "word"
+      ],
+      "n53": [
+        "п'ятдесят три",
+        "word"
+      ],
+      "n54": [
+        "п'ятдесят чотири",
+        "word"
+      ],
+      "n55": [
+        "п'ятдесят п'ять",
+        "word"
+      ],
+      "n56": [
+        "п'ятдесят шість",
+        "word"
+      ],
+      "n57": [
+        "п'ятдесят сім",
+        "word"
+      ],
+      "n58": [
+        "п'ятдесят вісім",
+        "word"
+      ],
+      "n59": [
+        "п'ятдесят дев'ять",
+        "word"
+      ],
+      "n6": [
+        "шість",
+        "word"
+      ],
+      "n60": [
+        "шістдесят",
+        "word"
+      ],
+      "n61": [
+        "шістдесят один",
+        "word"
+      ],
+      "n62": [
+        "шістдесят два",
+        "word"
+      ],
+      "n63": [
+        "шістдесят три",
+        "word"
+      ],
+      "n64": [
+        "шістдесят чотири",
+        "word"
+      ],
+      "n65": [
+        "шістдесят п'ять",
+        "word"
+      ],
+      "n66": [
+        "шістдесят шість",
+        "word"
+      ],
+      "n67": [
+        "шістдесят сім",
+        "word"
+      ],
+      "n68": [
+        "шістдесят вісім",
+        "word"
+      ],
+      "n69": [
+        "шістдесят дев'ять",
+        "word"
+      ],
+      "n7": [
+        "сім",
+        "word"
+      ],
+      "n70": [
+        "сімдесят",
+        "word"
+      ],
+      "n71": [
+        "сімдесят один",
+        "word"
+      ],
+      "n72": [
+        "сімдесят два",
+        "word"
+      ],
+      "n73": [
+        "сімдесят три",
+        "word"
+      ],
+      "n74": [
+        "сімдесят чотири",
+        "word"
+      ],
+      "n75": [
+        "сімдесят п'ять",
+        "word"
+      ],
+      "n76": [
+        "сімдесят шість",
+        "word"
+      ],
+      "n77": [
+        "сімдесят сім",
+        "word"
+      ],
+      "n78": [
+        "сімдесят вісім",
+        "word"
+      ],
+      "n79": [
+        "сімдесят дев'ять",
+        "word"
+      ],
+      "n8": [
+        "вісім",
+        "word"
+      ],
+      "n80": [
+        "вісімдесят",
+        "word"
+      ],
+      "n81": [
+        "вісімдесят один",
+        "word"
+      ],
+      "n82": [
+        "вісімдесят два",
+        "word"
+      ],
+      "n83": [
+        "вісімдесят три",
+        "word"
+      ],
+      "n84": [
+        "вісімдесят чотири",
+        "word"
+      ],
+      "n85": [
+        "вісімдесят п'ять",
+        "word"
+      ],
+      "n86": [
+        "вісімдесят шість",
+        "word"
+      ],
+      "n87": [
+        "вісімдесят сім",
+        "word"
+      ],
+      "n88": [
+        "вісімдесят вісім",
+        "word"
+      ],
+      "n89": [
+        "вісімдесят дев'ять",
+        "word"
+      ],
+      "n9": [
+        "дев'ять",
+        "word"
+      ],
+      "n90": [
+        "дев'яносто",
+        "word"
+      ],
+      "n91": [
+        "дев'яносто один",
+        "word"
+      ],
+      "n92": [
+        "дев'яносто два",
+        "word"
+      ],
+      "n93": [
+        "дев'яносто три",
+        "word"
+      ],
+      "n94": [
+        "дев'яносто чотири",
+        "word"
+      ],
+      "n95": [
+        "дев'яносто п'ять",
+        "word"
+      ],
+      "n96": [
+        "дев'яносто шість",
+        "word"
+      ],
+      "n97": [
+        "дев'яносто сім",
+        "word"
+      ],
+      "n98": [
+        "дев'яносто вісім",
+        "word"
+      ],
+      "n99": [
+        "дев'яносто дев'ять",
+        "word"
+      ],
+      "nm_abc": [
+        "Острів Алфавіту",
+        "word"
+      ],
+      "nm_add100": [
+        "Острів Великих Дій",
+        "phrase"
+      ],
+      "nm_alive": [
+        "Острів Живого",
+        "word"
+      ],
+      "nm_animals": [
+        "Острів Тварин",
+        "word"
+      ],
+      "nm_ask": [
+        "Острів Запитань",
+        "word"
+      ],
+      "nm_body": [
+        "Острів Тіла",
+        "word"
+      ],
+      "nm_card": [
+        "Острів Інструкцій",
+        "word"
+      ],
+      "nm_code": [
+        "Острів Шифру",
+        "word"
+      ],
+      "nm_compare": [
+        "Острів Порівнянь",
+        "phrase"
+      ],
+      "nm_country": [
+        "Острів Країни",
+        "word"
+      ],
+      "nm_data": [
+        "Острів Таблиць",
+        "word"
+      ],
+      "nm_en": [
+        "Острів Англійської",
+        "phrase"
+      ],
+      "nm_fig": [
+        "Острів Фігур",
+        "phrase"
+      ],
+      "nm_group": [
+        "Острів Груп Слів",
+        "phrase"
+      ],
+      "nm_info": [
+        "Острів Відчуттів",
+        "word"
+      ],
+      "nm_instr": [
+        "Острів Інструментів",
+        "word"
+      ],
+      "nm_invent": [
+        "Острів Винаходів",
+        "word"
+      ],
+      "nm_jobs": [
+        "Острів Професій",
+        "word"
+      ],
+      "nm_lines": [
+        "Острів Ліній",
+        "word"
+      ],
+      "nm_logic": [
+        "Острів Візерунків",
+        "phrase"
+      ],
+      "nm_math": [
+        "Острів Лічби",
+        "phrase"
+      ],
+      "nm_mean": [
+        "Острів Значень",
+        "word"
+      ],
+      "nm_measure": [
+        "Острів Мірок",
+        "word"
+      ],
+      "nm_memo": [
+        "Острів Пам'яті",
+        "phrase"
+      ],
+      "nm_money": [
+        "Острів Гривні",
+        "phrase"
+      ],
+      "nm_notes": [
+        "Острів Нот",
+        "word"
+      ],
+      "nm_num": [
+        "Острів Чисел",
+        "phrase"
+      ],
+      "nm_num100": [
+        "Острів Сотні",
+        "word"
+      ],
+      "nm_num20": [
+        "Острів Двадцяти",
+        "word"
+      ],
+      "nm_order": [
+        "Острів Порядку",
+        "phrase"
+      ],
+      "nm_ornament": [
+        "Острів Орнаменту",
+        "word"
+      ],
+      "nm_place": [
+        "Острів Напрямків",
+        "phrase"
+      ],
+      "nm_plan": [
+        "Острів Кроків",
+        "word"
+      ],
+      "nm_quest": [
+        "Острів Питань",
+        "word"
+      ],
+      "nm_read": [
+        "Острів Букв",
+        "phrase"
+      ],
+      "nm_rhythm": [
+        "Острів Ритму",
+        "word"
+      ],
+      "nm_safe": [
+        "Острів Безпеки",
+        "word"
+      ],
+      "nm_sent": [
+        "Острів Речення",
+        "word"
+      ],
+      "nm_shadow": [
+        "Острів Тіней",
+        "phrase"
+      ],
+      "nm_signs": [
+        "Острів Знаків",
+        "word"
+      ],
+      "nm_sound": [
+        "Острів Звуків",
+        "phrase"
+      ],
+      "nm_stress": [
+        "Острів Наголосу",
+        "word"
+      ],
+      "nm_stuff": [
+        "Острів Матеріалів",
+        "word"
+      ],
+      "nm_syll": [
+        "Острів Читання",
+        "phrase"
+      ],
+      "nm_task": [
+        "Острів Задач",
+        "word"
+      ],
+      "nm_tempo": [
+        "Острів Темпу",
+        "word"
+      ],
+      "nm_text": [
+        "Острів Тексту",
+        "word"
+      ],
+      "nm_time": [
+        "Острів Часу",
+        "phrase"
+      ],
+      "nm_true": [
+        "Острів Правди",
+        "word"
+      ],
+      "nm_weather": [
+        "Острів Погоди",
+        "phrase"
+      ],
+      "nm_world": [
+        "Острів Природи",
+        "phrase"
+      ],
+      "nm_write": [
+        "Острів Письма",
+        "phrase"
+      ],
+      "no_do": [
+        "до",
+        "word"
+      ],
+      "no_fa": [
+        "фа",
+        "word"
+      ],
+      "no_lia": [
+        "ля",
+        "word"
+      ],
+      "no_mi": [
+        "мі",
+        "word"
+      ],
+      "no_re": [
+        "ре",
+        "word"
+      ],
+      "no_si": [
+        "сі",
+        "word"
+      ],
+      "no_sol": [
+        "соль",
+        "word"
+      ],
+      "nt_nezhyva": [
+        "нежива",
+        "word"
+      ],
+      "nt_rukotvorna": [
+        "рукотворна",
+        "word"
+      ],
+      "nt_zhyva": [
+        "жива",
+        "word"
+      ],
+      "ok_1": [
+        "Молодець!",
+        "phrase"
+      ],
+      "ok_2": [
+        "Чудово!",
+        "phrase"
+      ],
+      "ok_3": [
+        "Так тримати!",
+        "phrase"
+      ],
+      "ok_4": [
+        "Правильно!",
+        "phrase"
+      ],
+      "ok_5": [
+        "Супер!",
+        "phrase"
+      ],
+      "open": [
+        "Що ти робив улітку?",
+        "phrase"
+      ],
+      "or_1": [
+        "Яка картинка перша?",
+        "phrase"
+      ],
+      "or_2": [
+        "Яка картинка друга?",
+        "phrase"
+      ],
+      "or_3": [
+        "Яка картинка третя?",
+        "phrase"
+      ],
+      "or_4": [
+        "Яка картинка четверта?",
+        "phrase"
+      ],
+      "or_5": [
+        "Яка картинка п'ята?",
+        "phrase"
+      ],
+      "or_pys": [
+        "писанка",
+        "word"
+      ],
+      "or_roz": [
+        "розпис",
+        "word"
+      ],
+      "or_smu": [
+        "стрічковий візерунок",
+        "word"
+      ],
+      "or_vyt": [
+        "витинанка",
+        "word"
+      ],
+      "p_addto": [
+        "Скільки треба додати, щоб стало",
+        "word"
+      ],
+      "p_alive": [
+        "Це жива природа чи нежива?",
+        "phrase"
+      ],
+      "p_count": [
+        "Порахуй. Скільки тут предметів?",
+        "phrase"
+      ],
+      "p_daily": [
+        "Щоденна мандрівка.",
+        "phrase"
+      ],
+      "p_daypart": [
+        "Коли це буває?",
+        "phrase"
+      ],
+      "p_de": [
+        "Де",
+        "word"
+      ],
+      "p_get": [
+        "Ти отримуєш",
+        "word"
+      ],
+      "p_gift": [
+        "Ти отримуєш наліпку!",
+        "phrase"
+      ],
+      "p_hint": [
+        "Подивись на підказку.",
+        "phrase"
+      ],
+      "p_left": [
+        "Скільки залишилось?",
+        "phrase"
+      ],
+      "p_letter": [
+        "З якої букви починається слово",
+        "word"
+      ],
+      "p_listen": [
+        "Послухай і вибери картинку.",
+        "phrase"
+      ],
+      "p_memo": [
+        "Знайди дві однакові картинки.",
+        "phrase"
+      ],
+      "p_money": [
+        "Порахуй гроші. Скільки тут гривень?",
+        "phrase"
+      ],
+      "p_more": [
+        "Де більше?",
+        "phrase"
+      ],
+      "p_odd": [
+        "Що тут зайве?",
+        "phrase"
+      ],
+      "p_pair": [
+        "Є пара!",
+        "phrase"
+      ],
+      "p_parts": [
+        "Скільки частин у слові?",
+        "phrase"
+      ],
+      "p_parts_more": [
+        "У якому слові більше частин?",
+        "phrase"
+      ],
+      "p_pattern": [
+        "Подивись на візерунок. Що буде далі?",
+        "phrase"
+      ],
+      "p_plus": [
+        "додати",
+        "word"
+      ],
+      "p_season": [
+        "Яка це пора року?",
+        "phrase"
+      ],
+      "p_shadow": [
+        "Чия це тінь?",
+        "phrase"
+      ],
+      "p_show": [
+        "Покажи",
+        "word"
+      ],
+      "p_syll": [
+        "Покажи склад, який почуєш.",
+        "phrase"
+      ],
+      "p_time": [
+        "Котра година?",
+        "phrase"
+      ],
+      "p_together": [
+        "Скільки буде разом?",
+        "phrase"
+      ],
+      "p_took": [
+        "забрали",
+        "word"
+      ],
+      "p_trace_ok": [
+        "Гарно написано!",
+        "phrase"
+      ],
+      "p_trace_try": [
+        "Спробуй обвести ще раз.",
+        "phrase"
+      ],
+      "p_try": [
+        "Майже! Спробуй ще раз.",
+        "phrase"
+      ],
+      "p_was": [
+        "Було",
+        "word"
+      ],
+      "p_wear": [
+        "Що вдягнути, коли",
+        "phrase"
+      ],
+      "p_weather": [
+        "Яка це погода?",
+        "phrase"
+      ],
+      "p_where": [
+        "Де це живе?",
+        "phrase"
+      ],
+      "p_word": [
+        "Яке слово ти чуєш?",
+        "phrase"
+      ],
+      "pl_korin": [
+        "корінь",
+        "word"
+      ],
+      "pl_kvitka": [
+        "квітка",
+        "word"
+      ],
+      "pl_lystok": [
+        "листок",
+        "word"
+      ],
+      "pl_nasinnia": [
+        "насіння",
+        "word"
+      ],
+      "pl_plid": [
+        "плід",
+        "word"
+      ],
+      "pl_steblo": [
+        "стебло",
+        "word"
+      ],
+      "pn_chai": [
+        "Щоб приготувати чай",
+        "phrase"
+      ],
+      "pn_doroha": [
+        "Щоб перейти дорогу",
+        "phrase"
+      ],
+      "pn_kvitka": [
+        "Щоб посадити квітку",
+        "phrase"
+      ],
+      "pn_malunok": [
+        "Щоб намалювати малюнок",
+        "phrase"
+      ],
+      "pn_shkola": [
+        "Щоб зібратися до школи",
+        "phrase"
+      ],
+      "pq_dot": [
+        "крапка",
+        "word"
+      ],
+      "pq_excl": [
+        "знак оклику",
+        "word"
+      ],
+      "pq_quest": [
+        "знак питання",
+        "word"
+      ],
+      "q_abcrow": [
+        "Постав букви за абеткою",
+        "phrase"
+      ],
+      "q_action": [
+        "Яку дію треба виконати?",
+        "phrase"
+      ],
+      "q_after": [
+        "Яке число йде після цього?",
+        "phrase"
+      ],
+      "q_agroup": [
+        "До якої групи належить ця тварина?",
+        "phrase"
+      ],
+      "q_ant": [
+        "Яке слово протилежне за значенням?",
+        "phrase"
+      ],
+      "q_before": [
+        "Яке число йде перед цим?",
+        "phrase"
+      ],
+      "q_bin": [
+        "У який контейнер це викинути?",
+        "phrase"
+      ],
+      "q_build_n": [
+        "Збери число з десятків і одиниць",
+        "phrase"
+      ],
+      "q_build_s": [
+        "Збери речення зі слів і постав знак у кінці",
+        "phrase"
+      ],
+      "q_build_w": [
+        "Збери слово зі складів",
+        "phrase"
+      ],
+      "q_cap": [
+        "Яке речення записано правильно? Речення починається з великої букви.",
+        "phrase"
+      ],
+      "q_capital": [
+        "Як називається столиця України?",
+        "phrase"
+      ],
+      "q_card": [
+        "З чого почати?",
+        "phrase"
+      ],
+      "q_case": [
+        "Постав малу букву до великої",
+        "phrase"
+      ],
+      "q_code_no": [
+        "Закодуй «ні» кольором",
+        "phrase"
+      ],
+      "q_code_yes": [
+        "Закодуй «так» кольором",
+        "phrase"
+      ],
+      "q_danger": [
+        "Що тут небезпечне?",
+        "phrase"
+      ],
+      "q_dec": [
+        "Лічимо десятками. Яке число буде далі?",
+        "phrase"
+      ],
+      "q_dir": [
+        "Мелодія йде вгору чи вниз?",
+        "phrase"
+      ],
+      "q_dots": [
+        "Натискай крапки за порядком чисел, і проявиться малюнок",
+        "phrase"
+      ],
+      "q_flag": [
+        "Де прапор України?",
+        "phrase"
+      ],
+      "q_genre": [
+        "Що це за твір?",
+        "phrase"
+      ],
+      "q_gname": [
+        "Як назвати це одним словом?",
+        "phrase"
+      ],
+      "q_how": [
+        "Як добувають звук із цього інструмента?",
+        "phrase"
+      ],
+      "q_howmany": [
+        "Скільки цього в таблиці?",
+        "phrase"
+      ],
+      "q_hwdone": [
+        "Рядок готовий!",
+        "phrase"
+      ],
+      "q_hwfin": [
+        "Домашнє завдання виконано. Молодець!",
+        "phrase"
+      ],
+      "q_hwrow": [
+        "Напиши букву в рядок, як зразок",
+        "phrase"
+      ],
+      "q_hyph": [
+        "Як правильно перенести слово? Переносимо по складах.",
+        "phrase"
+      ],
+      "q_info": [
+        "Яка це інформація?",
+        "phrase"
+      ],
+      "q_inv": [
+        "Що люди мали раніше, до цього винаходу?",
+        "phrase"
+      ],
+      "q_job": [
+        "Хто це робить?",
+        "phrase"
+      ],
+      "q_jobdo": [
+        "Що робить ця людина?",
+        "phrase"
+      ],
+      "q_key": [
+        "Як називається цей знак на початку нотного стану?",
+        "phrase"
+      ],
+      "q_lafter": [
+        "Яка буква йде після цієї?",
+        "phrase"
+      ],
+      "q_lbefore": [
+        "Яка буква йде перед цією?",
+        "phrase"
+      ],
+      "q_longer": [
+        "Що довше?",
+        "phrase"
+      ],
+      "q_loud": [
+        "Гучно чи тихо?",
+        "phrase"
+      ],
+      "q_mark": [
+        "Який знак має стояти в кінці?",
+        "phrase"
+      ],
+      "q_mat": [
+        "З чого це зроблено?",
+        "phrase"
+      ],
+      "q_mirror": [
+        "Домалюй другу половину так, щоб половинки були однакові",
+        "phrase"
+      ],
+      "q_most": [
+        "Чого найбільше?",
+        "phrase"
+      ],
+      "q_note": [
+        "Яка це нота?",
+        "phrase"
+      ],
+      "q_ones": [
+        "Скільки одиниць у числі",
+        "phrase"
+      ],
+      "q_order": [
+        "Постав по порядку, що за чим робимо",
+        "phrase"
+      ],
+      "q_pitch": [
+        "Високо чи низько?",
+        "phrase"
+      ],
+      "q_poly": [
+        "Це слово має два значення.",
+        "phrase"
+      ],
+      "q_qw": [
+        "Яке питання підходить до цього слова?",
+        "phrase"
+      ],
+      "q_rhythm": [
+        "Послухай плескання. Який запис підходить?",
+        "phrase"
+      ],
+      "q_row": [
+        "Постав числа по порядку, від меншого до більшого",
+        "phrase"
+      ],
+      "q_seasons": [
+        "Постав пори року по порядку, починай з осені",
+        "phrase"
+      ],
+      "q_sense": [
+        "Чим ми це відчуваємо?",
+        "phrase"
+      ],
+      "q_sent": [
+        "Скільки речень у тексті?",
+        "phrase"
+      ],
+      "q_stave": [
+        "Скільки ліній у нотному стані?",
+        "phrase"
+      ],
+      "q_step1": [
+        "Що робимо перш за все?",
+        "phrase"
+      ],
+      "q_stepn": [
+        "Що робимо далі?",
+        "phrase"
+      ],
+      "q_stress": [
+        "Який склад вимовляється сильніше?",
+        "phrase"
+      ],
+      "q_sym": [
+        "Чи можна скласти цю картинку навпіл так, щоб половинки збіглися?",
+        "phrase"
+      ],
+      "q_syn": [
+        "Яке слово означає майже те саме?",
+        "phrase"
+      ],
+      "q_tame": [
+        "Яка тварина свійська?",
+        "phrase"
+      ],
+      "q_tamewild": [
+        "Розклади тварин: дикі й свійські",
+        "phrase"
+      ],
+      "q_tap": [
+        "Послухай плескання, а тоді повтори його пальцем",
+        "phrase"
+      ],
+      "q_tempo": [
+        "Швидко чи повільно?",
+        "phrase"
+      ],
+      "q_tens": [
+        "Скільки десятків у числі?",
+        "phrase"
+      ],
+      "q_tens2": [
+        "Яке число виходить із десятків і одиниць?",
+        "phrase"
+      ],
+      "q_title": [
+        "Який заголовок підходить?",
+        "phrase"
+      ],
+      "q_tool": [
+        "Чим це роблять?",
+        "phrase"
+      ],
+      "q_true": [
+        "Це правда чи вигадка?",
+        "phrase"
+      ],
+      "q_unit": [
+        "У чому це міряють?",
+        "phrase"
+      ],
+      "q_wear2": [
+        "Постав одяг до погоди",
+        "phrase"
+      ],
+      "q_wild": [
+        "Яка тварина дика?",
+        "phrase"
+      ],
+      "q_words": [
+        "Скільки слів у реченні?",
+        "phrase"
+      ],
+      "q_wrongstep": [
+        "Що тут стоїть не на своєму місці?",
+        "phrase"
+      ],
+      "qv_bizhyt": [
+        "біжить",
+        "word"
+      ],
+      "qv_chervonyj": [
+        "червоний",
+        "word"
+      ],
+      "qv_desiat": [
+        "десять",
+        "word"
+      ],
+      "qv_dva": [
+        "два",
+        "word"
+      ],
+      "qv_miakyj": [
+        "м’який",
+        "word"
+      ],
+      "qv_odyn": [
+        "один",
+        "word"
+      ],
+      "qv_piat": [
+        "п’ять",
+        "word"
+      ],
+      "qv_pyshe": [
+        "пише",
+        "word"
+      ],
+      "qv_spivaie": [
+        "співає",
+        "word"
+      ],
+      "qv_spyt": [
+        "спить",
+        "word"
+      ],
+      "qv_teplyj": [
+        "теплий",
+        "word"
+      ],
+      "qv_velykyj": [
+        "великий",
+        "word"
+      ],
+      "qw_does": [
+        "що робить?",
+        "phrase"
+      ],
+      "qw_many": [
+        "скільки?",
+        "phrase"
+      ],
+      "qw_what": [
+        "що?",
+        "phrase"
+      ],
+      "qw_which": [
+        "який?",
+        "phrase"
+      ],
+      "qw_who": [
+        "хто?",
+        "phrase"
+      ],
+      "s_de": [
+        "Де мій зошит?",
+        "phrase"
+      ],
+      "s_khto": [
+        "Хто там?",
+        "phrase"
+      ],
+      "s_kit": [
+        "Кіт спить.",
+        "phrase"
+      ],
+      "s_mama": [
+        "Мама пече пиріг.",
+        "phrase"
+      ],
+      "s_ptashka": [
+        "Пташка летить високо.",
+        "phrase"
+      ],
+      "s_story": [
+        "Послухай задачу.",
+        "phrase"
+      ],
+      "s_tato": [
+        "Тато читає книжку.",
+        "phrase"
+      ],
+      "s_ura": [
+        "Ура, канікули!",
+        "phrase"
+      ],
+      "s_yaka": [
+        "Яка гарна квітка!",
+        "phrase"
+      ],
+      "sa_itypovilno": [
+        "іти повільно",
+        "word"
+      ],
+      "sa_nechipatyj": [
+        "не чіпати й сказати дорослим",
+        "phrase"
+      ],
+      "sa_pohasytysa": [
+        "погасити самому",
+        "word"
+      ],
+      "sa_rozibratys": [
+        "розібрати, що всередині",
+        "phrase"
+      ],
+      "sa_rozpovisty": [
+        "розповісти йому адресу",
+        "phrase"
+      ],
+      "sa_shvydkoper": [
+        "швидко перебігти",
+        "word"
+      ],
+      "sa_sistyjpoik": [
+        "сісти й поїхати",
+        "phrase"
+      ],
+      "sa_skhovatysi": [
+        "сховатися під ліжко",
+        "phrase"
+      ],
+      "sa_stoiatyjch": [
+        "стояти й чекати",
+        "phrase"
+      ],
+      "sa_uziatydodo": [
+        "узяти додому",
+        "word"
+      ],
+      "sa_vidmovytys": [
+        "відмовитись і відійти",
+        "phrase"
+      ],
+      "sa_vyjtyjpokl": [
+        "вийти й покликати дорослих",
+        "phrase"
+      ],
+      "se_ear": [
+        "вуха",
+        "word"
+      ],
+      "se_eye": [
+        "очі",
+        "word"
+      ],
+      "se_hand": [
+        "шкіра",
+        "word"
+      ],
+      "se_nose": [
+        "ніс",
+        "word"
+      ],
+      "se_tongue": [
+        "язик",
+        "word"
+      ],
+      "sea_art": [
+        "Море Мистецтва",
+        "word"
+      ],
+      "sea_lang": [
+        "Море Мови",
+        "phrase"
+      ],
+      "sea_mind": [
+        "Море Уваги",
+        "phrase"
+      ],
+      "sea_num": [
+        "Море Чисел",
+        "phrase"
+      ],
+      "sea_world": [
+        "Море Світу",
+        "phrase"
+      ],
+      "sf_fire": [
+        "Загорівся вогонь удома. Що робити?",
+        "phrase"
+      ],
+      "sf_light": [
+        "Світлофор горить червоним. Що робити?",
+        "phrase"
+      ],
+      "sf_object": [
+        "Ти побачив незнайомий предмет на вулиці. Що робити?",
+        "phrase"
+      ],
+      "sf_stranger": [
+        "Незнайомець кличе сісти в машину. Що робити?",
+        "phrase"
+      ],
+      "sg_alarm": [
+        "Повітряна тривога",
+        "word"
+      ],
+      "sg_cross": [
+        "Пішохідний перехід",
+        "word"
+      ],
+      "sg_elec": [
+        "Небезпечно: електрика",
+        "word"
+      ],
+      "sg_exit": [
+        "Вихід",
+        "word"
+      ],
+      "sg_first": [
+        "Перша допомога",
+        "word"
+      ],
+      "sg_mine": [
+        "Обережно: міни",
+        "word"
+      ],
+      "sg_nowater": [
+        "Воду не пити",
+        "phrase"
+      ],
+      "sg_stop": [
+        "Прохід заборонено",
+        "word"
+      ],
+      "sh_circle": [
+        "круг",
+        "word"
+      ],
+      "sh_oval": [
+        "овал",
+        "word"
+      ],
+      "sh_rect": [
+        "прямокутник",
+        "word"
+      ],
+      "sh_square": [
+        "квадрат",
+        "word"
+      ],
+      "sh_triangle": [
+        "трикутник",
+        "word"
+      ],
+      "sn_ear": [
+        "вуха",
+        "word"
+      ],
+      "sn_eye": [
+        "очі",
+        "word"
+      ],
+      "sn_hand": [
+        "шкіра",
+        "word"
+      ],
+      "sn_nose": [
+        "ніс",
+        "word"
+      ],
+      "sn_tongue": [
+        "язик",
+        "word"
+      ],
+      "sq_alarm": [
+        "Почув сирену повітряної тривоги. Куди йти?",
+        "phrase"
+      ],
+      "sq_cross": [
+        "Бачиш знак «Пішохідний перехід». Що він означає?",
+        "phrase"
+      ],
+      "sq_mine": [
+        "Побачив знак «Обережно: міни». Що робити?",
+        "phrase"
+      ],
+      "sr_dovikna": [
+        "до вікна",
+        "word"
+      ],
+      "sr_napodviria": [
+        "на подвірʼя",
+        "word"
+      ],
+      "sr_nezakhodyt": [
+        "не заходити туди",
+        "phrase"
+      ],
+      "sr_obijtypokr": [
+        "обійти по краю",
+        "phrase"
+      ],
+      "sr_podyvytysi": [
+        "подивитися зблизька",
+        "word"
+      ],
+      "sr_tutmozhnah": [
+        "тут можна гратися",
+        "phrase"
+      ],
+      "sr_tutmozhnap": [
+        "тут можна переходити дорогу",
+        "phrase"
+      ],
+      "sr_tutzupynka": [
+        "тут зупинка",
+        "word"
+      ],
+      "sr_vukryttia": [
+        "в укриття",
+        "word"
+      ],
+      "st_1": [
+        "одну зірку",
+        "word"
+      ],
+      "st_2": [
+        "дві зірки",
+        "word"
+      ],
+      "st_3": [
+        "три зірки",
+        "word"
+      ],
+      "st_doroha": [
+        "дорога",
+        "word"
+      ],
+      "st_korova": [
+        "корова",
+        "word"
+      ],
+      "st_kvitka": [
+        "квітка",
+        "word"
+      ],
+      "st_mama": [
+        "мама",
+        "word"
+      ],
+      "st_moloko": [
+        "молоко",
+        "word"
+      ],
+      "st_olivets": [
+        "олівець",
+        "word"
+      ],
+      "st_raketa": [
+        "ракета",
+        "word"
+      ],
+      "st_ryba": [
+        "риба",
+        "word"
+      ],
+      "st_sumka": [
+        "сумка",
+        "word"
+      ],
+      "st_voda": [
+        "вода",
+        "word"
+      ],
+      "sx_ear_0": [
+        "пісня",
+        "word"
+      ],
+      "sx_ear_1": [
+        "грім",
+        "word"
+      ],
+      "sx_ear_2": [
+        "дзвінок",
+        "word"
+      ],
+      "sx_ear_3": [
+        "шепіт",
+        "word"
+      ],
+      "sx_eye_0": [
+        "веселка",
+        "word"
+      ],
+      "sx_eye_1": [
+        "зірки",
+        "word"
+      ],
+      "sx_eye_2": [
+        "малюнок",
+        "word"
+      ],
+      "sx_eye_3": [
+        "колір",
+        "word"
+      ],
+      "sx_hand_0": [
+        "тепло",
+        "word"
+      ],
+      "sx_hand_1": [
+        "холод",
+        "word"
+      ],
+      "sx_hand_2": [
+        "колючка",
+        "word"
+      ],
+      "sx_hand_3": [
+        "м’яке",
+        "word"
+      ],
+      "sx_nose_0": [
+        "квітка",
+        "word"
+      ],
+      "sx_nose_1": [
+        "хліб",
+        "word"
+      ],
+      "sx_nose_2": [
+        "дим",
+        "word"
+      ],
+      "sx_nose_3": [
+        "парфуми",
+        "word"
+      ],
+      "sx_tongue_0": [
+        "цукерка",
+        "word"
+      ],
+      "sx_tongue_1": [
+        "лимон",
+        "word"
+      ],
+      "sx_tongue_2": [
+        "сіль",
+        "word"
+      ],
+      "sx_tongue_3": [
+        "мед",
+        "word"
+      ],
+      "sy_ba": [
+        "ба",
+        "word"
+      ],
+      "sy_bo": [
+        "бо",
+        "word"
+      ],
+      "sy_bu": [
+        "бу",
+        "word"
+      ],
+      "sy_da": [
+        "да",
+        "word"
+      ],
+      "sy_do": [
+        "до",
+        "word"
+      ],
+      "sy_du": [
+        "ду",
+        "word"
+      ],
+      "sy_ha": [
+        "га",
+        "word"
+      ],
+      "sy_ho": [
+        "го",
+        "word"
+      ],
+      "sy_hu": [
+        "гу",
+        "word"
+      ],
+      "sy_ka": [
+        "ка",
+        "word"
+      ],
+      "sy_ko": [
+        "ко",
+        "word"
+      ],
+      "sy_ku": [
+        "ку",
+        "word"
+      ],
+      "sy_la": [
+        "ла",
+        "word"
+      ],
+      "sy_lo": [
+        "ло",
+        "word"
+      ],
+      "sy_lu": [
+        "лу",
+        "word"
+      ],
+      "sy_ma": [
+        "ма",
+        "word"
+      ],
+      "sy_mo": [
+        "мо",
+        "word"
+      ],
+      "sy_mu": [
+        "му",
+        "word"
+      ],
+      "sy_na": [
+        "на",
+        "word"
+      ],
+      "sy_no": [
+        "но",
+        "word"
+      ],
+      "sy_nu": [
+        "ну",
+        "word"
+      ],
+      "sy_pa": [
+        "па",
+        "word"
+      ],
+      "sy_po": [
+        "по",
+        "word"
+      ],
+      "sy_pu": [
+        "пу",
+        "word"
+      ],
+      "sy_ra": [
+        "ра",
+        "word"
+      ],
+      "sy_ro": [
+        "ро",
+        "word"
+      ],
+      "sy_ru": [
+        "ру",
+        "word"
+      ],
+      "sy_sa": [
+        "са",
+        "word"
+      ],
+      "sy_so": [
+        "со",
+        "word"
+      ],
+      "sy_su": [
+        "су",
+        "word"
+      ],
+      "sy_ta": [
+        "та",
+        "word"
+      ],
+      "sy_to": [
+        "то",
+        "word"
+      ],
+      "sy_tu": [
+        "ту",
+        "word"
+      ],
+      "sy_va": [
+        "ва",
+        "word"
+      ],
+      "sy_vo": [
+        "во",
+        "word"
+      ],
+      "sy_vu": [
+        "ву",
+        "word"
+      ],
+      "sy_za": [
+        "за",
+        "word"
+      ],
+      "sy_zo": [
+        "зо",
+        "word"
+      ],
+      "sy_zu": [
+        "зу",
+        "word"
+      ],
+      "t_a": [
+        "Обведи пальцем букву а",
+        "phrase"
+      ],
+      "t_be": [
+        "Обведи пальцем букву бе",
+        "phrase"
+      ],
+      "t_che": [
+        "Обведи пальцем букву че",
+        "phrase"
+      ],
+      "t_d0": [
+        "Обведи пальцем цифру нуль",
+        "phrase"
+      ],
+      "t_d1": [
+        "Обведи пальцем цифру один",
+        "phrase"
+      ],
+      "t_d2": [
+        "Обведи пальцем цифру два",
+        "phrase"
+      ],
+      "t_d3": [
+        "Обведи пальцем цифру три",
+        "phrase"
+      ],
+      "t_d4": [
+        "Обведи пальцем цифру чотири",
+        "phrase"
+      ],
+      "t_d5": [
+        "Обведи пальцем цифру п'ять",
+        "phrase"
+      ],
+      "t_d6": [
+        "Обведи пальцем цифру шість",
+        "phrase"
+      ],
+      "t_d7": [
+        "Обведи пальцем цифру сім",
+        "phrase"
+      ],
+      "t_d8": [
+        "Обведи пальцем цифру вісім",
+        "phrase"
+      ],
+      "t_d9": [
+        "Обведи пальцем цифру дев’ять",
+        "phrase"
+      ],
+      "t_de": [
+        "Обведи пальцем букву де",
+        "phrase"
+      ],
+      "t_e": [
+        "Обведи пальцем букву е",
+        "phrase"
+      ],
+      "t_ef": [
+        "Обведи пальцем букву еф",
+        "phrase"
+      ],
+      "t_el": [
+        "Обведи пальцем букву ел",
+        "phrase"
+      ],
+      "t_en": [
+        "Обведи пальцем букву ен",
+        "phrase"
+      ],
+      "t_er": [
+        "Обведи пальцем букву ер",
+        "phrase"
+      ],
+      "t_es": [
+        "Обведи пальцем букву ес",
+        "phrase"
+      ],
+      "t_ge": [
+        "Обведи пальцем букву ґе",
+        "phrase"
+      ],
+      "t_ha": [
+        "Обведи пальцем букву ха",
+        "phrase"
+      ],
+      "t_he": [
+        "Обведи пальцем букву ге",
+        "phrase"
+      ],
+      "t_i": [
+        "Обведи пальцем букву і",
+        "phrase"
+      ],
+      "t_j": [
+        "Обведи пальцем букву йот",
+        "phrase"
+      ],
+      "t_ka": [
+        "Обведи пальцем букву ка",
+        "phrase"
+      ],
+      "t_m": [
+        "Обведи пальцем букву ем",
+        "phrase"
+      ],
+      "t_o": [
+        "Обведи пальцем букву о",
+        "phrase"
+      ],
+      "t_pe": [
+        "Обведи пальцем букву пе",
+        "phrase"
+      ],
+      "t_sha": [
+        "Обведи пальцем букву ша",
+        "phrase"
+      ],
+      "t_shcha": [
+        "Обведи пальцем букву ща",
+        "phrase"
+      ],
+      "t_soft": [
+        "Обведи пальцем букву знак м’якшення",
+        "phrase"
+      ],
+      "t_te": [
+        "Обведи пальцем букву те",
+        "phrase"
+      ],
+      "t_tse": [
+        "Обведи пальцем букву це",
+        "phrase"
+      ],
+      "t_u": [
+        "Обведи пальцем букву у",
+        "phrase"
+      ],
+      "t_v_a": [
+        "Обведи пальцем велику букву а",
+        "phrase"
+      ],
+      "t_v_be": [
+        "Обведи пальцем велику букву бе",
+        "phrase"
+      ],
+      "t_v_che": [
+        "Обведи пальцем велику букву че",
+        "phrase"
+      ],
+      "t_v_de": [
+        "Обведи пальцем велику букву де",
+        "phrase"
+      ],
+      "t_v_e": [
+        "Обведи пальцем велику букву е",
+        "phrase"
+      ],
+      "t_v_ef": [
+        "Обведи пальцем велику букву еф",
+        "phrase"
+      ],
+      "t_v_el": [
+        "Обведи пальцем велику букву ел",
+        "phrase"
+      ],
+      "t_v_en": [
+        "Обведи пальцем велику букву ен",
+        "phrase"
+      ],
+      "t_v_er": [
+        "Обведи пальцем велику букву ер",
+        "phrase"
+      ],
+      "t_v_es": [
+        "Обведи пальцем велику букву ес",
+        "phrase"
+      ],
+      "t_v_ge": [
+        "Обведи пальцем велику букву ґе",
+        "phrase"
+      ],
+      "t_v_ha": [
+        "Обведи пальцем велику букву ха",
+        "phrase"
+      ],
+      "t_v_he": [
+        "Обведи пальцем велику букву ге",
+        "phrase"
+      ],
+      "t_v_i": [
+        "Обведи пальцем велику букву і",
+        "phrase"
+      ],
+      "t_v_j": [
+        "Обведи пальцем велику букву йот",
+        "phrase"
+      ],
+      "t_v_ka": [
+        "Обведи пальцем велику букву ка",
+        "phrase"
+      ],
+      "t_v_m": [
+        "Обведи пальцем велику букву ем",
+        "phrase"
+      ],
+      "t_v_o": [
+        "Обведи пальцем велику букву о",
+        "phrase"
+      ],
+      "t_v_pe": [
+        "Обведи пальцем велику букву пе",
+        "phrase"
+      ],
+      "t_v_sha": [
+        "Обведи пальцем велику букву ша",
+        "phrase"
+      ],
+      "t_v_shcha": [
+        "Обведи пальцем велику букву ща",
+        "phrase"
+      ],
+      "t_v_soft": [
+        "Обведи пальцем велику букву знак м’якшення",
+        "phrase"
+      ],
+      "t_v_te": [
+        "Обведи пальцем велику букву те",
+        "phrase"
+      ],
+      "t_v_tse": [
+        "Обведи пальцем велику букву це",
+        "phrase"
+      ],
+      "t_v_u": [
+        "Обведи пальцем велику букву у",
+        "phrase"
+      ],
+      "t_v_ve": [
+        "Обведи пальцем велику букву ве",
+        "phrase"
+      ],
+      "t_v_y": [
+        "Обведи пальцем велику букву и",
+        "phrase"
+      ],
+      "t_v_ya": [
+        "Обведи пальцем велику букву я",
+        "phrase"
+      ],
+      "t_v_ye": [
+        "Обведи пальцем велику букву є",
+        "phrase"
+      ],
+      "t_v_yi": [
+        "Обведи пальцем велику букву ї",
+        "phrase"
+      ],
+      "t_v_yu": [
+        "Обведи пальцем велику букву ю",
+        "phrase"
+      ],
+      "t_v_ze": [
+        "Обведи пальцем велику букву зе",
+        "phrase"
+      ],
+      "t_v_zhe": [
+        "Обведи пальцем велику букву же",
+        "phrase"
+      ],
+      "t_ve": [
+        "Обведи пальцем букву ве",
+        "phrase"
+      ],
+      "t_y": [
+        "Обведи пальцем букву и",
+        "phrase"
+      ],
+      "t_ya": [
+        "Обведи пальцем букву я",
+        "phrase"
+      ],
+      "t_ye": [
+        "Обведи пальцем букву є",
+        "phrase"
+      ],
+      "t_yi": [
+        "Обведи пальцем букву ї",
+        "phrase"
+      ],
+      "t_yu": [
+        "Обведи пальцем букву ю",
+        "phrase"
+      ],
+      "t_ze": [
+        "Обведи пальцем букву зе",
+        "phrase"
+      ],
+      "t_zhe": [
+        "Обведи пальцем букву же",
+        "phrase"
+      ],
+      "th_cm_0": [
+        "олівець",
+        "word"
+      ],
+      "th_cm_1": [
+        "гумка",
+        "word"
+      ],
+      "th_cm_2": [
+        "зошит",
+        "word"
+      ],
+      "th_kg_0": [
+        "кавун",
+        "word"
+      ],
+      "th_kg_1": [
+        "мішок картоплі",
+        "word"
+      ],
+      "th_kg_2": [
+        "гарбуз",
+        "word"
+      ],
+      "th_l_0": [
+        "молоко",
+        "word"
+      ],
+      "th_l_1": [
+        "відро води",
+        "word"
+      ],
+      "th_l_2": [
+        "сік",
+        "word"
+      ],
+      "th_m_0": [
+        "кімната",
+        "word"
+      ],
+      "th_m_1": [
+        "двері",
+        "word"
+      ],
+      "th_m_2": [
+        "паркан",
+        "word"
+      ],
+      "ti_doshch": [
+        "Дощ",
+        "word"
+      ],
+      "ti_kazka": [
+        "Казка",
+        "word"
+      ],
+      "ti_kitmurchyk": [
+        "Кіт Мурчик",
+        "word"
+      ],
+      "ti_pyrih": [
+        "Пиріг",
+        "word"
+      ],
+      "ti_shkola": [
+        "Школа",
+        "word"
+      ],
+      "ti_vesna": [
+        "Весна",
+        "word"
+      ],
+      "ti_virsh": [
+        "Вірш",
+        "word"
+      ],
+      "ti_zahadka": [
+        "Загадка",
+        "word"
+      ],
+      "ti_zyma": [
+        "Зима",
+        "word"
+      ],
+      "tl_klei": [
+        "клей",
+        "word"
+      ],
+      "tl_lin": [
+        "лінійка",
+        "word"
+      ],
+      "tl_nozh": [
+        "ножиці",
+        "word"
+      ],
+      "tl_oliv": [
+        "олівець",
+        "word"
+      ],
+      "tl_pen": [
+        "пензлик",
+        "word"
+      ],
+      "tr_derevo": [
+        "Дерево ходить у школу",
+        "phrase"
+      ],
+      "tr_dva": [
+        "Два плюс два буде чотири",
+        "phrase"
+      ],
+      "tr_kit": [
+        "Кіт уміє літати",
+        "phrase"
+      ],
+      "tr_korova": [
+        "Корова дає молоко",
+        "phrase"
+      ],
+      "tr_piat": [
+        "П’ять менше за три",
+        "phrase"
+      ],
+      "tr_ryba": [
+        "У риби є хвіст",
+        "phrase"
+      ],
+      "tr_snih": [
+        "Узимку йде сніг",
+        "phrase"
+      ],
+      "tr_sonce": [
+        "Сонце світить уночі",
+        "phrase"
+      ],
+      "tu_klei": [
+        "склеювати",
+        "word"
+      ],
+      "tu_liniika": [
+        "міряти й креслити",
+        "phrase"
+      ],
+      "tu_nozhytsi": [
+        "різати",
+        "word"
+      ],
+      "tu_olivets": [
+        "розмічати",
+        "word"
+      ],
+      "tu_pensel": [
+        "малювати фарбами",
+        "word"
+      ],
+      "tx_kit": [
+        "Кіт Мурчик жив у хаті. Він любив спати на печі. Щоранку Мурчик зустрічав господиню.",
+        "phrase"
+      ],
+      "tx_vesna": [
+        "Прийшла весна. Розтанув сніг. Защебетали пташки.",
+        "phrase"
+      ],
+      "tx_zahadka": [
+        "Не б’є, не лає, а всі його бояться.",
+        "phrase"
+      ],
+      "u_cm": [
+        "сантиметр",
+        "word"
+      ],
+      "u_kg": [
+        "кілограм",
+        "word"
+      ],
+      "u_l": [
+        "літр",
+        "word"
+      ],
+      "u_m": [
+        "метр",
+        "word"
+      ],
+      "utoch": [
+        "А котра саме година?",
+        "phrase"
+      ],
+      "v_bly": [
+        "близько",
+        "word"
+      ],
+      "v_blyzko": [
+        "близько",
+        "word"
+      ],
+      "v_dal": [
+        "далеко",
+        "word"
+      ],
+      "v_daleko": [
+        "далеко",
+        "word"
+      ],
+      "v_den": [
+        "день",
+        "word"
+      ],
+      "v_harnyj": [
+        "гарний",
+        "word"
+      ],
+      "v_khol": [
+        "холодний",
+        "word"
+      ],
+      "v_kholodnyj": [
+        "холодний",
+        "word"
+      ],
+      "v_khutko": [
+        "хутко",
+        "word"
+      ],
+      "v_kliuch": [
+        "ключ",
+        "word"
+      ],
+      "v_kosa": [
+        "коса",
+        "word"
+      ],
+      "v_krasyvyj": [
+        "красивий",
+        "word"
+      ],
+      "v_lyst": [
+        "лист",
+        "word"
+      ],
+      "v_mal": [
+        "малий",
+        "word"
+      ],
+      "v_malyj": [
+        "малий",
+        "word"
+      ],
+      "v_neveselyj": [
+        "невеселий",
+        "word"
+      ],
+      "v_nich": [
+        "ніч",
+        "word"
+      ],
+      "v_nyz": [
+        "низький",
+        "word"
+      ],
+      "v_nyzkyj": [
+        "низький",
+        "word"
+      ],
+      "v_pov": [
+        "повільно",
+        "word"
+      ],
+      "v_povilno": [
+        "повільно",
+        "word"
+      ],
+      "v_ruchka": [
+        "ручка",
+        "word"
+      ],
+      "v_shv": [
+        "швидко",
+        "word"
+      ],
+      "v_shvydko": [
+        "швидко",
+        "word"
+      ],
+      "v_studenyj": [
+        "студений",
+        "word"
+      ],
+      "v_sumnyj": [
+        "сумний",
+        "word"
+      ],
+      "v_tep": [
+        "теплий",
+        "word"
+      ],
+      "v_teplyj": [
+        "теплий",
+        "word"
+      ],
+      "v_vel": [
+        "великий",
+        "word"
+      ],
+      "v_velykyj": [
+        "великий",
+        "word"
+      ],
+      "v_vys": [
+        "високий",
+        "word"
+      ],
+      "v_vysokyj": [
+        "високий",
+        "word"
+      ],
+      "v_zdorovennyj": [
+        "здоровенний",
+        "word"
+      ],
+      "w_avtobus": [
+        "автобус",
+        "word"
+      ],
+      "w_bananu": [
+        "банан",
+        "word"
+      ],
+      "w_bdzhola": [
+        "бджола",
+        "word"
+      ],
+      "w_cherepakha": [
+        "черепаха",
+        "word"
+      ],
+      "w_derevo": [
+        "дерево",
+        "word"
+      ],
+      "w_dim": [
+        "дім",
+        "word"
+      ],
+      "w_eskimo": [
+        "ескімо",
+        "word"
+      ],
+      "w_farba": [
+        "фарба",
+        "word"
+      ],
+      "w_gava": [
+        "ґава",
+        "word"
+      ],
+      "w_hryb": [
+        "гриб",
+        "word"
+      ],
+      "w_indyk": [
+        "індик",
+        "word"
+      ],
+      "w_kachka": [
+        "качка",
+        "word"
+      ],
+      "w_khata": [
+        "хата",
+        "word"
+      ],
+      "w_khmara": [
+        "хмара",
+        "word"
+      ],
+      "w_kit": [
+        "кіт",
+        "word"
+      ],
+      "w_kvitka": [
+        "квітка",
+        "word"
+      ],
+      "w_litak": [
+        "літак",
+        "word"
+      ],
+      "w_lymon": [
+        "лимон",
+        "word"
+      ],
+      "w_lysytsia": [
+        "лисиця",
+        "word"
+      ],
+      "w_misiats": [
+        "місяць",
+        "word"
+      ],
+      "w_more": [
+        "море",
+        "word"
+      ],
+      "w_mysha": [
+        "миша",
+        "word"
+      ],
+      "w_nizh": [
+        "ніж",
+        "word"
+      ],
+      "w_olivets": [
+        "олівець",
+        "word"
+      ],
+      "w_podarunok": [
+        "подарунок",
+        "word"
+      ],
+      "w_ptakh": [
+        "птах",
+        "word"
+      ],
+      "w_puhach": [
+        "пугач",
+        "word"
+      ],
+      "w_raketa": [
+        "ракета",
+        "word"
+      ],
+      "w_ryba": [
+        "риба",
+        "word"
+      ],
+      "w_shapka": [
+        "шапка",
+        "word"
+      ],
+      "w_shchuka": [
+        "щука",
+        "word"
+      ],
+      "w_slon": [
+        "слон",
+        "word"
+      ],
+      "w_sontse": [
+        "сонце",
+        "word"
+      ],
+      "w_sumka": [
+        "сумка",
+        "word"
+      ],
+      "w_tort": [
+        "торт",
+        "word"
+      ],
+      "w_tsybulia": [
+        "цибуля",
+        "word"
+      ],
+      "w_udav": [
+        "удав",
+        "word"
+      ],
+      "w_vedmid": [
+        "ведмідь",
+        "word"
+      ],
+      "w_vikno": [
+        "вікно",
+        "word"
+      ],
+      "w_yabluko": [
+        "яблуко",
+        "word"
+      ],
+      "w_yenot": [
+        "єнот",
+        "word"
+      ],
+      "w_yizhak": [
+        "їжак",
+        "word"
+      ],
+      "w_yohurt": [
+        "йогурт",
+        "word"
+      ],
+      "w_yula": [
+        "юла",
+        "word"
+      ],
+      "w_zaiets": [
+        "заєць",
+        "word"
+      ],
+      "w_zhaba": [
+        "жаба",
+        "word"
+      ],
+      "w_zholud": [
+        "жолудь",
+        "word"
+      ],
+      "wd_doroha": [
+        "дорога",
+        "word"
+      ],
+      "wd_hora": [
+        "гора",
+        "word"
+      ],
+      "wd_huba": [
+        "губа",
+        "word"
+      ],
+      "wd_kolo": [
+        "коло",
+        "word"
+      ],
+      "wd_kosa": [
+        "коса",
+        "word"
+      ],
+      "wd_koza": [
+        "коза",
+        "word"
+      ],
+      "wd_lama": [
+        "лама",
+        "word"
+      ],
+      "wd_lapa": [
+        "лапа",
+        "word"
+      ],
+      "wd_luna": [
+        "луна",
+        "word"
+      ],
+      "wd_mama": [
+        "мама",
+        "word"
+      ],
+      "wd_moloko": [
+        "молоко",
+        "word"
+      ],
+      "wd_muka": [
+        "мука",
+        "word"
+      ],
+      "wd_pora": [
+        "пора",
+        "word"
+      ],
+      "wd_rama": [
+        "рама",
+        "word"
+      ],
+      "wd_ruka": [
+        "рука",
+        "word"
+      ],
+      "wd_tato": [
+        "тато",
+        "word"
+      ],
+      "wd_vata": [
+        "вата",
+        "word"
+      ],
+      "wd_voda": [
+        "вода",
+        "word"
+      ],
+      "ws_chytaie": [
+        "читає",
+        "word"
+      ],
+      "ws_harna": [
+        "гарна",
+        "word"
+      ],
+      "ws_kanikuly": [
+        "канікули",
+        "word"
+      ],
+      "ws_knyzhku": [
+        "книжку",
+        "word"
+      ],
+      "ws_letyt": [
+        "летить",
+        "word"
+      ],
+      "ws_mij": [
+        "мій",
+        "word"
+      ],
+      "ws_murchyk": [
+        "Мурчик",
+        "word"
+      ],
+      "ws_peche": [
+        "пече",
+        "word"
+      ],
+      "ws_pyrih": [
+        "пиріг",
+        "word"
+      ],
+      "ws_spyt": [
+        "спить",
+        "word"
+      ],
+      "ws_tam": [
+        "там",
+        "word"
+      ],
+      "ws_vysoko": [
+        "високо",
+        "word"
+      ],
+      "ws_zoshyt": [
+        "зошит",
+        "word"
+      ],
+      "yesno": [
+        "Ти любиш яблука?",
+        "phrase"
+      ]
+    }
+  },
+  "music": {
+    "file": "theme.mp3",
+    "prompt": "gentle playful children's background music, ukulele, glockenspiel, soft marimba, light percussion, 90 bpm, happy and calm, instrumental, no vocals, seamless loop",
+    "duration": 90,
+    "bpm": 90
   }
- },
- "figures": {
-  "_about": "Урок фігур: кожна фігура в чотирьох кольорах. Малює draw_shapes.py, id — f_<фігура>_<колір>. Усі назви фігур чоловічого роду («круг», не «коло»), тому прикметник кольору в грі склеюється з будь-якою з них без узгодження.",
-  "shapes": [
-   "circle",
-   "square",
-   "triangle",
-   "rect",
-   "oval"
-  ],
-  "colors": {
-   "red": "#e8453c",
-   "blue": "#2f84d8",
-   "yellow": "#f6c338",
-   "green": "#3f9a5c"
-  }
- },
- "voice": {
-  "_about": "kind=word — рівна інтонація, кліп склеюється у фразу; kind=phrase — окреме речення.",
-  "_letters_note": "Підказки уроку письма — цілі фрази (t_*), а не буква окремим кліпом. Перевірено: ізольовану букву StyleTTS2 озвучує шумом — Whisper чув з «М» «дякую за перегляд», з «Л» — «ом». У фразі модель читає чисто, а приголосні названо так, як їх учать у першому класі: ем, ен, ел, ес, ка.",
-  "_speaker_note": "Ім'я голосу живе тут, а не в .cmd: запускачі мають бути чистим ASCII (CLAUDE.md агентів, розділ 1). Зразки всіх 31 голосу — в tools/voice_samples.",
-  "speaker": "Поліна Еккерт",
-  "speed": 0.95,
-  "items": {
-   "n0": [
-    "нуль",
-    "word"
-   ],
-   "n1": [
-    "один",
-    "word"
-   ],
-   "n2": [
-    "два",
-    "word"
-   ],
-   "n3": [
-    "три",
-    "word"
-   ],
-   "n4": [
-    "чотири",
-    "word"
-   ],
-   "n5": [
-    "п'ять",
-    "word"
-   ],
-   "n6": [
-    "шість",
-    "word"
-   ],
-   "n7": [
-    "сім",
-    "word"
-   ],
-   "n8": [
-    "вісім",
-    "word"
-   ],
-   "n9": [
-    "дев'ять",
-    "word"
-   ],
-   "n10": [
-    "десять",
-    "word"
-   ],
-   "p_count": [
-    "Порахуй. Скільки тут предметів?",
-    "phrase"
-   ],
-   "p_plus": [
-    "додати",
-    "word"
-   ],
-   "p_together": [
-    "Скільки буде разом?",
-    "phrase"
-   ],
-   "p_was": [
-    "Було",
-    "word"
-   ],
-   "p_took": [
-    "забрали",
-    "word"
-   ],
-   "p_left": [
-    "Скільки залишилось?",
-    "phrase"
-   ],
-   "p_letter": [
-    "З якої букви починається слово",
-    "word"
-   ],
-   "p_pattern": [
-    "Подивись на візерунок. Що буде далі?",
-    "phrase"
-   ],
-   "p_try": [
-    "Майже! Спробуй ще раз.",
-    "phrase"
-   ],
-   "p_hint": [
-    "Подивись на підказку.",
-    "phrase"
-   ],
-   "p_get": [
-    "Ти отримуєш",
-    "word"
-   ],
-   "ok_1": [
-    "Молодець!",
-    "phrase"
-   ],
-   "ok_2": [
-    "Чудово!",
-    "phrase"
-   ],
-   "ok_3": [
-    "Так тримати!",
-    "phrase"
-   ],
-   "ok_4": [
-    "Правильно!",
-    "phrase"
-   ],
-   "ok_5": [
-    "Супер!",
-    "phrase"
-   ],
-   "f_3": [
-    "Бездоганно!",
-    "phrase"
-   ],
-   "f_2": [
-    "Дуже добре!",
-    "phrase"
-   ],
-   "f_1": [
-    "Урок пройдено!",
-    "phrase"
-   ],
-   "st_1": [
-    "одну зірку",
-    "word"
-   ],
-   "st_2": [
-    "дві зірки",
-    "word"
-   ],
-   "st_3": [
-    "три зірки",
-    "word"
-   ],
-   "w_kit": [
-    "кіт",
-    "word"
-   ],
-   "w_yabluko": [
-    "яблуко",
-    "word"
-   ],
-   "w_ryba": [
-    "риба",
-    "word"
-   ],
-   "w_sontse": [
-    "сонце",
-    "word"
-   ],
-   "w_khata": [
-    "хата",
-    "word"
-   ],
-   "w_bdzhola": [
-    "бджола",
-    "word"
-   ],
-   "w_lysytsia": [
-    "лисиця",
-    "word"
-   ],
-   "w_vedmid": [
-    "ведмідь",
-    "word"
-   ],
-   "w_misiats": [
-    "місяць",
-    "word"
-   ],
-   "w_zhaba": [
-    "жаба",
-    "word"
-   ],
-   "w_kachka": [
-    "качка",
-    "word"
-   ],
-   "w_slon": [
-    "слон",
-    "word"
-   ],
-   "w_derevo": [
-    "дерево",
-    "word"
-   ],
-   "w_puhach": [
-    "пугач",
-    "word"
-   ],
-   "w_lymon": [
-    "лимон",
-    "word"
-   ],
-   "w_mysha": [
-    "миша",
-    "word"
-   ],
-   "w_podarunok": [
-    "подарунок",
-    "word"
-   ],
-   "p_memo": [
-    "Знайди дві однакові картинки.",
-    "phrase"
-   ],
-   "p_pair": [
-    "Є пара!",
-    "phrase"
-   ],
-   "p_addto": [
-    "Скільки треба додати, щоб стало",
-    "word"
-   ],
-   "p_de": [
-    "Де",
-    "word"
-   ],
-   "or_1": [
-    "Яка картинка перша?",
-    "phrase"
-   ],
-   "or_2": [
-    "Яка картинка друга?",
-    "phrase"
-   ],
-   "or_3": [
-    "Яка картинка третя?",
-    "phrase"
-   ],
-   "or_4": [
-    "Яка картинка четверта?",
-    "phrase"
-   ],
-   "or_5": [
-    "Яка картинка п'ята?",
-    "phrase"
-   ],
-   "p_show": [
-    "Покажи",
-    "word"
-   ],
-   "p_shadow": [
-    "Чия це тінь?",
-    "phrase"
-   ],
-   "p_more": [
-    "Де більше?",
-    "phrase"
-   ],
-   "c_red": [
-    "червоний",
-    "word"
-   ],
-   "c_blue": [
-    "синій",
-    "word"
-   ],
-   "c_yellow": [
-    "жовтий",
-    "word"
-   ],
-   "c_green": [
-    "зелений",
-    "word"
-   ],
-   "sh_circle": [
-    "круг",
-    "word"
-   ],
-   "sh_square": [
-    "квадрат",
-    "word"
-   ],
-   "sh_triangle": [
-    "трикутник",
-    "word"
-   ],
-   "sh_rect": [
-    "прямокутник",
-    "word"
-   ],
-   "sh_oval": [
-    "овал",
-    "word"
-   ],
-   "p_word": [
-    "Яке слово ти чуєш?",
-    "phrase"
-   ],
-   "wd_mama": [
-    "мама",
-    "word"
-   ],
-   "wd_lama": [
-    "лама",
-    "word"
-   ],
-   "wd_muka": [
-    "мука",
-    "word"
-   ],
-   "wd_kolo": [
-    "коло",
-    "word"
-   ],
-   "wd_moloko": [
-    "молоко",
-    "word"
-   ],
-   "wd_luna": [
-    "луна",
-    "word"
-   ],
-   "wd_kosa": [
-    "коса",
-    "word"
-   ],
-   "wd_lapa": [
-    "лапа",
-    "word"
-   ],
-   "p_time": [
-    "Котра година?",
-    "phrase"
-   ],
-   "p_daypart": [
-    "Коли це буває?",
-    "phrase"
-   ],
-   "p_money": [
-    "Порахуй гроші. Скільки тут гривень?",
-    "phrase"
-   ],
-   "p_syll": [
-    "Покажи склад, який почуєш.",
-    "phrase"
-   ],
-   "sy_ma": [
-    "ма",
-    "word"
-   ],
-   "sy_mo": [
-    "мо",
-    "word"
-   ],
-   "sy_mu": [
-    "му",
-    "word"
-   ],
-   "sy_la": [
-    "ла",
-    "word"
-   ],
-   "sy_lo": [
-    "ло",
-    "word"
-   ],
-   "sy_lu": [
-    "лу",
-    "word"
-   ],
-   "sy_sa": [
-    "са",
-    "word"
-   ],
-   "sy_so": [
-    "со",
-    "word"
-   ],
-   "sy_su": [
-    "су",
-    "word"
-   ],
-   "sy_ka": [
-    "ка",
-    "word"
-   ],
-   "sy_ko": [
-    "ко",
-    "word"
-   ],
-   "sy_ku": [
-    "ку",
-    "word"
-   ],
-   "sy_na": [
-    "на",
-    "word"
-   ],
-   "sy_no": [
-    "но",
-    "word"
-   ],
-   "sy_nu": [
-    "ну",
-    "word"
-   ],
-   "p_where": [
-    "Де це живе?",
-    "phrase"
-   ],
-   "p_listen": [
-    "Послухай і вибери картинку.",
-    "phrase"
-   ],
-   "p_odd": [
-    "Що тут зайве?",
-    "phrase"
-   ],
-   "p_alive": [
-    "Це жива природа чи нежива?",
-    "phrase"
-   ],
-   "p_trace_ok": [
-    "Гарно написано!",
-    "phrase"
-   ],
-   "p_trace_try": [
-    "Спробуй обвести ще раз.",
-    "phrase"
-   ],
-   "t_a": [
-    "Обведи пальцем букву а",
-    "phrase"
-   ],
-   "t_o": [
-    "Обведи пальцем букву о",
-    "phrase"
-   ],
-   "t_u": [
-    "Обведи пальцем букву у",
-    "phrase"
-   ],
-   "t_y": [
-    "Обведи пальцем букву и",
-    "phrase"
-   ],
-   "t_m": [
-    "Обведи пальцем букву ем",
-    "phrase"
-   ],
-   "t_en": [
-    "Обведи пальцем букву ен",
-    "phrase"
-   ],
-   "t_el": [
-    "Обведи пальцем букву ел",
-    "phrase"
-   ],
-   "t_es": [
-    "Обведи пальцем букву ес",
-    "phrase"
-   ],
-   "t_ka": [
-    "Обведи пальцем букву ка",
-    "phrase"
-   ],
-   "t_v_a": [
-    "Обведи пальцем велику букву а",
-    "phrase"
-   ],
-   "t_v_o": [
-    "Обведи пальцем велику букву о",
-    "phrase"
-   ],
-   "t_v_u": [
-    "Обведи пальцем велику букву у",
-    "phrase"
-   ],
-   "t_v_y": [
-    "Обведи пальцем велику букву и",
-    "phrase"
-   ],
-   "t_v_m": [
-    "Обведи пальцем велику букву ем",
-    "phrase"
-   ],
-   "t_v_en": [
-    "Обведи пальцем велику букву ен",
-    "phrase"
-   ],
-   "t_v_el": [
-    "Обведи пальцем велику букву ел",
-    "phrase"
-   ],
-   "t_v_es": [
-    "Обведи пальцем велику букву ес",
-    "phrase"
-   ],
-   "t_v_ka": [
-    "Обведи пальцем велику букву ка",
-    "phrase"
-   ],
-   "t_d1": [
-    "Обведи пальцем цифру один",
-    "phrase"
-   ],
-   "t_d2": [
-    "Обведи пальцем цифру два",
-    "phrase"
-   ],
-   "t_d3": [
-    "Обведи пальцем цифру три",
-    "phrase"
-   ],
-   "t_d4": [
-    "Обведи пальцем цифру чотири",
-    "phrase"
-   ],
-   "t_d5": [
-    "Обведи пальцем цифру п'ять",
-    "phrase"
-   ],
-   "nm_math": [
-    "Острів Лічби",
-    "phrase"
-   ],
-   "nm_read": [
-    "Острів Букв",
-    "phrase"
-   ],
-   "nm_logic": [
-    "Острів Візерунків",
-    "phrase"
-   ],
-   "nm_memo": [
-    "Острів Пам'яті",
-    "phrase"
-   ],
-   "nm_write": [
-    "Острів Письма",
-    "phrase"
-   ],
-   "nm_world": [
-    "Острів Природи",
-    "phrase"
-   ],
-   "nm_en": [
-    "Острів Англійської",
-    "phrase"
-   ],
-   "nm_time": [
-    "Острів Часу",
-    "phrase"
-   ],
-   "nm_money": [
-    "Острів Гривні",
-    "phrase"
-   ],
-   "nm_syll": [
-    "Острів Читання",
-    "phrase"
-   ],
-   "nm_sound": [
-    "Острів Звуків",
-    "phrase"
-   ],
-   "nm_fig": [
-    "Острів Фігур",
-    "phrase"
-   ],
-   "nm_shadow": [
-    "Острів Тіней",
-    "phrase"
-   ],
-   "nm_compare": [
-    "Острів Порівнянь",
-    "phrase"
-   ],
-   "nm_num": [
-    "Острів Чисел",
-    "phrase"
-   ],
-   "nm_order": [
-    "Острів Порядку",
-    "phrase"
-   ],
-   "nm_place": [
-    "Острів Напрямків",
-    "phrase"
-   ],
-   "nm_weather": [
-    "Острів Погоди",
-    "phrase"
-   ],
-   "sea_num": [
-    "Море Чисел",
-    "phrase"
-   ],
-   "sea_lang": [
-    "Море Мови",
-    "phrase"
-   ],
-   "sea_world": [
-    "Море Світу",
-    "phrase"
-   ],
-   "sea_mind": [
-    "Море Уваги",
-    "phrase"
-   ],
-   "lv_1": [
-    "Легко",
-    "word"
-   ],
-   "lv_2": [
-    "Середньо",
-    "word"
-   ],
-   "lv_3": [
-    "Складно",
-    "word"
-   ],
-   "g_hi": [
-    "Привіт! Я краб Клац. Обери острів, і попливли.",
-    "phrase"
-   ],
-   "g_lvl": [
-    "Вибери рівень. Починай із легкого.",
-    "phrase"
-   ],
-   "g_go": [
-    "Слухай уважно. Я поруч.",
-    "phrase"
-   ],
-   "g_good": [
-    "Ось так! Ти молодець.",
-    "phrase"
-   ],
-   "g_oops": [
-    "Ой! Не страшно, спробуй ще.",
-    "phrase"
-   ],
-   "g_fin3": [
-    "Три зірки! Тримай наліпку в альбом.",
-    "phrase"
-   ],
-   "g_fin": [
-    "Урок пройдено. Ходімо далі.",
-    "phrase"
-   ],
-   "g_daily": [
-    "Щоденна мандрівка: п'ять завдань з різних островів.",
-    "phrase"
-   ],
-   "g_album": [
-    "Ось твій альбом. Збери всі наліпки!",
-    "phrase"
-   ],
-   "p_parts": [
-    "Скільки частин у слові?",
-    "phrase"
-   ],
-   "p_parts_more": [
-    "У якому слові більше частин?",
-    "phrase"
-   ],
-   "p_weather": [
-    "Яка це погода?",
-    "phrase"
-   ],
-   "p_wear": [
-    "Що вдягнути, коли",
-    "phrase"
-   ],
-   "p_season": [
-    "Яка це пора року?",
-    "phrase"
-   ],
-   "p_gift": [
-    "Ти отримуєш наліпку!",
-    "phrase"
-   ],
-   "p_daily": [
-    "Щоденна мандрівка.",
-    "phrase"
-   ],
-   "a_water": [
-    "у воді",
-    "word"
-   ],
-   "a_forest": [
-    "у лісі",
-    "word"
-   ],
-   "a_house": [
-    "у хаті",
-    "word"
-   ],
-   "a_alive": [
-    "жива",
-    "word"
-   ],
-   "a_thing": [
-    "нежива",
-    "word"
-   ],
-   "a_above": [
-    "вгорі",
-    "word"
-   ],
-   "a_under": [
-    "внизу",
-    "word"
-   ],
-   "a_near": [
-    "поруч",
-    "word"
-   ],
-   "a_left": [
-    "зліва",
-    "word"
-   ],
-   "a_right": [
-    "справа",
-    "word"
-   ],
-   "a_more_l": [
-    "зліва більше",
-    "word"
-   ],
-   "a_more_r": [
-    "справа більше",
-    "word"
-   ],
-   "a_same": [
-    "порівну",
-    "word"
-   ],
-   "a_morning": [
-    "ранок",
-    "word"
-   ],
-   "a_day": [
-    "день",
-    "word"
-   ],
-   "a_evening": [
-    "вечір",
-    "word"
-   ],
-   "a_night": [
-    "ніч",
-    "word"
-   ],
-   "a_sunny": [
-    "сонячно",
-    "word"
-   ],
-   "a_rain": [
-    "дощ",
-    "word"
-   ],
-   "a_snow": [
-    "сніг",
-    "word"
-   ],
-   "a_cloudy": [
-    "хмарно",
-    "word"
-   ],
-   "a_spring": [
-    "весна",
-    "word"
-   ],
-   "a_summer": [
-    "літо",
-    "word"
-   ],
-   "a_autumn": [
-    "осінь",
-    "word"
-   ],
-   "a_winter": [
-    "зима",
-    "word"
-   ],
-   "n11": [
-    "одинадцять",
-    "word"
-   ],
-   "n12": [
-    "дванадцять",
-    "word"
-   ],
-   "g_hint": [
-    "Дивись, ось правильна відповідь.",
-    "phrase"
-   ],
-   "g_flag": [
-    "Ставлю прапорець! Цей острів ти вже пройшов.",
-    "phrase"
-   ],
-   "g_sleep": [
-    "Я трохи подрімаю. Торкнись мене, коли будеш готовий.",
-    "phrase"
-   ]
-  }
- },
- "music": {
-  "file": "theme.mp3",
-  "prompt": "gentle playful children's background music, ukulele, glockenspiel, soft marimba, light percussion, 90 bpm, happy and calm, instrumental, no vocals, seamless loop",
-  "duration": 90,
-  "bpm": 90
- }
 }

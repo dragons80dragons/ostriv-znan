@@ -56,18 +56,33 @@ def main():
     ap.add_argument('--model', default='birefnet-general')
     ap.add_argument('--ids', default='')
     ap.add_argument('--skip-existing', action='store_true')
+    ap.add_argument('--cpu', action='store_true',
+                    help='рахувати на процесорі, щоб не відбирати відеокарту '
+                         'в генератора картинок чи музики')
     args = ap.parse_args()
 
     with open(os.path.join(ROOT, 'manifest.json'), encoding='utf-8') as f:
         man = json.load(f)
     drawn = set(man.get('shapes', {}).get('items', {}))
     reuse = man['image'].get('reuse', {})
+    # Тло вирізати НЕ можна: там фон і є картинкою, після rembg лишилася б
+    # прозора пляма. Це стосується шпалер (bg_*) і сцен для «знайди на
+    # картині» (sc_*) — вони йдуть в assets/img як є.
     ids = [i.strip() for i in args.ids.split(',') if i.strip()] or \
-          [k for k in man['image']['items'] if k not in drawn and k not in reuse]
+          [k for k in man['image']['items']
+           if k not in drawn and k not in reuse and not k.startswith(('bg_', 'sc_'))]
 
     os.makedirs(OUT, exist_ok=True)
-    session = new_session(args.model)
-    print('[bg] модель %s' % args.model, flush=True)
+    # Відеокарта тут одна, і поки на ній малює SDXL чи ACE-Step, rembg на
+    # неї не влізе. Зате вирізання фону — єдиний крок ланцюга, який цілком
+    # прийнятно рахувати на процесорі: втрачаємо секунди, а не години,
+    # і робота йде СПРАВДІ паралельно з генерацією.
+    if args.cpu:
+        session = new_session(args.model, providers=['CPUExecutionProvider'])
+        print('[bg] модель %s на ПРОЦЕСОРІ' % args.model, flush=True)
+    else:
+        session = new_session(args.model)
+        print('[bg] модель %s' % args.model, flush=True)
 
     done = miss = 0
     t0 = time.time()
@@ -80,11 +95,40 @@ def main():
             continue
         if args.skip_existing and os.path.exists(dst):
             continue
+        # Вирізання може йти ПАРАЛЕЛЬНО з малюванням (--cpu), і тоді легко
+        # натрапити на картинку, яку ComfyUI саме дописує: PIL падає з
+        # UnidentifiedImageError і вбиває весь прохід. Тому свіжі файли
+        # пропускаємо, а зіпсоване читання не вважаємо смертельним —
+        # наступний прохід їх підбере.
+        if time.time() - os.path.getmtime(src) < 10:
+            print('[bg] %-14s ще дописується — пропускаю' % cid, flush=True)
+            miss += 1
+            continue
         t1 = time.time()
-        cut = remove(Image.open(src).convert('RGBA'), session=session)
+        try:
+            im = Image.open(src)
+            im.load()
+            cut = remove(im.convert('RGBA'), session=session)
+        except Exception as e:                                        # noqa: BLE001
+            print('[bg] %-14s не прочиталась (%s) — пропускаю'
+                  % (cid, type(e).__name__), flush=True)
+            miss += 1
+            continue
         fit_square(cut).save(dst)
         done += 1
         print('[bg] %-14s %.2f с -> %s' % (cid, time.time() - t1, dst), flush=True)
+    # Сцени для «знайди на картині» переносимо як є: фон у них і є
+    # картинкою, різати нічого. Квадрат їм теж не потрібен — гра показує
+    # сцену широким полем.
+    for cid in man['image']['items']:
+        if not cid.startswith('sc_'):
+            continue
+        src = os.path.join(RAW, cid + '.png')
+        dst = os.path.join(OUT, cid + '.png')
+        if not os.path.exists(src) or (args.skip_existing and os.path.exists(dst)):
+            continue
+        Image.open(src).convert('RGB').save(dst)
+        print('[bg] %-14s перенесено як тло -> %s' % (cid, dst), flush=True)
     # Картинки, які свідомо повторюють інші (див. manifest.json, reuse).
     for cid, src_id in reuse.items():
         src = os.path.join(OUT, src_id + '.png')

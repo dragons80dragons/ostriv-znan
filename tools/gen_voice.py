@@ -86,6 +86,10 @@ def main():
     ap.add_argument('--name', default='sample')
     ap.add_argument('--kind', default='phrase', choices=['word', 'phrase'])
     ap.add_argument('--skip-existing', action='store_true')
+    ap.add_argument('--cpu', action='store_true',
+                    help='рахувати на процесорі: відеокарта тут одна, і поки '
+                         'на ній малює SDXL чи грає ACE-Step, модель голосу '
+                         'на неї не влізе')
     args = ap.parse_args()
 
     man = load_manifest(args.manifest)
@@ -100,7 +104,7 @@ def main():
     from ukrainian_word_stress import Stressifier, StressSymbol
     stressify = Stressifier()
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu' if args.cpu or not torch.cuda.is_available() else 'cuda'
     print(f'[voice] device={device} torch={torch.__version__}', flush=True)
     t0 = time.time()
     model = StyleTTS2(hf_path='patriotyk/styletts2_ukrainian_multispeaker', device=device)

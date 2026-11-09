@@ -24,7 +24,24 @@ except Exception:                                                 # noqa: BLE001
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PROJ = os.path.dirname(ROOT)
-HTML = os.path.join(PROJ, 'index.html')
+# Яку збірку перевіряти. Типово — ТУ, ЩО В ГРІ: `index-1klas.html`, зібрана
+# з вставок. Раніше тут стояло демонстраційне `index.html`, і від цього
+# перевірка була не просто неточна, а шкідлива: демо просить утричі менше,
+# тож звіт писав «ВСЕ НА МІСЦІ» незалежно від справжнього стану, а сотні
+# справді потрібних записів оголошував зайвими. Першим аргументом можна
+# дати будь-яку іншу збірку.
+BUILT = 'index-1klas.html'
+ARGS = [a for a in sys.argv[1:] if not a.startswith('--')]
+HTML = os.path.join(PROJ, ARGS[0] if ARGS
+                    else (BUILT if os.path.exists(os.path.join(PROJ, BUILT))
+                          else 'index.html'))
+# Другий напрямок звірки («у маніфесті є, а пошук у коді не знайшов») тепер
+# друкується лише на вимогу. Причина цих розбіжностей не в маніфесті, а в
+# самому пошуку за лапками: гра будує більшість id у коді — `img/sc_${t.scn}
+# .png`, 'bn_' + uaId(x), — і побачити їх можна лише обходом гри в браузері
+# (tools/audit_voice.py). Друкувати чотириста таких імен як ваду означало
+# втопити в них єдиний рядок, що справді важить: «немає в маніфесті».
+SHOW_EXTRA = '--zayve' in sys.argv
 IMG = os.path.join(PROJ, 'assets', 'img')
 VOICE = os.path.join(PROJ, 'assets', 'voice')
 MUSIC = os.path.join(PROJ, 'assets', 'music')
@@ -71,7 +88,14 @@ def ids_from_html(src):
     if "'n'+k" in src:
         # NUM тепер до дванадцяти: на годиннику є одинадцята й дванадцята.
         voice |= {'n%d' % k for k in range(13)}
-    return imgs, voice
+    # Частину id гра склеює з рядка: 'bn_' + uaId(x), 'n' + k, 't_v_' +
+    # LET_ID[c], 'nt_' + uaId(k). Пошук за лапками бере з такого виразу
+    # голий початок — «bn_», «n», «t_v_», «nt_» — і перевірка далі вимагала
+    # файлів bn_.wav та n.wav, яких не буває. Отже все, за чим у коді стоїть
+    # плюс, це заготовка, а не id. Справжні id з таких виразів видно тільки
+    # обходом гри; тут вони приходять з маніфесту.
+    glue = set(re.findall(r"'([a-z][a-z0-9_]*)'\s*\+", src))
+    return imgs - glue, voice - glue
 
 
 def krab_parts():
@@ -139,6 +163,14 @@ def main():
         if 'f_${' in src:
             html_img |= matrix
     man_voice = set(man['voice']['items'])
+    # Префікс s_ двозначний: у картинках це кольори й фігури (s_red,
+    # s_square), у голосі — речення (s_kit, s_story). Пошук за лапками
+    # однаково бере й ті, й ті, через що s_story числилося за браком
+    # КАРТИНКИ, хоч це голос. Розводить їх маніфест — але відняти весь
+    # голос не можна: 47 слів-картинок (w_kit, w_khmara) мають і .png, і
+    # .wav під тим самим ім'ям, і таке віднімання вивело б їх з-під
+    # перевірки. Прибираємо лише те, що описано ГОЛОСОМ І НЕ картинкою.
+    html_img -= man_voice - man_img
     # Id складів гра збирає функцією syId() — у коді їх не видно, тому
     # беремо список із маніфесту.
     for fn, pref in (('syId', 'sy_'), ('wdId', 'wd_')):
@@ -151,16 +183,22 @@ def main():
     html_img -= bgs
     man_img -= bgs
 
-    print('index.html просить: %d картинок, %d голосових кліпів'
-          % (len(html_img), len(html_voice)))
+    print('%s просить: %d картинок, %d голосових кліпів'
+          % (os.path.basename(HTML), len(html_img), len(html_voice)))
+    norec = []
     for name, a, b in (('картинок', html_img, man_img),
                        ('голосу', html_voice, man_voice)):
         only_html = sorted(a - b)
         only_man = sorted(b - a)
+        norec += only_html
         if only_html:
             print('  УВАГА, %s немає в маніфесті: %s' % (name, ', '.join(only_html)))
-        if only_man:
+        if only_man and SHOW_EXTRA:
             print('  у маніфесті зайве (%s): %s' % (name, ', '.join(only_man)))
+        elif only_man:
+            print('  у маніфесті є, а пошук у коді не знайшов (%s): %d — '
+                  'майже все це id, які гра будує в коді; список: --zayve'
+                  % (name, len(only_man)))
 
     bad = []
     bad += report('Картинки assets/img', html_img | man_img, IMG, '.png')
@@ -182,7 +220,7 @@ def main():
         bad.append('theme')
 
     # Мелодія кожного острова. Без неї гра не падає — просто грає тишу,
-    # тому це попередження, а не брак: 18 треків генеруються пів години.
+    # тому це попередження, а не брак: 52 треки генеруються дві години.
     tunes = lesson_ids(src)
     lack = sorted(t for t in tunes
                   if not os.path.exists(os.path.join(MUSIC, t + '.mp3')))
@@ -197,7 +235,21 @@ def main():
     if short:
         print('\nПідозріло короткі кліпи (<0,2 с): %s' % ', '.join(short))
 
-    print('\n%s' % ('ВСЕ НА МІСЦІ' if not bad else 'БРАКУЄ %d файлів' % len(bad)))
+    if bad:
+        print('\nБРАКУЄ %d файлів' % len(bad))
+    elif norec:
+        # Файли на місці, але частину з них нічим відтворити: id кличеться з
+        # коду, а запису в маніфесті немає — а генератори читають саме
+        # маніфест. Раніше тут друкувалося «ВСЕ НА МІСЦІ» прямо під рядком
+        # «УВАГА, немає в маніфесті», тобто звіт сам собі перечив.
+        # Кодом виходу цього НЕ показуємо: щогодинний самопідйом читає
+        # ненуль як «є що робити» і щоразу піднімав би всі чотири моделі
+        # заради того, чого вони однаково не вміють полагодити.
+        print('\nФАЙЛИ ВСІ НА МІСЦІ, але %d id немає в маніфесті (%s) — '
+              'якщо такий файл зникне, перегенерувати його буде нічим'
+              % (len(norec), ', '.join(sorted(norec)[:8])))
+    else:
+        print('\nВСЕ НА МІСЦІ')
     sys.exit(1 if bad else 0)
 
 
